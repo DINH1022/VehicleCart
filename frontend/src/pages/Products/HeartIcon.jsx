@@ -6,20 +6,25 @@ import {
   getFavoritesFromLocalStorage,
   removeFavoriteFromLocalStorage,
 } from "../../utils/localStorage.js";
+import { setFavorites,removeFromFavorites, addToFavorites } from "../../redux/feature/favoritesSlice.js";
 const HeartIcon = ({ product }) => {
-  var isFavorite = true;
+  const dispatch = useDispatch();
+  const favorites = useSelector((state) => state.favorites) || [];
+  const isFavorite = favorites.some((p) => p._id === product._id);
 
   useEffect(() => {
     const favoritesFromLocalStorage = getFavoritesFromLocalStorage();
+    dispatch(setFavorites(favoritesFromLocalStorage))
   }, []);
 
   const toggleFavorites = () => {
+    console.log(100)
     if (isFavorite) {
-      removeFavoriteFromLocalStorage(product.id);
-      isFavorite =false
+      dispatch(removeFromFavorites(product));
+      removeFavoriteFromLocalStorage(product._id);
     } else {
+      dispatch(addToFavorites(product));
       addFavoriteToLocalStorage(product);
-      isFavorite = true
     }
   };
   return (

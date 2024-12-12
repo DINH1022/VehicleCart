@@ -25,7 +25,7 @@ const cartSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    item: [cartItemSchema],
+    items: [cartItemSchema],
     totalAmount: {
         type: Number,
         default: 0

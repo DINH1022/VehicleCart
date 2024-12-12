@@ -22,8 +22,7 @@ const Header = () => {
     };
     fetchProducts();
   }, []);
-  console.log("Test")
-  console.log(products)
+  
   if (loading) {
     return <Loader />;
   }

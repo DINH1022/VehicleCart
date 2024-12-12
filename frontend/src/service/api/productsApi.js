@@ -12,7 +12,7 @@ const productApi = {
   },
 
   getProductById: async (productId) => {
-    return await apiRequest(`${PRODUCT_URL}/${productId}`, true, {
+    return await apiRequest(`${PRODUCT_URL}/${productId}`, false, {
       method: "GET",
     });
   },
@@ -20,6 +20,11 @@ const productApi = {
     return await apiRequest(`${PRODUCT_URL}/allProducts`, false, {
       method: "GET",
     });
+  },
+  specialProduct: async () => {
+    return await apiRequest(`${PRODUCT_URL}/special-product`, false, {
+      method: "GET"
+    })
   },
   createProduct: async (data) => {
     return await apiRequest(`${PRODUCT_URL}`, true, {
@@ -42,7 +47,7 @@ const productApi = {
   },
 
   getTopProducts: async () => {
-    return await apiRequest(`${PRODUCT_URL}/top`, true, {
+    return await apiRequest(`${PRODUCT_URL}/top`, false, {
       method: "GET",
     });
   },

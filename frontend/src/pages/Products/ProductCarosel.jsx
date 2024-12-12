@@ -2,6 +2,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import productApi from "../../service/api/productsApi.js";
+import convertMoney from "../../service/others/convertMoney.js";
 import { useState, useEffect } from "react";
 import {
   FaBox,
@@ -30,7 +31,6 @@ const ProductCarosel = () => {
     };
     fetchProducts();
   }, []);
-  console.log(products)
 
   const settings = {
     dots: false,
@@ -42,9 +42,6 @@ const ProductCarosel = () => {
     autoplay: true,
     autoplaySpeed: 3000,
   };
-  function convertMoney(money) {
-    return new Intl.NumberFormat('vi-VN').format(money);
-    }
   return (
     <div className="mb-4 lg:block xl:block md:block">
       {loading ? (

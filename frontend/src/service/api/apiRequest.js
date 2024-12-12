@@ -7,6 +7,7 @@ const apiRequest = async(url, sendCookies = true, options = {}) => {
             ...(options.headers || {})
           }
         };
+        console.log(defaultOptions)
         const mergedOptions = { ...defaultOptions, ...options };
         const response = await fetch(url, mergedOptions);
         if (!response.ok) {

@@ -134,6 +134,7 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
       .populate("category")
       .limit(12)
       .sort({ createdAt: -1 });
+    
     res.json(products);
   } catch (error) {
     console.error(error);

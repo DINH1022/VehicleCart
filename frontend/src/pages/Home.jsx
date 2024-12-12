@@ -10,7 +10,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { keyword } = useParams();
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -18,16 +17,18 @@ const Home = () => {
         setProducts(response);
         setLoading(false);
       } catch (error) {
+        console.log(error)
         setError(error);
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [keyword]);
+  }, []);
   return (
     <>
       {/* {!keyword ? <Header /> : null} */}
-      <div className="bg-black">{!keyword ? <Header /> : null}</div>
+      {/* <div className="bg-black">{!keyword ? <Header /> : null}</div> */}
+      <div className="bg-black">{<Header/>}</div>
       {loading ? (
         <Loader />
       ) : error ? (

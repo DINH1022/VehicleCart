@@ -27,7 +27,7 @@ const addToFavorites = asyncHandler(async (req,res) => {
     res.status(200).json(userFavorites);
 });
 
-const RemoveFavorites = asyncHandler(async (req,res) => {
+const removeFavorites = asyncHandler(async (req,res) => {
     const {productId} = req.body;
 
     let userFavorites = await Favorite.findOne({user : req.user._id});
@@ -42,5 +42,5 @@ const RemoveFavorites = asyncHandler(async (req,res) => {
 export {
     getFavorites,
     addToFavorites,
-    RemoveFavorites
+    removeFavorites
 };

@@ -28,7 +28,7 @@ const addToFavorites = asyncHandler(async (req,res) => {
 });
 
 const removeFavorites = asyncHandler(async (req,res) => {
-    const {productId} = req.body;
+    const {productId} = req.params;
 
     let userFavorites = await Favorite.findOne({user : req.user._id});
     if(!userFavorites){
@@ -36,6 +36,8 @@ const removeFavorites = asyncHandler(async (req,res) => {
         throw new Error("Favorites not found");
     } 
     userFavorites.products = userFavorites.products.filter(id => id.toString() !== productId);
+    await userFavorites.save();
+    
     res.status(200).json(userFavorites);
 });
 

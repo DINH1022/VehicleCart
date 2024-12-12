@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ObjectId } from mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
 const favoriteSchema = new mongoose.Schema(
   {

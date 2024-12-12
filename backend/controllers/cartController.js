@@ -1,10 +1,10 @@
-import asyncHandler from "../middlewares/asyncHandler";
-import Cart from "../models/cartModel";
-import Product from "../models/productModel"
+import asyncHandler from "../middlewares/asyncHandler.js";
+import Cart from "../models/cartModel.js";
+import Product from "../models/productModel.js";
 
 //get cart of user
 const getCart = asyncHandler(async (req, res) => {
-    const cart = await Cart.findOne({ user: req.user, _id }).populate("items.product", "name price image");
+    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product", "name price image");
 
     if (!cart) {
         return res.status(200).json({ items: [], totalAmount: 0 });
@@ -42,9 +42,9 @@ const addToCart = asyncHandler(async (req, res) => {
             cart.items.push({ product: productId, quantity, price: product.price });
         }
 
-        cart.totalAmount = cart.items.reduce((total, item) => {
+        cart.totalAmount = cart.items.reduce((total, item) => 
             total + (item.price * item.quantity), 0
-        });
+        );
         await cart.save();
     }
     res.status(200).json(cart);
@@ -67,7 +67,10 @@ const updateCartItem = asyncHandler(async (req, res) => {
     }
 
     cartItem.quantity = quantity;
-    cartItem.totalAmount = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+    cart.totalAmount = cart.items.reduce((total, item) => 
+        total + (item.price * item.quantity), 0
+    );
 
     await cart.save();
     res.status(200).json(cart);

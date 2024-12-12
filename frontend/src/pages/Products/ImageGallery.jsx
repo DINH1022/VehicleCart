@@ -24,7 +24,6 @@ const ImageGallery = ({ images = [] }) => {
     <div className="w-full">
       <div className="bg-white rounded-lg shadow-lg mb-4">
         <div className="relative flex items-center justify-center p-4">
-          {/* Nút điều hướng trái */}
           {images.length > 1 && (
             <button
               onClick={handlePrevImage}
@@ -36,7 +35,7 @@ const ImageGallery = ({ images = [] }) => {
           <img
             src={images[currentImageIndex]}
             alt={`Ảnh chi tiết ${currentImageIndex + 1}`}
-            className="object-cover rounded-lg max-w-full max-h-[400px] w-auto h-auto"
+            className="object-cover rounded-lg max-w-full h-[400px] w-auto h-auto"
           />
 
           {images.length > 1 && (

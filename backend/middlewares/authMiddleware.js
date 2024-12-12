@@ -4,7 +4,7 @@ import User from '../models/userModel.js';
 
 const authenticate = asyncHandler(async (req, res, next) => {
     let token;
-
+    console.log(100)
     token = req.cookies.jwt;
 
     if(token){

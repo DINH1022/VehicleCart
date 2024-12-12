@@ -21,6 +21,7 @@ const productApi = {
       method: "GET",
     });
   },
+
   specialProduct: async () => {
     return await apiRequest(`${PRODUCT_URL}/special-product`, false, {
       method: "GET"
@@ -51,7 +52,12 @@ const productApi = {
       method: "GET",
     });
   },
-
+  createReview: async (productId, data) => {
+    return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
+      method: "POST",
+      body: data
+    })
+  },
   getNewProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/new`, true, {
       method: "GET",

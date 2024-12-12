@@ -1,5 +1,6 @@
 const apiRequest = async(url, sendCookies = true, options = {}) => {
     try {
+        console.log(url)
         const defaultOptions = {
           credentials: sendCookies ?  'include' : 'same-origin',
           headers: {

@@ -24,11 +24,11 @@ const RatingProduct = ({ reviews = [] }) => {
     };
 
     reviews.forEach((review) => {
-      ratingCounts[review.ratings.rating]++;
+      ratingCounts[review.rating]++;
     });
 
     const averageRating =
-      reviews.reduce((sum, review) => sum + review.ratings.rating, 0) /
+      reviews.reduce((sum, review) => sum + review.rating, 0) /
       totalReviews;
 
     return {

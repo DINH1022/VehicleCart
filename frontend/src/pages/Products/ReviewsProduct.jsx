@@ -16,10 +16,12 @@ import {
   TextField,
 } from "@mui/material";
 import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
-const ReviewsProduct = ({ reviews = [], setReviews }) => {
+import productApi from "../../service/api/productsApi";
+import { useParams } from "react-router";
+const ReviewsProduct = ({ reviews = [] }) => {
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const {id: productId} = useParams()
   const [newReview, setNewReview] = useState({
-    name: "",
     rating: 0,
     comment: "",
   });
@@ -30,24 +32,18 @@ const ReviewsProduct = ({ reviews = [], setReviews }) => {
 
   const handleCloseReviewModal = () => {
     setOpenReviewModal(false);
-    setNewReview({ name: "", rating: 0, comment: "" });
+    setNewReview({ rating: 0, comment: "" });
   };
 
-  const handleSubmitReview = () => {
-    if (newReview.name && newReview.rating > 0 && newReview.comment) {
-      setReviews([
-        ...reviews,
-        {
-          ...newReview,
-          date: "Vừa xong",
-        },
-      ]);
+  const handleSubmitReview = async () => {
+    if (newReview.rating > 0 && newReview.comment) {
+      const response = await productApi.createReview(productId, newReview)
+      console.log(response)
       handleCloseReviewModal();
     }
   };
   return (
     <>
-      {/* Phần nhận xét */}
       <Card variant="outlined" sx={{ mt: 4 }}>
         <CardHeader
           title="Nhận xét khách hàng"
@@ -80,11 +76,11 @@ const ReviewsProduct = ({ reviews = [], setReviews }) => {
                   </Typography>
                   <Rating
                     name="rounded-stars-rating"
-                    defaultValue={review.ratings.rating} // Giá trị mặc định
-                    precision={0.1} // Hiển thị chi tiết
-                    readOnly // Chỉ đọc
-                    icon={<StarRounded fontSize="inherit" />} // Ngôi sao bo tròn đầy
-                    emptyIcon={<StarOutlineRounded fontSize="inherit" />} // Ngôi sao bo tròn trống
+                    defaultValue={review.rating}
+                    precision={0.1} 
+                    readOnly 
+                    icon={<StarRounded fontSize="inherit" />}
+                    emptyIcon={<StarOutlineRounded fontSize="inherit" />} 
                   />
                 </Box>
                 <Typography variant="body2" color="text.secondary">
@@ -92,7 +88,7 @@ const ReviewsProduct = ({ reviews = [], setReviews }) => {
                 </Typography>
               </Box>
               <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-                {review.ratings.comment}
+                {review.comment}
               </Typography>
             </Box>
           ))}
@@ -112,14 +108,7 @@ const ReviewsProduct = ({ reviews = [], setReviews }) => {
         <DialogTitle>Viết đánh giá</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-            <TextField
-              label="Tên của bạn"
-              fullWidth
-              value={newReview.name}
-              onChange={(e) =>
-                setNewReview({ ...newReview, name: e.target.value })
-              }
-            />
+            
             <Box display="flex" alignItems="center" gap={2}>
               <Typography>Đánh giá:</Typography>
               <Rating
@@ -151,7 +140,7 @@ const ReviewsProduct = ({ reviews = [], setReviews }) => {
             color="primary"
             variant="contained"
             disabled={
-              !newReview.name || !newReview.rating || !newReview.comment
+              !newReview.rating || !newReview.comment
             }
           >
             Gửi đánh giá

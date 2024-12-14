@@ -2,7 +2,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Favorite from "../models/favoriteModel.js";
 
 const getFavorites = asyncHandler(async (req,res) => {
-    const favorites = await Favorite.findOne({user : req.user._id}).populate("products", "name price image");
+    const favorites = await Favorite.findOne({user : req.user._id}).populate("products", "name price image description branch rating");
     if(!favorites){
         return res.status(200).json({products:[]})
     }
@@ -13,11 +13,13 @@ const addToFavorites = asyncHandler(async (req,res) => {
     const {productId} = req.body;
 
     let userFavorites = await Favorite.findOne({user : req.user._id});
+  
     if(!userFavorites){
         userFavorites = await Favorite.create({
             user : req.user._id,
             products : [productId]
         });
+
     } else {
         if(!userFavorites.products.includes(productId)){
             userFavorites.products.push(productId);
@@ -28,8 +30,8 @@ const addToFavorites = asyncHandler(async (req,res) => {
 });
 
 const removeFavorites = asyncHandler(async (req,res) => {
-    const {productId} = req.params;
-
+    const {productId} = req.body;
+    console.log(productId)
     let userFavorites = await Favorite.findOne({user : req.user._id});
     if(!userFavorites){
         res.status(404);

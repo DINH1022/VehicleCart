@@ -9,6 +9,6 @@ import {authenticate} from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 router.route("/").get(authenticate, getFavorites).post(authenticate, addToFavorites);
-router.route("/:productId").delete(authenticate, removeFavorites);
+router.route("/").delete(authenticate, removeFavorites);
 
 export default router;

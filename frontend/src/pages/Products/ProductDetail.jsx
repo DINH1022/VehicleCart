@@ -18,12 +18,14 @@ import ImageGallery from "./ImageGallery";
 import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
 import Loader from "../../components/Loader.jsx";
-const WatchProductPage = () => {
+import HeartIconProduct from "./HeartIconProduct.jsx";
+const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id: productId } = useParams();
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -37,7 +39,6 @@ const WatchProductPage = () => {
     };
     fetchProduct();
   }, []);
-
   const similarProducts = [
     {
       id: 1,
@@ -87,16 +88,16 @@ const WatchProductPage = () => {
         <div className="container mx-auto p-4 bg-gray-50">
           <div className="grid md:grid-cols-2 gap-8">
             <ImageGallery images={[product.image, ...product.listImage]} />
-            
+
             <div className="space-y-4">
               <h1 className="text-3xl font-bold text-gray-800">
                 {product.name}
               </h1>
-  
+
               <Typography variant="body2" color="text.secondary">
                 Thương hiệu: <strong>{product.brand}</strong>
               </Typography>
-  
+
               <Box display="flex" alignItems="center" gap={2}>
                 <Rating
                   name="rounded-stars-rating"
@@ -110,7 +111,7 @@ const WatchProductPage = () => {
                   {product.reviews.length} Nhận xét
                 </Typography>
               </Box>
-  
+
               <Box display="flex" flexDirection="column">
                 <Typography
                   variant="body2"
@@ -126,11 +127,11 @@ const WatchProductPage = () => {
                   {product.price.toLocaleString()} VNĐ
                 </Typography>
               </Box>
-  
+
               <Typography variant="body1" color="text.secondary">
                 {product.description}
               </Typography>
-  
+
               <Box display="flex" alignItems="center" gap={4}>
                 <Box display="flex" alignItems="center" gap={2}>
                   <Button
@@ -158,11 +159,10 @@ const WatchProductPage = () => {
                 >
                   Thêm vào giỏ
                 </Button>
-                <Button color="error">
-                  <HeartIcon />
-                </Button>
+
+                <HeartIconProduct product={product} />
               </Box>
-  
+
               <Card variant="outlined">
                 <CardHeader title="Đặc điểm nổi bật" />
                 <Divider />
@@ -176,7 +176,7 @@ const WatchProductPage = () => {
               </Card>
             </div>
           </div>
-  
+
           <RatingProduct reviews={product.reviews} />
           <ReviewProduct reviews={product.reviews} />
           <SimilarProducts similarProducts={similarProducts} />
@@ -186,4 +186,4 @@ const WatchProductPage = () => {
   );
 };
 
-export default WatchProductPage;
+export default ProductDetail;

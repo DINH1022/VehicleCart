@@ -9,8 +9,6 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import productApi from "../service/api/productsApi";
 const HomePage = () => {
-  const [favorites, setFavorites] = useState([]);
-  const [cart, setCart] = useState([]);
   const [featureProducts, setFeatureProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,9 +33,18 @@ const HomePage = () => {
     //     : [...prev, watch]
     // );
   };
+  // function setCookie(name, value, days) {
+  //   const date = new Date();
+  //   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  //   const expires = "expires=" + date.toUTCString();
+  //   document.cookie = name + "=" + value + ";" + expires + ";path=/";
+  // }
+  // setCookie("jwt", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzVhZWE0N2ViYWJiOGYyYTdlNzkwMDQiLCJpYXQiOjE3MzQwNTY1NDYsImV4cCI6MTczNjY0ODU0Nn0.-sY_bNeWcJvwlOc0ISu6n9Fu21s3mhuHao5PGQI2Ujg", 7);
+  // Ví dụ: Lưu cookie
 
   const handleAddToCart = (watch) => {
     // setCart((prev) => [...prev, watch]);
+    // setCookie("jwt", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzVhZWE0N2ViYWJiOGYyYTdlNzkwMDQiLCJpYXQiOjE3MzQwNTY1NDYsImV4cCI6MTczNjY0ODU0Nn0.-sY_bNeWcJvwlOc0ISu6n9Fu21s3mhuHao5PGQI2Ujg", 7);
   };
 
   return (
@@ -72,7 +79,7 @@ const HomePage = () => {
           ) : (
             featureProducts.map((watch) => (
               <Box
-                key={watch.id}
+                key={watch._id}
                 sx={{
                   width: {
                     xs: "100%",
@@ -83,13 +90,11 @@ const HomePage = () => {
                   maxWidth: 400,
                 }}
               >
-                <Link>
-                  <WatchCard
-                    watch={watch}
-                    onAddToCart={handleAddToCart}
-                    onAddToFavorites={handleAddToFavorites}
-                  />
-                </Link>
+                <WatchCard
+                  watch={watch}
+                  onAddToCart={handleAddToCart}
+                  onAddToFavorites={handleAddToFavorites}
+                />
               </Box>
             ))
           )}
@@ -107,5 +112,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-

@@ -51,7 +51,6 @@ const addToCart = asyncHandler(async (req, res) => {
 });
 
 // update cart item quantity
-
 const updateCartItem = asyncHandler(async (req, res) => {
     const { productId, quantity } = req.body;
     const cart = await Cart.findOne({ user: req.user._id });

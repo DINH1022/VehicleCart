@@ -1,7 +1,6 @@
 import apiRequest from './apiRequest.js';
 
 const ORDERS_URL = "/api/orders";
-const PAYPAL_URL = "/api/paypal";
 
 const orderApi = {
   createOrder: async (order) => {

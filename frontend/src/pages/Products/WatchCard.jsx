@@ -14,8 +14,8 @@ import {
   ShoppingCart as CartIcon 
 } from '@mui/icons-material';
 import {Link} from 'react-router-dom'
+import HeartIconProduct from './HeartIconProduct';
 const WatchCard = ({ watch, onAddToCart, onAddToFavorites }) => {
-    console.log("watch", watch)
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleFavoriteToggle = () => {
@@ -80,12 +80,7 @@ const WatchCard = ({ watch, onAddToCart, onAddToFavorites }) => {
           >
             Thêm Giỏ
           </Button>
-          <IconButton 
-            color={isFavorite ? 'error' : 'default'}
-            onClick={handleFavoriteToggle}
-          >
-            <FavoriteIcon />
-          </IconButton>
+          <HeartIconProduct product={watch} />
         </Stack>
       </CardContent>
     </Card>

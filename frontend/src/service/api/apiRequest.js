@@ -1,6 +1,6 @@
+import { SERVER_URL } from "../../redux/constant";
 const apiRequest = async(url, sendCookies = true, options = {}) => {
     try {
-        console.log(url)
         const defaultOptions = {
           credentials: sendCookies ?  'include' : 'same-origin',
           headers: {
@@ -8,9 +8,8 @@ const apiRequest = async(url, sendCookies = true, options = {}) => {
             ...(options.headers || {})
           }
         };
-        console.log(defaultOptions)
         const mergedOptions = { ...defaultOptions, ...options };
-        const response = await fetch(url, mergedOptions);
+        const response = await fetch(`${SERVER_URL}/${url}`, mergedOptions);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Something went wrong');

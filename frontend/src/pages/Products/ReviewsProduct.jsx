@@ -38,7 +38,6 @@ const ReviewsProduct = ({ reviews = [] }) => {
   const handleSubmitReview = async () => {
     if (newReview.rating > 0 && newReview.comment) {
       const response = await productApi.createReview(productId, newReview)
-      console.log(response)
       handleCloseReviewModal();
     }
   };

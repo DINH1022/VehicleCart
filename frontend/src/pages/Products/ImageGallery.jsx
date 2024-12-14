@@ -35,7 +35,7 @@ const ImageGallery = ({ images = [] }) => {
           <img
             src={images[currentImageIndex]}
             alt={`Ảnh chi tiết ${currentImageIndex + 1}`}
-            className="object-cover rounded-lg max-w-full h-[400px] w-auto h-auto"
+            className="object-cover rounded-lg max-w-full h-[400px] w-auto"
           />
 
           {images.length > 1 && (

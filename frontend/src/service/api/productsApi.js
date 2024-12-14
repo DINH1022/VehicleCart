@@ -1,7 +1,6 @@
 import apiRequest from './apiRequest.js'
 
-const BASE_URL = "http://localhost:5000/";
-const PRODUCT_URL = "http://localhost:5000/api/products";
+const PRODUCT_URL = "api/products";
 
 const productApi = {
   getProducts: async (keyword) => {
@@ -12,9 +11,10 @@ const productApi = {
   },
 
   getProductById: async (productId) => {
-    return await apiRequest(`${PRODUCT_URL}/${productId}`, false, {
+    const res = await apiRequest(`${PRODUCT_URL}/${productId}`, false, {
       method: "GET",
     });
+    return res
   },
   allProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/allProducts`, false, {
@@ -84,6 +84,7 @@ const productApi = {
       body: JSON.stringify({checked, radio}),
     });
   },
+  
 };
 
 export default productApi;

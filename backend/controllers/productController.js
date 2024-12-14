@@ -113,6 +113,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
 // @access  Public
 const fetchProductById = asyncHandler(async (req, res) => {
   try {
+
     const product = await Product.findById(req.params.id);
     if (product) {
       res.json(product);

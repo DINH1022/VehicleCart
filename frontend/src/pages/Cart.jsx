@@ -15,6 +15,7 @@ import {
   LocalShipping,
   BrokenImage,
 } from "@mui/icons-material";
+import Navigation from "./Auth/Navigation";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([
@@ -69,7 +70,10 @@ const Cart = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: "gray.50", minHeight: "100vh", p: 4 }}>
+    <Box sx={{display :'flex'}}>
+    <Navigation/>
+
+    <Box component = "main" sx={{ flexGrow:1,backgroundColor: "gray.50", minHeight: "100vh", p: 4 }}>
       <Box
         sx={{
           display: "flex",
@@ -230,6 +234,7 @@ const Cart = () => {
           </Button>
         </Box>
       </Box>
+    </Box>
     </Box>
   );
 };

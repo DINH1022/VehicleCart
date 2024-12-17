@@ -7,6 +7,7 @@ import WatchCard from "./Products/WatchCard";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
+import Navigation from "./Auth/Navigation";
 import productApi from "../service/api/productsApi";
 const HomePage = () => {
   const [featureProducts, setFeatureProducts] = useState([]);
@@ -48,65 +49,108 @@ const HomePage = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: "#f4f4f4", minHeight: "100vh" }}>
-      {/* <Header 
-      /> */}
-
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <TopSlider
-          onAddToCart={handleAddToCart}
-          onAddToFavorites={handleAddToFavorites}
-        />
-
-        <Box sx={{ my: 6, textAlign: "center" }}>
-          <Typography variant="h4" gutterBottom>
-            Bộ Sưu Tập Nổi Bật
-          </Typography>
-        </Box>
-
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={3}
-          justifyContent="center"
-          alignItems="stretch"
-          sx={{
-            flexWrap: "wrap",
-            gap: 4,
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <Navigation />
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1,
+          backgroundColor: "#f4f4f4",
+          minHeight: '100vh',
+          overflow: 'auto'
+        }}
+      >
+        <Container 
+          maxWidth="xl" 
+          sx={{ 
+            py: 4,
+            px: { xs: 2, sm: 4 },
+            mt: { xs: 2, sm: 4 }
           }}
         >
-          {loading ? (
-            <Loader />
-          ) : (
-            featureProducts.map((watch) => (
-              <Box
-                key={watch._id}
-                sx={{
-                  width: {
-                    xs: "100%",
-                    sm: "calc(50% - 24px)",
-                    md: "calc(33.33% - 24px)",
-                  },
-                  minWidth: 300,
-                  maxWidth: 400,
-                }}
-              >
-                <WatchCard
-                  watch={watch}
-                  onAddToCart={handleAddToCart}
-                  onAddToFavorites={handleAddToFavorites}
-                />
-              </Box>
-            ))
-          )}
-        </Stack>
+          <TopSlider
+            onAddToCart={handleAddToCart}
+            onAddToFavorites={handleAddToFavorites}
+            sx={{ mb: 6 }}
+          />
 
-        {/* Shop Collection Button */}
-        <Box sx={{ textAlign: "center", my: 6 }}>
-          <Button variant="contained" size="large" endIcon={<ArrowIcon />}>
-            Khám Phá Bộ Sưu Tập
-          </Button>
-        </Box>
-      </Container>
+          <Box sx={{ 
+            my: 6, 
+            textAlign: "center",
+            '& h4': {
+              fontWeight: 600,
+              color: '#1a237e'
+            }
+          }}>
+            <Typography variant="h4" gutterBottom>
+              Bộ Sưu Tập Nổi Bật
+            </Typography>
+          </Box>
+
+          <Stack
+            direction="row"
+            sx={{
+              flexWrap: "wrap",
+              gap: 4,
+              justifyContent: "center",
+              alignItems: "stretch",
+              mb: 6
+            }}
+          >
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 4 }}>
+                <Loader size={40} />
+              </Box>
+            ) : (
+              featureProducts.map((watch) => (
+                <Box
+                  key={watch._id}
+                  sx={{
+                    width: {
+                      xs: '100%',
+                      sm: 'calc(50% - 16px)',
+                      md: 'calc(33.33% - 16px)',
+                      lg: 'calc(25% - 16px)',
+                    },
+                    minWidth: { xs: '280px', sm: '300px' },
+                    maxWidth: '400px'
+                  }}
+                >
+                  <WatchCard
+                    watch={watch}
+                    onAddToCart={handleAddToCart}
+                    onAddToFavorites={handleAddToFavorites}
+                  />
+                </Box>
+              ))
+            )}
+          </Stack>
+
+          <Box sx={{ 
+            textAlign: "center", 
+            my: 6,
+            '& button': {
+              backgroundColor: '#1a237e',
+              '&:hover': {
+                backgroundColor: '#000051'
+              }
+            }
+          }}>
+            <Button 
+              variant="contained" 
+              size="large" 
+              endIcon={<ArrowIcon />}
+              sx={{ 
+                px: 4, 
+                py: 1.5,
+                borderRadius: 2
+              }}
+            >
+              Khám Phá Bộ Sưu Tập
+            </Button>
+          </Box>
+        </Container>
+      </Box>
     </Box>
   );
 };

@@ -1,90 +1,113 @@
-import { useState } from "react";
-import {
-  AiOutlineHome,
-  AiOutlineShopping,
-  AiOutlineLogin,
-  AiOutlineUserAdd,
-  AiOutlineShoppingCart,
-  AiOutlineCloseSquare,
-} from "react-icons/ai";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { Link, Links } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import "./Navigation.css";
-import { useSelector, useDispatch } from "react-redux";
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import MuiDrawer from '@mui/material/Drawer';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import StoreIcon from '@mui/icons-material/Store';
+import LoginIcon from '@mui/icons-material/Login';
+import HomeIcon from '@mui/icons-material/Home';
+import IconButton from '@mui/material/IconButton';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
-const Navigation = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const toggleSidebar = () => setShowSidebar(!showSidebar);
-  const closeSidebar = () => setShowSidebar(false);
+const drawerWidth = 240;
+
+const openedMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+});
+
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  }),
+);
+
+export default function Navigation() {
+  const [open, setOpen] = React.useState(false);
+
+  const navigationItems = [
+    { text: 'Home', icon: <HomeIcon />, path: '/' },
+    { text: 'Products', icon: <StoreIcon />, path: '/products' },
+    { text: 'Cart', icon: <ShoppingCartIcon />, path: '/cart' },
+    { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites' },
+    { text: 'Login', icon: <LoginIcon />, path: '/login' },
+  ];
+
   return (
-    <div
-      style={{ zIndex: 9999 }}
-      className={`${
-        showSidebar ? "hidden" : "flex"
-      } xl:flex lg:flex md:hidden sm:hidden flex-col justify-between p-4 text-white bg-[#FED7D7] w-[4%] hover:w-[15%] h-[100vh]  fixed `}
-      id="navigation-container"
-    >
-      <div className="flex flex-col justify-center space-y-4">
-        <Link
-          to="/"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">HOME</span>{""}
-        </Link>
-
-        <Link
-          to="/shop"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <AiOutlineShopping className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">SHOP</span>{""}
-        </Link>
-
-        <Link
-          to="/favorite"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <FaRegHeart className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">FAVORITES</span>{""}
-        </Link>
-
-        <Link
-          to="/cart"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <AiOutlineShoppingCart className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">CART</span>{""}
-        </Link>
-
-      </div>
-
-      <ul>
-        <li>
-        <Link
-          to="/login"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <AiOutlineLogin className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">LOGIN</span>{""}
-        </Link>
-        </li>
-
-        <li>
-        <Link
-          to="/register"
-          className="flex items-center transition-transform transform hover:translate-x-2"
-        >
-          <AiOutlineUserAdd className="mr-2 mt-[3rem]" size={26} />
-           <span className="nav-item-name mt-[3rem]">REGISTER</span>{""}
-        </Link>
-        </li>
-
-      </ul>
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      <Drawer variant="permanent" open={open}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'flex-end', 
+          p: 1 
+        }}>
+          <IconButton onClick={() => setOpen(!open)}>
+            {open ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+        </Box>
+        <Divider />
+        <List>
+          {navigationItems.map((item) => (
+            <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.text} 
+                  sx={{ opacity: open ? 1 : 0 }} 
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+    </Box>
   );
-};
-export default Navigation;
+}

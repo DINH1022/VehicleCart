@@ -1,19 +1,16 @@
-#navigation-container {
-    width : 5%;
-    transition: width 0.2s ease-in-out;
-    overflow: hidden;
-  }
-  
-  #navigation-container:hover {
-    width : 15%;
-  }
-  
-  .nav-item-name{
-    display: none;
-    transition: opacity 0.2s ease-in-out;
-  }
-  
-  #navigation-container:hover .nav-item-name{
-    display: block;
-    opacity: 1;
-  }
+.MuiButton-root {
+  color: inherit;
+}
+
+.MuiDrawer-paper {
+  background-color: #f5f5f5;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.MuiListItemIcon-root {
+  color: #1a237e;
+}
+
+.MuiListItemButton-root:hover {
+  background-color: rgba(26, 35, 126, 0.04);
+}

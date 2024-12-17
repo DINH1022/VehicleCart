@@ -1,17 +1,14 @@
-import { StrictMode } from 'react'
-import ReactDOM from "react-dom/client";
-import { createRoot } from 'react-dom/client'
-import {Route, RouterProvider, createRoutesFromElements} from 'react-router'
-import { createBrowserRouter } from 'react-router'
-import App from './App.jsx'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+import store from "./redux/store";
+import { Provider } from "react-redux";
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path = "/" element = {<App />} />
-  )
-)
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router}/>
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>
 );

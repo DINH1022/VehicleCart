@@ -1,7 +1,7 @@
 
     import apiRequest from './apiRequest.js'
     const BASE_URL = "http://localhost:5000/";
-    const USERS_URL = "/api/users";
+    const USERS_URL = "api/users";
     const usersApi = {
     login: async (data) => {
         return await apiRequest(`${USERS_URL}/auth`, true, {

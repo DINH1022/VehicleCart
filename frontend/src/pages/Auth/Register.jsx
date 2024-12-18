@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { 
+import React, { useState } from "react";
+import {
   Box,
   Container,
   TextField,
@@ -7,67 +7,115 @@ import {
   Typography,
   Paper,
   CircularProgress,
-  Alert
-} from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import Navigation from './Navigation';
+  Alert,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import Navigation from "./Navigation";
+import usersApi from "../../service/api/usersApi";
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+    setError(""); 
+  };
+
+  const validateForm = () => {
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Please fill in all fields");
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
-      // Add your API call here
-      // const response = await authApi.register(formData);
-      navigate('/login');
+      const registerData = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      };
+      
+      await usersApi.register(registerData);
+      navigate("/login");
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Navigation />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#f4f4f4", minHeight: "100vh" }}>
         <Container maxWidth="sm">
-          <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-            <Typography variant="h4" align="center" gutterBottom>
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: 4, 
+              mt: 8,
+              borderRadius: 2,
+              backgroundColor: 'white'
+            }}
+          >
+            <Typography 
+              variant="h4" 
+              align="center" 
+              gutterBottom
+              sx={{ 
+                color: '#1a237e',
+                fontWeight: 600,
+                mb: 3
+              }}
+            >
               Register
             </Typography>
-            
+
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Box 
+              component="form" 
+              onSubmit={handleSubmit} 
+              noValidate 
+              sx={{ mt: 1 }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -114,14 +162,29 @@ const Register = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ 
+                  mt: 3, 
+                  mb: 2,
+                  py: 1.5,
+                  backgroundColor: '#1a237e',
+                  '&:hover': {
+                    backgroundColor: '#000051'
+                  }
+                }}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Register'}
+                {loading ? <CircularProgress size={24} /> : "Register"}
               </Button>
               <Typography align="center">
                 Already have an account?{' '}
-                <Link to="/login" style={{ textDecoration: 'none' }}>
+                <Link 
+                  to="/login" 
+                  style={{
+                    textDecoration: 'none',
+                    color: '#1a237e',
+                    fontWeight: 500
+                  }}
+                >
                   Sign in
                 </Link>
               </Typography>

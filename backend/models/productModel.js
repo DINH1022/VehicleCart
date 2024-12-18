@@ -35,11 +35,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    category: {
+    category: [{  // 1 sản phẩm có thể có nhiều category
       type: ObjectId,
       ref: "Category",
       required: true,
-    },
+    }],
     description: {
       type: String,
       required: true,

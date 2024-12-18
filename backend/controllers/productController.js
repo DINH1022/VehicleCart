@@ -8,22 +8,18 @@ import Product from "../models/productModel.js";
 const addProduct = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
-    switch (true) {
-      case !name:
-        throw new Error("Name is required");
-      case !brand:
-        throw new Error("Brand is required");
-      case !quantity:
-        throw new Error("Quantity is required");
-      case !category:
-        throw new Error("Category is required");
-      case !description:
-        throw new Error("Description is required");
-      case !price:
-        throw new Error("Price is required");
-    }
+    
+    if (!name) throw new Error("Name is required");
+    if (!brand) throw new Error("Brand is required");
+    if (!quantity) throw new Error("Quantity is required");
+    if (!category || !category.length) throw new Error("At least one category is required");
+    if (!description) throw new Error("Description is required");
+    if (!price) throw new Error("Price is required");
+    if (!image) throw new Error("Main image is required");
+
     const product = new Product({ ...req.fields });
     await product.save();
+
     res.json(product);
   } catch (error) {
     console.error(error);
@@ -37,20 +33,14 @@ const addProduct = asyncHandler(async (req, res) => {
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
-    switch (true) {
-      case !name:
-        throw new Error("Name is required");
-      case !brand:
-        throw new Error("Brand is required");
-      case !quantity:
-        throw new Error("Quantity is required");
-      case !category:
-        throw new Error("Category is required");
-      case !description:
-        throw new Error("Description is required");
-      case !price:
-        throw new Error("Price is required");
-    }
+    
+    if (!name) throw new Error("Name is required");
+    if (!brand) throw new Error("Brand is required");
+    if (!quantity) throw new Error("Quantity is required");
+    if (!category || !category.length) throw new Error("At least one category is required");
+    if (!description) throw new Error("Description is required");
+    if (!price) throw new Error("Price is required");
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       { ...req.fields },

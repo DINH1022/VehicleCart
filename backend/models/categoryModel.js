@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const { ObjectId } = mongoose.Schema;
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,
@@ -7,6 +8,13 @@ const categorySchema = new mongoose.Schema({
     maxLength: 32,
     unique: true,
   },
+  mainCategory :{
+    type: ObjectId,
+    ref: 'MainCategory',
+    required: true
+  }
+},{
+  timestamps: true
 });
 
 export default mongoose.model("Category", categorySchema);

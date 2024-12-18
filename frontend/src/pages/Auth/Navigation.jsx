@@ -131,48 +131,56 @@ export default function Navigation() {
             </IconButton>
             
           </Box>
-          <Divider />
-          <List>
-            {navigationItems.map((item) => (
-              <ListItem 
-                key={item.text} 
-                disablePadding 
-                sx={{ display: 'block' }}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <ListItemButton
-                  sx={{
-                    minHeight: 56,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    '&:hover': {
-                      backgroundColor: 'rgba(26, 35, 126, 0.04)'
-                    }
-                  }}
+          <Box sx={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%' 
+          }}>
+            <Divider />
+            <List>
+              {navigationItems.map((item) => (
+                <ListItem 
+                  key={item.text} 
+                  disablePadding 
+                  sx={{ display: 'block' }}
+                  onClick={() => handleNavigation(item.path)}
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: '#1a237e'
+                      minHeight: 56,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      '&:hover': {
+                        backgroundColor: 'rgba(26, 35, 126, 0.04)'
+                      }
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.text} 
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      color: '#1a237e'
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-          <Divider />
-          {user && <Account username={user.username} />}
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: '#1a237e'
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text} 
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        color: '#1a237e'
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+            <Divider />
+            <Box sx={{ flexGrow: 1 }} />
+            <Divider />
+            {user && <Account username={user.username} email={user.email} open={open}/>}
+          </Box>
         </Drawer>
       </Box>
     </>

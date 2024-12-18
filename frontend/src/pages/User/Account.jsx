@@ -6,13 +6,14 @@ import {
   Avatar,
   Typography,
   ListItemIcon,
+  Box,
   Divider
 } from '@mui/material';
 import { AccountCircle, ExitToApp, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import usersApi from '../../service/api/usersApi';
 
-const Account = ({ username }) => {
+const Account = ({ username,email, open }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
@@ -42,33 +43,57 @@ const Account = ({ username }) => {
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        p: 2,
+        minHeight: 56,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: open ? 'flex-start' : 'center',
+      }}
+    >
       <IconButton
-        size="large"
+        size="small"
         onClick={handleMenu}
-        sx={{ color: '#1a237e' }}
+        sx={{
+          mr: open ? 2 : 'auto',
+        }}
       >
-        <Avatar sx={{ width: 32, height: 32, bgcolor: '#1a237e' }}>
+        <Avatar 
+          sx={{ 
+            width: 32, 
+            height: 32, 
+            bgcolor: '#1a237e',
+            fontSize: '0.875rem'
+          }}
+        >
           {username?.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
+      
+      {open && (
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#1a237e',
+            fontWeight: 500,
+            opacity: open ? 1 : 0
+          }}
+        >
+          {username}
+        </Typography>
+      )}
+
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        PaperProps={{
-          elevation: 3,
-          sx: {
-            minWidth: 200,
-            mt: 1.5
-          }
-        }}
       >
         <MenuItem disabled>
           <ListItemIcon>
             <AccountCircle />
           </ListItemIcon>
-          <Typography variant="body2">{username}</Typography>
+          <Typography variant="body2">{email}</Typography>
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleProfile}>
@@ -84,7 +109,7 @@ const Account = ({ username }) => {
           Logout
         </MenuItem>
       </Menu>
-    </>
+    </Box>
   );
 };
 

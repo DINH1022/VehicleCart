@@ -7,6 +7,8 @@ import Navigation from './pages/Auth/Navigation.jsx'
 import HomePage from './pages/Home.jsx'
 import Register from './pages/Auth/Register.jsx'
 import Login from './pages/Auth/Login.jsx'
+import UserList from './pages/Admin/UserList.jsx'
+import Profile from './pages/User/Profile.jsx'
 function App() {
 
   return (
@@ -18,7 +20,9 @@ function App() {
           <Route path='/cart/' element = {<Cart />}></Route>
           <Route path='/favorites' element = {<FavoritesProduct />}></Route>
           <Route path='/register' element = {<Register />}></Route>
-          <Route path = 'login' element ={<Login/>}></Route>
+          <Route path = '/login' element ={<Login/>}></Route>
+          <Route path='/users' element ={<UserList/>}></Route>
+          <Route path='/profile' element ={<Profile/>}></Route> 
         </Routes>
       </div>
     </Router>

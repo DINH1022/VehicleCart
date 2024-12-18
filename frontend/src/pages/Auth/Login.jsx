@@ -15,6 +15,8 @@ import {
 import GoogleIcon from '@mui/icons-material/Google';
 import { Link, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
+import usersApi from "../../service/api/usersApi";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -26,6 +28,19 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    return true;
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -36,14 +51,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
+    if (!validateForm()) return;
+
+    setLoading(true);
     try {
-      // Add your API call here
-      // const response = await authApi.login(formData);
+      const loginData = {
+        email: formData.email,
+        password: formData.password
+      };
+      
+      const response = await usersApi.login(loginData);
+      
+      // Save user data to localStorage if rememberMe is checked
+      if (formData.rememberMe) {
+        localStorage.setItem('userData', JSON.stringify(response));
+      } else {
+        sessionStorage.setItem('userData', JSON.stringify(response));
+      }
+      
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Login failed');
+      console.log(err)
+      setError(err.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

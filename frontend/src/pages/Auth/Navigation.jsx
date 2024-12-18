@@ -20,6 +20,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate, useLocation } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
+import Account from '../User/Account';
 
 const drawerWidth = 240;
 
@@ -63,6 +64,14 @@ export default function Navigation() {
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
+    if (userData) {
+      setUser(userData);
+    }
+  }, []);
 
   React.useEffect(() => {
     const handleStart = () => setLoading(true);
@@ -97,7 +106,7 @@ export default function Navigation() {
     { text: 'Products', icon: <StoreIcon />, path: '/products' },
     { text: 'Cart', icon: <ShoppingCartIcon />, path: '/cart' },
     { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites' },
-    { text: 'Login', icon: <LoginIcon />, path: '/login' },
+    ...(!user ? [{ text: 'Login', icon: <LoginIcon />, path: '/login' }] : []),
   ];
 
   return (
@@ -120,6 +129,7 @@ export default function Navigation() {
             <IconButton onClick={() => setOpen(!open)}>
               {open ? <ChevronLeftIcon /> : <MenuIcon />}
             </IconButton>
+            
           </Box>
           <Divider />
           <List>
@@ -161,6 +171,8 @@ export default function Navigation() {
               </ListItem>
             ))}
           </List>
+          <Divider />
+          {user && <Account username={user.username} />}
         </Drawer>
       </Box>
     </>

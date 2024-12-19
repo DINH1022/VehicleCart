@@ -1,0 +1,16 @@
+.MuiButton-root {
+  color: inherit;
+}
+
+.MuiDrawer-paper {
+  background-color: #f5f5f5;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.MuiListItemIcon-root {
+  color: #1a237e;
+}
+
+.MuiListItemButton-root:hover {
+  background-color: rgba(26, 35, 126, 0.04);
+}

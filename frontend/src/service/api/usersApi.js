@@ -1,56 +1,101 @@
-
-    import apiRequest from './apiRequest.js'
-    const BASE_URL = "http://localhost:5000/";
-    const USERS_URL = "/api/users";
-    const usersApi = {
+import apiRequest from './apiRequest.js'
+const USERS_URL = "api/users";
+const usersApi = {
     login: async (data) => {
-        return await apiRequest(`${USERS_URL}/auth`, true, {
-        method: "POST",
-        body: JSON.stringify(data),
-        });
+        try {
+            return await apiRequest(`${USERS_URL}/auth`, true, {
+                method: "POST",
+                body: JSON.stringify(data),
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Login failed');
+        }
     },
+
     register: async (data) => {
-        return await apiRequest(`${USERS_URL}`, true, {
-        method: "POST",
-        body: JSON.stringify(data),
-        });
+        try {
+            return await apiRequest(`${USERS_URL}`, true, {
+                method: "POST",
+                body: JSON.stringify(data),
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Registration failed');
+        }
     },
 
     logout: async () => {
-        return await apiRequest(`${USERS_URL}/logout`, true, {
-        method: "POST",
-        });
+        try {
+            return await apiRequest(`${USERS_URL}/logout`, true, {
+                method: "POST",
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Logout failed');
+        }
     },
 
-    profile: async (data) => {
-        return await apiRequest(`${USERS_URL}/profile`, true, {
-        method: "PUT",
-        body: JSON.stringify(data),
-        });
+    updateProfile: async (data) => {
+        try {
+            return await apiRequest(`${USERS_URL}/profile`, true, {
+                method: "PUT",
+                body: JSON.stringify(data),
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Profile update failed');
+        }
     },
 
+    getProfile: async () => {
+        try {
+            return await apiRequest(`${USERS_URL}/profile`, true, {
+                method: "GET",
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch profile');
+        }
+    },
+
+    //admin 
+    
     getUsers: async () => {
-        return await apiRequest(`${USERS_URL}`, true, {
-        method: "GET",
-        });
+        try {
+            return await apiRequest(`${USERS_URL}`, true, {
+                method: "GET",
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch users');
+        }
     },
+
 
     deleteUser: async (userId) => {
-        return await apiRequest(`${USERS_URL}/${userId}`, true, {
-        method: "DELETE",
-        });
+        try {
+            return await apiRequest(`${USERS_URL}/${userId}`, true, {
+                method: "DELETE",
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to delete user');
+        }
     },
-    getUserDetails: async (userId) => {
-        return await apiRequest(`${USERS_URL}/${userId}`, true, {
-        method: "GET",
-        });
-    },
-    updateUser: async (userId, data) => {
-        return await apiRequest(`${USERS_URL}/${userId}`, true, {
-            method: "PUT",
-            body: JSON.stringify(data)
-        })
-    }
 
-    };
-    export default usersApi
+    getUserDetails: async (userId) => {
+        try {
+            return await apiRequest(`${USERS_URL}/${userId}`, true, {
+                method: "GET",
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch user details');
+        }
+    },
+
+    updateUser: async (userId, data) => {
+        try {
+            return await apiRequest(`${USERS_URL}/${userId}`, true, {
+                method: "PUT",
+                body: JSON.stringify(data)
+            });
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to update user');
+        }
+    }
+};
+export default usersApi

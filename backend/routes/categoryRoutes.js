@@ -9,7 +9,7 @@ import {
 } from "../controllers/categoryController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
-router.route("/").post(authenticate, authorizeAdmin, createCategory);
+router.route("/").post(authenticate, authorizeAdmin, createCategory).get(authenticate, authorizeAdmin, listCategory);
 router.route("/:categoryId").put(authenticate, authorizeAdmin, updateCategory);
 router
   .route("/:categoryId")

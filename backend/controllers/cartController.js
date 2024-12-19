@@ -16,10 +16,20 @@ const getCart = asyncHandler(async (req, res) => {
 const addToCart = asyncHandler(async (req, res) => {
     const { productId, quantity } = req.body;
 
+    if (!productId || !quantity || quantity < 1) {
+        res.status(400);
+        throw new Error("Invalid product ID or quantity");
+    }
+
     const product = await Product.findById(productId);
     if (!product) {
         res.status(404);
         throw new Error("Product not found");
+    }
+
+    if (product.stock < quantity) {
+        res.status(400);
+        throw new Error(`Only ${product.countInStock} items available`);
     }
 
     let cart = await Cart.findOne({ user: req.user._id });
@@ -36,10 +46,19 @@ const addToCart = asyncHandler(async (req, res) => {
         });
     } else {
         const existingItem = cart.items.find(item => item.product.toString() === productId);
+        
         if (existingItem) {
+            if (existingItem.quantity + quantity > product.stock) {
+                res.status(400);
+                throw new Error(`Cannot add more than ${product.countInStock} items`);
+            }
             existingItem.quantity += quantity;
         } else {
-            cart.items.push({ product: productId, quantity, price: product.price });
+            cart.items.push({ 
+                product: productId, 
+                quantity, 
+                price: product.price 
+            });
         }
 
         cart.totalAmount = cart.items.reduce((total, item) => 
@@ -53,6 +72,12 @@ const addToCart = asyncHandler(async (req, res) => {
 // update cart item quantity
 const updateCartItem = asyncHandler(async (req, res) => {
     const { productId, quantity } = req.body;
+
+    if (!productId || !quantity || quantity < 0) {
+        res.status(400);
+        throw new Error("Invalid product ID or quantity");
+    }
+
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
         res.status(404);
@@ -80,6 +105,11 @@ const updateCartItem = asyncHandler(async (req, res) => {
 const removeFromCart = asyncHandler(async (req, res) => {
     const { productId } = req.params;
 
+    if (!productId) {
+        res.status(400);
+        throw new Error("Product ID is required");
+    }
+    
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
         res.status(404);

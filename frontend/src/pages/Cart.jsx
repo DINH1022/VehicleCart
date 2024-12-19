@@ -6,6 +6,9 @@ import {
   Divider,
   Box,
   Paper,
+  useMediaQuery,
+  useTheme,
+  Tooltip,
 } from "@mui/material";
 import {
   Delete,
@@ -13,10 +16,35 @@ import {
   Remove,
   ShoppingCart,
   LocalShipping,
-  BrokenImage,
 } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+
+const GradientButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+  border: 0,
+  borderRadius: 15,
+  boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+  color: 'white',
+  height: 48,
+  padding: '0 30px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'scale(1.05)',
+    boxShadow: '0 5px 15px rgba(33, 203, 243, .4)',
+  },
+}));
+
+const CartItemPaper = styled(Paper)(({ theme }) => ({
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-10px)',
+    boxShadow: theme.shadows[8],
+  },
+}));
 
 const Cart = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -29,15 +57,6 @@ const Cart = () => {
     },
     {
       id: 2,
-      name: "Omega Speedmaster",
-      brand: "Omega",
-      price: 12000000,
-      quantity: 2,
-      image: "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/g/a/garmin.jpg",
-      color: "Black",
-    },
-    {
-      id: 3,
       name: "Omega Speedmaster",
       brand: "Omega",
       price: 12000000,
@@ -69,18 +88,29 @@ const Cart = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: "gray.50", minHeight: "100vh", p: 4 }}>
+    <Box 
+      sx={{ 
+        backgroundColor: theme.palette.background.default, 
+        minHeight: '100vh', 
+        p: { xs: 2, md: 4 },
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' 
+      }}
+    >
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
+          flexDirection: isMobile ? "column" : "row",
           gap: 4,
-          maxWidth: "1200px",
+          maxWidth: "1400px",
           mx: "auto",
         }}
       >
-
-        <Box flex={2} component={Paper} sx={{ p: 4, borderRadius: 2 }}>
+        <Box flex={2} component={Paper} sx={{ 
+          p: 4, 
+          borderRadius: 4, 
+          boxShadow: theme.shadows[6],
+          background: 'linear-gradient(to right, #ffffff 0%, #f0f0f0 100%)'
+        }}>
           <Box
             sx={{
               display: "flex",
@@ -91,118 +121,139 @@ const Cart = () => {
           >
             <Box display="flex" alignItems="center" gap={2}>
               <ShoppingCart color="primary" fontSize="large" />
-              <Typography variant="h5" fontWeight="bold">
+              <Typography variant="h4" fontWeight="bold" color="primary">
                 Giỏ Hàng Của Bạn
               </Typography>
             </Box>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="subtitle1" color="text.secondary">
               {cartItems.length} Sản Phẩm
             </Typography>
           </Box>
           <Divider sx={{ mb: 4 }} />
 
           {cartItems.map((item) => (
-            <Box
+            <CartItemPaper
               key={item.id}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                p: 2,
+                p: 3,
                 mb: 3,
-                borderRadius: 2,
-                backgroundColor: "white",
-                boxShadow: 1,
-                "&:hover": { boxShadow: 3 },
+                borderRadius: 3,
               }}
             >
               <Box
                 sx={{
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 120,
                   backgroundColor: "gray.100",
-                  borderRadius: 2,
+                  borderRadius: 3,
                   overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                   mr: 3,
+                  boxShadow: theme.shadows[3],
                 }}
               >
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <BrokenImage color="disabled" fontSize="large" />
-                )}
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               </Box>
 
               <Box flex={1}>
-                <Typography variant="h6" fontWeight="bold">
+                <Typography variant="h6" fontWeight="bold" color="primary">
                   {item.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {item.brand}
+                  {item.brand} - {item.color}
                 </Typography>
                 <Typography
-                  variant="body1"
-                  color="primary"
+                  variant="h6"
+                  color="success.main"
                   fontWeight="bold"
                   mt={1}
                 >
                   {item.price.toLocaleString()} VND
                 </Typography>
               </Box>
+
               <Box display="flex" alignItems="center" gap={1}>
-                <IconButton
-                  size="small"
-                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                >
-                  <Remove />
-                </IconButton>
+                <Tooltip title="Giảm số lượng">
+                  <IconButton 
+                    size="small" 
+                    color="primary" 
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  >
+                    <Remove />
+                  </IconButton>
+                </Tooltip>
                 <Typography
                   variant="body1"
                   sx={{
                     px: 2,
-                    backgroundColor: "gray.200",
-                    borderRadius: 1,
+                    py: 0.5,
+                    backgroundColor: "primary.light",
+                    borderRadius: 2,
+                    color: "white",
+                    fontWeight: "bold"
                   }}
                 >
                   {item.quantity}
                 </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                >
-                  <Add />
-                </IconButton>
+                <Tooltip title="Tăng số lượng">
+                  <IconButton 
+                    size="small" 
+                    color="primary" 
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    <Add />
+                  </IconButton>
+                </Tooltip>
               </Box>
 
-              <IconButton
-                color="error"
-                onClick={() => removeItem(item.id)}
-                sx={{ ml: 2 }}
-              >
-                <Delete />
-              </IconButton>
-            </Box>
+              <Box display="flex" ml={2}>
+                <Tooltip title="Xóa sản phẩm">
+                  <IconButton 
+                    color="error" 
+                    onClick={() => removeItem(item.id)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
+    
+              </Box>
+            </CartItemPaper>
           ))}
         </Box>
 
-        <Box flex={1} component={Paper} sx={{ p: 4, borderRadius: 2 }}>
-          <Typography variant="h5" fontWeight="bold" mb={3}>
+        <Box 
+          flex={1} 
+          component={Paper} 
+          sx={{ 
+            p: 4, 
+            borderRadius: 4, 
+            boxShadow: theme.shadows[6],
+            background: 'linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)',
+            position: 'sticky',
+            top: 20,
+            alignSelf: 'flex-start',
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
             Tóm Tắt Đơn Hàng
           </Typography>
           <Divider sx={{ mb: 3 }} />
           <Box mb={2} display="flex" justifyContent="space-between">
             <Typography>Tạm Tính</Typography>
-            <Typography>{calculateTotal().toLocaleString()} VND</Typography>
+            <Typography fontWeight="bold">
+              {calculateTotal().toLocaleString()} VND
+            </Typography>
           </Box>
           <Box mb={3} display="flex" justifyContent="space-between">
             <Typography>Phí Vận Chuyển</Typography>
-            <Typography color="green">Miễn Phí</Typography>
+            <Typography color="success.main" fontWeight="bold">
+              Miễn Phí
+            </Typography>
           </Box>
           <Divider sx={{ mb: 3 }} />
           <Box mb={4} display="flex" justifyContent="space-between">
@@ -213,21 +264,13 @@ const Cart = () => {
               {calculateTotal().toLocaleString()} VND
             </Typography>
           </Box>
-          <Button
-            variant="contained"
+          <GradientButton
             fullWidth
             startIcon={<LocalShipping />}
             size="large"
-            sx={{
-              py: 2,
-              borderRadius: 2,
-              backgroundImage:
-                "linear-gradient(to right, #4caf50, #81c784)",
-              "&:hover": { opacity: 0.9 },
-            }}
           >
             Tiến Hành Thanh Toán
-          </Button>
+          </GradientButton>
         </Box>
       </Box>
     </Box>
@@ -235,6 +278,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
-
-

@@ -9,6 +9,7 @@ const cartApi = {
           });
     },
     addToCart: async (productId, quantity) => {
+        console.log(productId, quantity)
         return await apiRequest(`${CART_URL}`, true, {
             method: "POST",
             body: JSON.stringify({ productId, quantity }),

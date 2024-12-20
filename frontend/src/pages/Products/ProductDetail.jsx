@@ -19,6 +19,8 @@ import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
 import Loader from "../../components/Loader.jsx";
 import HeartIconProduct from "./HeartIconProduct.jsx";
+import cartApi from "../../service/api/cartRequest.js";
+import showToast from "../../components/ShowToast.jsx";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState(null);
@@ -30,6 +32,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const response = await productApi.getProductById(productId);
+        console.log(response);
         setProducts(response);
         setLoading(false);
       } catch (error) {
@@ -39,6 +42,14 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, []);
+  const handleAddToCart = async () => {
+    try {
+      await cartApi.addToCart(productId, quantity);
+      showToast("Thêm vào giỏ hàng thành công", "success");
+    } catch (error) {
+      showToast("Thất bại !!!", "error")
+    }
+  };
   const similarProducts = [
     {
       id: 1,
@@ -142,7 +153,10 @@ const ProductDetail = () => {
                   >
                     -
                   </Button>
-                  <Typography variant="body1">{quantity}</Typography>
+                  <Typography variant="body1" sx={{ color: "black" }}>
+                    {quantity}
+                  </Typography>
+
                   <Button
                     onClick={() => setQuantity(quantity + 1)}
                     variant="contained"
@@ -156,6 +170,7 @@ const ProductDetail = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<ShoppingCart />}
+                  onClick={handleAddToCart}
                 >
                   Thêm vào giỏ
                 </Button>

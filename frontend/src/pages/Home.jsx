@@ -27,11 +27,9 @@ const HomePage = () => {
   }, []);
 
   const handleAddToFavorites = (watch) => {
-    // Original favorites logic
   };
 
   const handleAddToCart = (watch) => {
-    // Original cart logic
   };
 
   return (
@@ -74,8 +72,6 @@ const HomePage = () => {
               <ListProduct
                 products={featureProducts}
                 title="Sản phẩm bán chạy"
-                handleAddToFavorites={handleAddToFavorites}
-                handleAddToCart={handleAddToCart}
               />
             </>
           )}

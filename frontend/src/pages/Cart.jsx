@@ -92,7 +92,6 @@ const Cart = () => {
   const clearCart = async () => {
     try {
       await cartApi.clearCart(); 
-      // Cập nhật state
       setCartItems([]);
     } catch (error) {
       console.error("Error clearing cart:", error);

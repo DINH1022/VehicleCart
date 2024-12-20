@@ -5,6 +5,7 @@ import TopSlider from "./Products/TopSlider";
 import Navigation from "./Auth/Navigation";
 import productApi from "../service/api/productsApi";
 import ListProduct from "./Products/ListProduct";
+import { Link } from "react-router";
 
 const HomePage = () => {
   const [featureProducts, setFeatureProducts] = useState([]);
@@ -130,18 +131,20 @@ const HomePage = () => {
               },
             }}
           >
-            <Button
-              variant="contained"
-              size="large"
-              endIcon={<ArrowIcon />}
-              sx={{
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              Khám Phá Bộ Sưu Tập
-            </Button>
+            <Link to="/products">
+              <Button
+                variant="contained"
+                size="large"
+                endIcon={<ArrowIcon />}
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 2,
+                }}
+              >
+                Khám Phá Bộ Sưu Tập
+              </Button>
+            </Link>
           </Box>
         </Container>
       </Box>

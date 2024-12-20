@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import {
   Card,
@@ -17,7 +15,10 @@ import {
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import HeartIconProduct from "./HeartIconProduct";
-
+import cartApi from "../../service/api/cartRequest";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import showToast from "../../components/ShowToast";
 const WatchCard = ({
   watch,
   onAddToCart,
@@ -29,9 +30,16 @@ const WatchCard = ({
 
   const handleFavoriteToggle = () => {
     setIsFavorite(!isFavorite);
-    onAddToFavorites && onAddToFavorites(watch); // Ensure function exists before calling.
+    onAddToFavorites && onAddToFavorites(watch);
   };
-
+  const handleCartToggle = async () => {
+    try {
+      await cartApi.addToCart(watch._id, 1);
+      showToast("Thêm vào giỏ hàng thành công!", "success");
+    } catch (error) {
+      throw error;
+    }
+  };
   return (
     <Card
       sx={{
@@ -105,14 +113,14 @@ const WatchCard = ({
           <Button
             variant="contained"
             startIcon={<CartIcon />}
-            onClick={() => onAddToCart && onAddToCart(watch)} // Ensure function exists before calling.
+            onClick={handleCartToggle} // Ensure function exists before calling.
             sx={{
               flex: 1,
               backgroundColor: "#1a237e",
               "&:hover": { backgroundColor: "#000051" },
             }}
           >
-            Thêm Giỏ
+            Thêm vào Giỏ
           </Button>
           {isFavorites ? (
             <IconButton

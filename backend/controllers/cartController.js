@@ -4,7 +4,7 @@ import Product from "../models/productModel.js";
 
 //get cart of user
 const getCart = asyncHandler(async (req, res) => {
-    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product", "name price image");
+    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product", "name price image brand");
 
     if (!cart) {
         return res.status(200).json({ items: [], totalAmount: 0 });

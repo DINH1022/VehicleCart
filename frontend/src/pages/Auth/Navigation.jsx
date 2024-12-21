@@ -65,7 +65,8 @@ export default function Navigation() {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [user, setUser] = React.useState(null);
-
+  const isLoggedIn =   !!(sessionStorage.getItem("userData") || localStorage.getItem("userData"));
+  
   React.useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
     if (userData) {
@@ -96,6 +97,9 @@ export default function Navigation() {
   }, [location.pathname]);
 
   const handleNavigation = (path) => {
+    // if(path == '/favorites' && !isLoggedIn) {
+    //   navigate('/login')
+    // }
     if (path !== location.pathname) {
       navigate(path);
     }

@@ -16,10 +16,11 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { Link, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import usersApi from "../../service/api/usersApi";
-
-
+import { loginSuccess } from '../../redux/feature/authSlice';
+import { useDispatch } from 'react-redux';
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -62,7 +63,7 @@ const Login = () => {
       };
       
       const response = await usersApi.login(loginData);
-      
+     
       // Save user data to localStorage if rememberMe is checked
       if (formData.rememberMe) {
         localStorage.setItem('userData', JSON.stringify(response));

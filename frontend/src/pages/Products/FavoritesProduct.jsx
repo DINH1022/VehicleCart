@@ -204,34 +204,22 @@
 // export default FavoritesProduct;
 
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Button,
-} from "@mui/material";
-import {
-  Delete as DeleteIcon,
-  AddCircle as AddIcon,
-  ShoppingCart as CartIcon,
-} from "@mui/icons-material";
+import { IconButton } from "@mui/material";
+import { ShoppingCart as CartIcon } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import favoritesApi from "../../service/api/favoritesApi";
+import { useNavigate } from "react-router-dom";
 import {
   removeFromFavorites,
   setFavorites,
 } from "../../redux/feature/favoritesSlice";
 import WatchCard from "./WatchCard";
-
 const FavoritesProduct = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const favoritesProduct = useSelector((state) => state.favorites);
 

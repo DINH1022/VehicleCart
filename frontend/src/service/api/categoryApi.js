@@ -28,6 +28,11 @@ const categoryApi = {
       method: "GET",
     });
   },
+  getMainCategoryWithSubs: async () => {
+    return await apiRequest(`api/main-category/category-with-subs`, true, {
+      method: "GET"
+    })
+  }
 };
 
 export default categoryApi;

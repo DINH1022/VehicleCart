@@ -1,18 +1,20 @@
 import e from "express";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
-
+import MainCategory from "../models/mainCategoryModel.js";
+import Category from "../models/categoryModel.js";
 // @desc    Create a new product
 // @route   POST /api/products
 // @access  Private/Admin
 const addProduct = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
-    
+
     if (!name) throw new Error("Name is required");
     if (!brand) throw new Error("Brand is required");
     if (!quantity) throw new Error("Quantity is required");
-    if (!category || !category.length) throw new Error("At least one category is required");
+    if (!category || !category.length)
+      throw new Error("At least one category is required");
     if (!description) throw new Error("Description is required");
     if (!price) throw new Error("Price is required");
     if (!image) throw new Error("Main image is required");
@@ -33,11 +35,12 @@ const addProduct = asyncHandler(async (req, res) => {
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
-    
+
     if (!name) throw new Error("Name is required");
     if (!brand) throw new Error("Brand is required");
     if (!quantity) throw new Error("Quantity is required");
-    if (!category || !category.length) throw new Error("At least one category is required");
+    if (!category || !category.length)
+      throw new Error("At least one category is required");
     if (!description) throw new Error("Description is required");
     if (!price) throw new Error("Price is required");
 
@@ -70,22 +73,88 @@ const removeProduct = asyncHandler(async (req, res) => {
 // @desc    Fetch products with pagination and search
 // @route   GET /api/products/search
 // @access  Public
+// const fetchProducts = asyncHandler(async (req, res) => {
+//   try {
+//     // Set number of products per page
+//     const pageSize = 6;
+
+//     // Create search query based on keyword
+//     const keyword = req.query.keyword
+//       ? {
+//           name: {
+//             $regex: req.query.keyword,
+//             $options: "i", // Case insensitive search
+//           },
+//         }
+//       : {};
+//     const count = await Product.countDocuments({ ...keyword });
+//     const products = await Product.find({ ...keyword }).limit(pageSize);
+//     res.json({
+//       products,
+//       page: 1,
+//       pages: Math.ceil(count / pageSize),
+//       hasMore: false,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Server Error" });
+//   }
+// });
+function convertToSlug(text) {
+  return text
+    .toLowerCase()
+    .replace(/ /g, "_")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 const fetchProducts = asyncHandler(async (req, res) => {
   try {
-    // Set number of products per page
     const pageSize = 6;
+    const query = {};
+    const categoryConditions = [];
+    const mainCategories = await MainCategory.find({});
+    // console.log(req.query)
+    // console.log(mainCategories)
 
-    // Create search query based on keyword
-    const keyword = req.query.keyword
-      ? {
+    for (const mainCategory of mainCategories) {
+      let paramName = mainCategory.name.toLowerCase();
+      paramName = convertToSlug(paramName);
+
+      if (req.query[paramName]) {
+        const values = req.query[paramName].split(",").map((val) => val.trim());
+        const subCategories = await Category.find({
+          mainCategory: mainCategory._id,
           name: {
-            $regex: req.query.keyword,
-            $options: "i", // Case insensitive search
+            $in: values.map((val) => new RegExp(`^${val}$`, "i")),
           },
+        }).select("_id");
+
+        if (subCategories.length > 0) {
+          const categoryIds = subCategories.map((cat) => cat._id);
+          categoryConditions.push({
+            category: { $in: categoryIds },
+          });
         }
-      : {};
-    const count = await Product.countDocuments({ ...keyword });
-    const products = await Product.find({ ...keyword }).limit(pageSize);
+      }
+    }
+
+    if (categoryConditions.length > 0) {
+      query.$and = categoryConditions;
+    }
+    console.log(query);
+    const count = await Product.countDocuments(query);
+    const products = await Product.find(query).limit(pageSize)
+    // const products = await Product.find(query)
+    //   .limit(pageSize)
+    //   .populate({
+    //     path: "category",
+    //     populate: {
+    //       path: "mainCategory",
+    //       model: "MainCategory",
+    //     },
+    //   });
+
     res.json({
       products,
       page: 1,
@@ -103,7 +172,6 @@ const fetchProducts = asyncHandler(async (req, res) => {
 // @access  Public
 const fetchProductById = asyncHandler(async (req, res) => {
   try {
-
     const product = await Product.findById(req.params.id);
     if (product) {
       res.json(product);
@@ -125,7 +193,7 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
       .populate("category")
       .limit(12)
       .sort({ createdAt: -1 });
-    
+
     res.json(products);
   } catch (error) {
     console.error(error);

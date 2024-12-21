@@ -1,6 +1,6 @@
 import MainCategory from "../models/mainCategoryModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
-
+import categoryModel from "../models/categoryModel.js";
 const createMainCategory = asyncHandler(async (req, res) => {
   try {
     const { name } = req.body;
@@ -74,11 +74,32 @@ const getMainCategory = asyncHandler(async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
+const getAllCategories = asyncHandler(async (req, res) => {
+  try {
+    const mainCategories = await MainCategory.find({});
+    const categoriesWithSubs = await Promise.all(
+      mainCategories.map(async (main) => {
+        const subCategories = await categoryModel.find({ mainCategory: main._id });
+        return {
+          _id: main._id,
+          name: main.name,
+          subCategories: subCategories,
+        };
+      })
+    );
+    return res.status(200).json({
+      success: true,
+      data: categoriesWithSubs
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 export {
   createMainCategory,
   updateMainCategory,
   removeMainCategory,
   listMainCategories,
-  getMainCategory
+  getMainCategory,
+  getAllCategories,
 };

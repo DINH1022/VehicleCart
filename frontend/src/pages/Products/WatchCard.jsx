@@ -16,7 +16,6 @@ import {
 import { Link } from "react-router-dom";
 import HeartIconProduct from "./HeartIconProduct";
 import cartApi from "../../service/api/cartRequest";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import showToast from "../../components/ShowToast";
 const WatchCard = ({

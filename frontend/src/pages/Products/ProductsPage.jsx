@@ -2,45 +2,65 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Collapse,
   Typography,
   IconButton,
   useMediaQuery,
   Container,
-  Checkbox,
-  FormControlLabel,
   Badge,
-  Button,
 } from "@mui/material";
-import { X } from "lucide-react";
 import {
-  ChevronDown,
   SlidersHorizontal,
-  Watch,
+  BadgeCheck,
   Users,
+  Watch,
   Sparkles,
   Boxes,
-  BadgeCheck,
 } from "lucide-react";
 import WatchCard from "./WatchCard";
+import FilterList from "./FilterList";
 import categoryApi from "../../service/api/categoryApi";
+import productApi from "../../service/api/productsApi";
+import Navigation from "../Auth/Navigation";
 
-const COLORS = {
-  primary: "#1976d2",
-  secondary: "#9c27b0",
-  text: {
-    primary: "#1a1a1a",
-    secondary: "#666666",
-  },
-  background: {
-    default: "#f9fafb",
-    paper: "#ffffff",
-  },
-  divider: "#e0e0e0",
-  hover: "rgba(25, 118, 210, 0.08)",
+const convertToSlug = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/ /g, "_")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+const convertToSlugSubs = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+const objectToQueryParams = (categoriesObj) => {
+  const queryParamsArray = [];
+
+  for (const categoryName in categoriesObj) {
+    if (categoriesObj.hasOwnProperty(categoryName)) {
+      const subCategories = categoriesObj[categoryName];
+      const mainCategorySlug = convertToSlug(categoryName);
+      const subCategoryNames = Object.keys(subCategories);
+      const activeSubCategories = subCategoryNames.filter(
+        (subCategoryName) => subCategories[subCategoryName]
+      );
+      const subCategorySlugs = activeSubCategories.map((subCategoryName) =>
+        convertToSlugSubs(subCategoryName)
+      );
+      const subCategorySlugsString = subCategorySlugs.join(",");
+
+      if (subCategorySlugsString) {
+        queryParamsArray.push(`${mainCategorySlug}=${subCategorySlugsString}`);
+      }
+    }
+  }
+
+  return queryParamsArray.join("&");
 };
 
 const ProductFilterPage = () => {
@@ -49,6 +69,7 @@ const ProductFilterPage = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [filters, setFilters] = useState({});
+  const [products, setProducts] = useState([]);
 
   const mapApiData = (data) => {
     const icons = [
@@ -79,6 +100,15 @@ const ProductFilterPage = () => {
     fetchMainCategoryWithSubs();
   }, []);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const params = objectToQueryParams(selectedFilters);
+      const response = await productApi.getProducts(params);
+      setProducts(response.products);
+    };
+    fetchProducts();
+  }, [selectedFilters]);
+
   const handleFilterClick = (category) => {
     setOpenFilters((prev) => ({
       ...prev,
@@ -96,191 +126,9 @@ const ProductFilterPage = () => {
     }));
   };
 
-  const FilterList = () => (
-    <List
-      sx={{
-        width: "100%",
-        maxWidth: 360,
-        bgcolor: COLORS.background.paper,
-        borderRadius: 4,
-        boxShadow: "0 10px 30px -5px rgba(0, 0, 0, 0.1)",
-        position: "relative",
-        overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "4px",
-          background: `linear-gradient(90deg, ${COLORS.primary}, ${COLORS.secondary})`,
-        },
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{
-          p: 2,
-          borderBottom: `1px solid ${COLORS.divider}`,
-          color: COLORS.text.primary,
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-        }}
-      >
-        <SlidersHorizontal size={20} />
-        Bộ lọc tìm kiếm
-      </Typography>
-
-      {Object.entries(filters).map(([category, { icon, options }]) => (
-        <React.Fragment key={category}>
-          <ListItem
-            component="div"
-            sx={{
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor: COLORS.hover,
-                "& .MuiBox-root": {
-                  transform: "scale(1.1)",
-                },
-              },
-              borderLeft: openFilters[category]
-                ? `4px solid ${COLORS.primary}`
-                : "4px solid transparent",
-              cursor: "pointer",
-            }}
-            onClick={() => handleFilterClick(category)}
-          >
-            <Box
-              sx={{
-                mr: 2,
-                color: openFilters[category]
-                  ? COLORS.primary
-                  : COLORS.text.secondary,
-                transition: "transform 0.2s ease",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {icon}
-            </Box>
-            <ListItemText
-              primary={category}
-              sx={{
-                "& .MuiTypography-root": {
-                  fontWeight: openFilters[category] ? 700 : 500,
-                  color: openFilters[category]
-                    ? COLORS.primary
-                    : COLORS.text.primary,
-                  transition: "all 0.2s ease",
-                },
-              }}
-            />
-            <Box
-              sx={{
-                transition: "transform 0.2s ease",
-                transform: openFilters[category] ? "rotate(-180deg)" : "none",
-                color: openFilters[category]
-                  ? COLORS.primary
-                  : COLORS.text.secondary,
-              }}
-            >
-              <ChevronDown size={20} />
-            </Box>
-          </ListItem>
-
-          <Collapse in={openFilters[category]} timeout="auto" unmountOnExit>
-            <List
-              component="div"
-              disablePadding
-              sx={{
-                bgcolor: "rgba(25, 118, 210, 0.03)",
-              }}
-            >
-              {options.map((option) => (
-                <ListItem
-                  key={option}
-                  component="div"
-                  sx={{
-                    pl: 4,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      bgcolor: COLORS.hover,
-                    },
-                  }}
-                >
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={selectedFilters[category]?.[option] || false}
-                        onChange={() => handleCheckboxChange(category, option)}
-                        sx={{
-                          color: COLORS.text.secondary,
-                          "&.Mui-checked": {
-                            color: COLORS.primary,
-                          },
-                          "& .MuiSvgIcon-root": {
-                            fontSize: 20,
-                          },
-                          transition: "all 0.2s ease",
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: selectedFilters[category]?.[option]
-                            ? COLORS.primary
-                            : COLORS.text.secondary,
-                          fontWeight: selectedFilters[category]?.[option]
-                            ? 600
-                            : 400,
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {option}
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
-        </React.Fragment>
-      ))}
-
-      {Object.keys(selectedFilters).length > 0 && (
-        <Box
-          sx={{
-            p: 2,
-            borderTop: `1px solid ${COLORS.divider}`,
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => setSelectedFilters({})}
-            startIcon={<X size={16} />}
-            sx={{
-              textTransform: "none",
-              bgcolor: COLORS.primary,
-              boxShadow: "none",
-              "&:hover": {
-                boxShadow: "none",
-                bgcolor: "rgba(25, 118, 210, 0.9)",
-              },
-            }}
-          >
-            Xóa bộ lọc
-          </Button>
-        </Box>
-      )}
-    </List>
-  );
+  const handleClearFilters = () => {
+    setSelectedFilters({});
+  };
 
   const selectedFiltersCount = Object.values(selectedFilters).reduce(
     (count, categoryFilters) =>
@@ -288,8 +136,18 @@ const ProductFilterPage = () => {
     0
   );
 
+  const filterListProps = {
+    filters,
+    openFilters,
+    selectedFilters,
+    onFilterClick: handleFilterClick,
+    onCheckboxChange: handleCheckboxChange,
+    onClearFilters: handleClearFilters,
+  };
+
   return (
-    <Box sx={{ bgcolor: COLORS.background.default, minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
+      <Navigation />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box sx={{ display: "flex", gap: 3 }}>
           {isMobile ? (
@@ -299,7 +157,7 @@ const ProductFilterPage = () => {
                 aria-label="open drawer"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 sx={{
-                  bgcolor: COLORS.background.paper,
+                  bgcolor: "background.paper",
                   "&:hover": {
                     bgcolor: "rgba(0, 0, 0, 0.04)",
                   },
@@ -317,17 +175,17 @@ const ProductFilterPage = () => {
                 sx={{
                   "& .MuiDrawer-paper": {
                     width: 280,
-                    bgcolor: COLORS.background.default,
+                    bgcolor: "background.default",
                     p: 2,
                   },
                 }}
               >
-                <FilterList />
+                <FilterList {...filterListProps} />
               </Drawer>
             </>
           ) : (
             <Box sx={{ width: 300, flexShrink: 0 }}>
-              <FilterList />
+              <FilterList {...filterListProps} />
             </Box>
           )}
 
@@ -353,7 +211,11 @@ const ProductFilterPage = () => {
                 },
                 gap: 3,
               }}
-            ></Box>
+            >
+              {products.map((product, index) => (
+                <WatchCard key={index} watch={product} />
+              ))}
+            </Box>
           </Box>
         </Box>
       </Container>

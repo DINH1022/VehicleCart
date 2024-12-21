@@ -1,20 +1,25 @@
-import apiRequest from './apiRequest.js'
+import apiRequest from "./apiRequest.js";
 
 const PRODUCT_URL = "api/products";
 
 const productApi = {
-  getProducts: async (keyword) => {
-    
-    return await apiRequest(`${PRODUCT_URL}/${keyword}`, false, {
-      method: "GET",
-    });
+  getProducts: async (params) => {
+    if (params) {
+      return await apiRequest(`${PRODUCT_URL}/?${params}`, false, {
+        method: "GET",
+      });
+    } else {
+      return await apiRequest(`${PRODUCT_URL}`, false, {
+        method: "GET",
+      });
+    }
   },
 
   getProductById: async (productId) => {
     const res = await apiRequest(`${PRODUCT_URL}/${productId}`, false, {
       method: "GET",
     });
-    return res
+    return res;
   },
   allProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/allProducts`, false, {
@@ -24,8 +29,8 @@ const productApi = {
 
   specialProduct: async () => {
     return await apiRequest(`${PRODUCT_URL}/special-product`, false, {
-      method: "GET"
-    })
+      method: "GET",
+    });
   },
   createProduct: async (data) => {
     return await apiRequest(`${PRODUCT_URL}`, true, {
@@ -55,8 +60,8 @@ const productApi = {
   createReview: async (productId, data) => {
     return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
       method: "POST",
-      body: data
-    })
+      body: data,
+    });
   },
   getNewProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/new`, true, {
@@ -67,7 +72,7 @@ const productApi = {
   uploadProductImage: async (data) => {
     return await apiRequest(`${PRODUCT_URL}/upload`, true, {
       method: "POST",
-      body: data, 
+      body: data,
     });
   },
 
@@ -78,13 +83,12 @@ const productApi = {
     });
   },
 
-  getFilteredProducts: async ({checked, radio}) => {
+  getFilteredProducts: async ({ checked, radio }) => {
     return await apiRequest(`${PRODUCT_URL}/filtered-products`, true, {
       method: "POST",
-      body: JSON.stringify({checked, radio}),
+      body: JSON.stringify({ checked, radio }),
     });
   },
-  
 };
 
 export default productApi;

@@ -110,7 +110,7 @@ function convertToSlug(text) {
 
 const fetchProducts = asyncHandler(async (req, res) => {
   try {
-    const pageSize = 6;
+    const pageSize = 8;
     const query = {};
     const categoryConditions = [];
     const mainCategories = await MainCategory.find({});
@@ -125,7 +125,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
         const values = req.query[paramName].split(",").map((val) => val.trim());
         const subCategories = await Category.find({
           mainCategory: mainCategory._id,
-          name: {
+          nameSlug: {
             $in: values.map((val) => new RegExp(`^${val}$`, "i")),
           },
         }).select("_id");
@@ -142,7 +142,6 @@ const fetchProducts = asyncHandler(async (req, res) => {
     if (categoryConditions.length > 0) {
       query.$and = categoryConditions;
     }
-    console.log(query);
     const count = await Product.countDocuments(query);
     const products = await Product.find(query).limit(pageSize)
     // const products = await Product.find(query)

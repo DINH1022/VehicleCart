@@ -32,7 +32,6 @@ const ProductDetail = () => {
     const fetchReviews = async () => {
       try {
         const response = await productApi.getReviewProduct(productId);
-        console.log("response", response);
         setReviews(response.reviews);
       } catch (err) {
         console.error("Lỗi khi tải nhận xét:", err);
@@ -45,7 +44,6 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const response = await productApi.getProductById(productId);
-        console.log(response);
         setProducts(response);
         setLoading(false);
       } catch (error) {

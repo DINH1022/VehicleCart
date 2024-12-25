@@ -52,19 +52,15 @@ const productApi = {
     });
   },
 
-  getTopProducts: async () => {
-    return await apiRequest(`${PRODUCT_URL}/top`, false, {
-      method: "GET",
-    });
-  },
   createReview: async (productId, data) => {
     return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
       method: "POST",
       body: data,
     });
   },
+
   getNewProducts: async () => {
-    return await apiRequest(`${PRODUCT_URL}/new`, true, {
+    return await apiRequest(`${PRODUCT_URL}/new`, false, {
       method: "GET",
     });
   },
@@ -87,6 +83,18 @@ const productApi = {
     return await apiRequest(`${PRODUCT_URL}/filtered-products`, true, {
       method: "POST",
       body: JSON.stringify({ checked, radio }),
+    });
+  },
+
+  getTopRatingProducts: async () => {
+    return await apiRequest(`${PRODUCT_URL}/topRating`, false, {
+      method: "GET",
+    });
+  },
+
+  getTopSellingProducts: async () => {
+    return await apiRequest(`${PRODUCT_URL}/topSelling`, false, {
+      method: "GET",
     });
   },
 };

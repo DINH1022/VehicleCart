@@ -238,25 +238,23 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
 const fetchTopSellingProducts = asyncHandler(async (req, res) => {
   try {
-    // Aggregate carts to calculate total quantity sold for each product
+    // First get all product IDs sorted by total quantity sold
     const topProducts = await Cart.aggregate([
-      // Unwind items array to create a document for each item
       { $unwind: "$items" },
-      // Group by product and sum quantities
       {
         $group: {
           _id: "$items.product",
           totalSold: { $sum: "$items.quantity" }
         }
       },
-      // Sort by total quantity sold in descending order
       { $sort: { totalSold: -1 } },
-      { $limit: 10 }
     ]);
 
-    // Get full product details for top selling products
+    // If there are less than 10 products with sales, add products without sales
     const productIds = topProducts.map(item => item._id);
-    const products = await Product.find({ _id: { $in: productIds } })
+    
+    // Get products with sales
+    let products = await Product.find({ _id: { $in: productIds } })
       .populate({
         path: "category",
         populate: {
@@ -265,12 +263,28 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
         }
       });
 
-    // Sort products to match the order from aggregation
-    const sortedProducts = productIds.map(id => 
-      products.find(product => product._id.toString() === id.toString())
-    );
+    // If we have less than 10 products, add more products sorted by creation date
+    if (products.length < 10) {
+      const additionalProducts = await Product.find({ 
+        _id: { $nin: productIds } 
+      })
+      .populate({
+        path: "category",
+        populate: {
+          path: "mainCategory",
+          model: "MainCategory"
+        }
+      })
+      .sort({ createdAt: -1 })
+      .limit(10 - products.length);
 
-    res.json(sortedProducts);
+      products = [...products, ...additionalProducts];
+    }
+
+    // Limit to exactly 10 products
+    products = products.slice(0, 10);
+
+    res.json(products);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server Error" });

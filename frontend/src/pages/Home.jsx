@@ -1,36 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
-import TopSlider from "./Products/TopSlider";
+import ImageSlider from "./Products/ImageSlider";
 import Navigation from "./Auth/Navigation";
 import productApi from "../service/api/productsApi";
-import ListProduct from "./Products/ListProduct";
-import { Link } from "react-router";
+import ProductSlider from "./Products/ProductSlider";
+import { Link } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const HomePage = () => {
-  const [featureProducts, setFeatureProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [topRatedProducts, setTopRatedProducts] = useState([]);
+  const [topSellingProducts, setTopSellingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAllProducts = async () => {
       try {
-        const response = await productApi.getNewProducts();
-        setFeatureProducts(response);
+        const [newProds, topRated, topSelling] = await Promise.all([
+          productApi.getNewProducts(),
+          productApi.getTopRatingProducts(),
+          productApi.getTopSellingProducts(),
+        ]);
+
+        setNewProducts(newProds);
+        setTopRatedProducts(topRated);
+        setTopSellingProducts(topSelling);
         setLoading(false);
       } catch (error) {
         setError(error);
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchAllProducts();
   }, []);
 
   const handleAddToFavorites = (watch) => {
+    // Implement favorites logic
   };
 
   const handleAddToCart = (watch) => {
+    // Implement cart logic
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <Loader size={40} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
@@ -44,90 +64,36 @@ const HomePage = () => {
           overflow: "hidden",
         }}
       >
-        <Container
-          maxWidth="xl"
-          sx={{
-            py: 4,
-            px: { xs: 2, sm: 4 },
-            mt: { xs: 2, sm: 4 },
-          }}
-        >
-          <TopSlider
+        <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 4 }, mt: { xs: 2, sm: 4 } }}>
+          <ImageSlider
             onAddToCart={handleAddToCart}
             onAddToFavorites={handleAddToFavorites}
             sx={{ mb: 6 }}
           />
 
-          {loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                py: 4,
-              }}
-            ></Box>
-          ) : (
-            <>
-              <ListProduct
-                products={featureProducts}
-                title="Sản phẩm bán chạy"
-              />
-            </>
-          )}
+          <ProductSlider
+            products={topSellingProducts}
+            title="Sản phẩm bán chạy nhất"
+            handleAddToFavorites={handleAddToFavorites}
+            handleAddToCart={handleAddToCart}
+          />
 
-          {loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                py: 4,
-              }}
-            ></Box>
-          ) : (
-            <>
-              <ListProduct
-                products={featureProducts}
-                title="Hot Sale"
-                handleAddToFavorites={handleAddToFavorites}
-                handleAddToCart={handleAddToCart}
-              />
-            </>
-          )}
+          <ProductSlider
+            products={topRatedProducts}
+            title="Sản phẩm đánh giá cao"
+            handleAddToFavorites={handleAddToFavorites}
+            handleAddToCart={handleAddToCart}
+          />
 
-          {loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                py: 4,
-              }}
-            ></Box>
-          ) : (
-            <>
-              <ListProduct
-                products={featureProducts}
-                title="Sản phẩm mới"
-                handleAddToFavorites={handleAddToFavorites}
-                handleAddToCart={handleAddToCart}
-              />
-            </>
-          )}
-          <Box
-            sx={{
-              textAlign: "center",
-              my: 6,
-              "& button": {
-                backgroundColor: "#1a237e",
-                "&:hover": {
-                  backgroundColor: "#000051",
-                },
-              },
-            }}
-          >
-            <Link to="/products">
+          <ProductSlider
+            products={newProducts}
+            title="Sản phẩm mới"
+            handleAddToFavorites={handleAddToFavorites}
+            handleAddToCart={handleAddToCart}
+          />
+
+          <Box sx={{ textAlign: "center", my: 6 }}>
+            <Link to="/products" style={{ textDecoration: "none" }}>
               <Button
                 variant="contained"
                 size="large"
@@ -136,6 +102,10 @@ const HomePage = () => {
                   px: 4,
                   py: 1.5,
                   borderRadius: 2,
+                  backgroundColor: "#1a237e",
+                  "&:hover": {
+                    backgroundColor: "#000051",
+                  },
                 }}
               >
                 Khám Phá Bộ Sưu Tập

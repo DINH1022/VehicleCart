@@ -1,11 +1,9 @@
-import e from "express";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 import MainCategory from "../models/mainCategoryModel.js";
 import Category from "../models/categoryModel.js";
-// @desc    Create a new product
-// @route   POST /api/products
-// @access  Private/Admin
+import Cart from "../models/cartModel.js";
+
 const addProduct = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
@@ -29,9 +27,7 @@ const addProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update product details
-// @route   PUT /api/products/:id
-// @access  Private/Admin
+
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
     const { name, brand, quantity, category, description, price } = req.fields;
@@ -57,9 +53,7 @@ const updateProductDetails = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete a product
-// @route   DELETE /api/products/:id
-// @access  Private/Admin
+
 const removeProduct = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
@@ -70,36 +64,6 @@ const removeProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Fetch products with pagination and search
-// @route   GET /api/products/search
-// @access  Public
-// const fetchProducts = asyncHandler(async (req, res) => {
-//   try {
-//     // Set number of products per page
-//     const pageSize = 6;
-
-//     // Create search query based on keyword
-//     const keyword = req.query.keyword
-//       ? {
-//           name: {
-//             $regex: req.query.keyword,
-//             $options: "i", // Case insensitive search
-//           },
-//         }
-//       : {};
-//     const count = await Product.countDocuments({ ...keyword });
-//     const products = await Product.find({ ...keyword }).limit(pageSize);
-//     res.json({
-//       products,
-//       page: 1,
-//       pages: Math.ceil(count / pageSize),
-//       hasMore: false,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Server Error" });
-//   }
-// });
 function convertToSlug(text) {
   return text
     .toLowerCase()
@@ -114,8 +78,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
     const query = {};
     const categoryConditions = [];
     const mainCategories = await MainCategory.find({});
-    // console.log(req.query)
-    // console.log(mainCategories)
+   
 
     for (const mainCategory of mainCategories) {
       let paramName = mainCategory.name.toLowerCase();
@@ -144,15 +107,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
     }
     const count = await Product.countDocuments(query);
     const products = await Product.find(query).limit(pageSize)
-    // const products = await Product.find(query)
-    //   .limit(pageSize)
-    //   .populate({
-    //     path: "category",
-    //     populate: {
-    //       path: "mainCategory",
-    //       model: "MainCategory",
-    //     },
-    //   });
+    
 
     res.json({
       products,
@@ -166,9 +121,7 @@ const fetchProducts = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Fetch single product by ID
-// @route   GET /api/products/:id
-// @access  Public
+
 const fetchProductById = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -183,9 +136,7 @@ const fetchProductById = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Fetch all products for homepage
-// @route   GET /api/products/all
-// @access  Public
+
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
@@ -200,9 +151,7 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Add product review
-// @route   POST /api/products/:id/reviews
-// @access  Private
+
 const addProductReview = asyncHandler(async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -247,23 +196,84 @@ const addProductReview = asyncHandler(async (req, res) => {
   }
 });
 
-const fetchTopProducts = asyncHandler(async (req, res) => {
+const fetchTopRatingProducts = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find({}).sort({ rating: -1 }).limit(4);
+    const products = await Product.find({})
+      .populate({
+        path: "category",
+        populate: {
+          path: "mainCategory",
+          model: "MainCategory"
+        }
+      })
+      .sort({ rating: -1 }) 
+      .limit(10);
+
     res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
 const fetchNewProducts = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find().sort({ _id: -1 }).limit(5);
+    const products = await Product.find({})
+      .populate({
+        path: "category", 
+        populate: {
+          path: "mainCategory",
+          model: "MainCategory"
+        }
+      })
+      .sort({ createdAt: -1 }) 
+      .limit(10);
+
     res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+const fetchTopSellingProducts = asyncHandler(async (req, res) => {
+  try {
+    // Aggregate carts to calculate total quantity sold for each product
+    const topProducts = await Cart.aggregate([
+      // Unwind items array to create a document for each item
+      { $unwind: "$items" },
+      // Group by product and sum quantities
+      {
+        $group: {
+          _id: "$items.product",
+          totalSold: { $sum: "$items.quantity" }
+        }
+      },
+      // Sort by total quantity sold in descending order
+      { $sort: { totalSold: -1 } },
+      { $limit: 10 }
+    ]);
+
+    // Get full product details for top selling products
+    const productIds = topProducts.map(item => item._id);
+    const products = await Product.find({ _id: { $in: productIds } })
+      .populate({
+        path: "category",
+        populate: {
+          path: "mainCategory",
+          model: "MainCategory"
+        }
+      });
+
+    // Sort products to match the order from aggregation
+    const sortedProducts = productIds.map(id => 
+      products.find(product => product._id.toString() === id.toString())
+    );
+
+    res.json(sortedProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
@@ -275,6 +285,7 @@ export {
   fetchProductById,
   fetchAllProducts,
   addProductReview,
-  fetchTopProducts,
+  fetchTopRatingProducts,
+  fetchTopSellingProducts,
   fetchNewProducts,
 };

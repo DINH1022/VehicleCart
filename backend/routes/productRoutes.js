@@ -10,7 +10,8 @@ import {
   fetchProductById,
   fetchAllProducts,
   addProductReview,
-  fetchTopProducts,
+  fetchTopRatingProducts,
+  fetchTopSellingProducts,
   fetchNewProducts,
 } from "../controllers/productController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
@@ -22,11 +23,15 @@ route
   .post(authenticate, authorizeAdmin, formidable(), addProduct);
 
 route.route("/allproducts").get(fetchAllProducts);
+//route.get("/top", fetchTopRatingProducts);
+route.get("/topRating", fetchTopRatingProducts);
+route.get("/topSelling", fetchTopSellingProducts);
+route.get("/new", fetchNewProducts);
+
 route
   .route("/:id/reviews")
   .post(authenticate, authorizeAdmin, checkId, addProductReview);
-route.get("/top", fetchTopProducts);
-route.get("/new", fetchNewProducts);
+
 
 route
   .route("/:id")

@@ -58,6 +58,7 @@ const productApi = {
     });
   },
   createReview: async (productId, data) => {
+    console.log("data", data);
     return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
       method: "POST",
       body: data,
@@ -68,7 +69,11 @@ const productApi = {
       method: "GET",
     });
   },
-
+  getReviewProduct: async (productId) => {
+    return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
+      method: "GET",
+    });
+  },
   uploadProductImage: async (data) => {
     return await apiRequest(`${PRODUCT_URL}/upload`, true, {
       method: "POST",

@@ -10,6 +10,7 @@ import {
   setFavorites,
 } from "../../redux/feature/favoritesSlice";
 import WatchCard from "./WatchCard";
+import Navigation from "../Auth/Navigation";
 const FavoritesProduct = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
@@ -46,30 +47,33 @@ const FavoritesProduct = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="min-h-screen bg-gray-50 p-4">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">
-                Danh Sách Đồng Hồ Yêu Thích
-              </h1>
-              <div className="relative">
-                <IconButton color="primary" size="small">
-                  <CartIcon />
-                </IconButton>
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-1.5 text-xs">
-                  {cart.length}
-                </span>
+        <div className="flex">
+          <Navigation />
+          <div className="min-h-screen bg-gray-50 p-4">
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">
+                  Danh Sách Đồng Hồ Yêu Thích
+                </h1>
+                <div className="relative">
+                  <IconButton color="primary" size="small">
+                    <CartIcon />
+                  </IconButton>
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-1.5 text-xs">
+                    {cart.length}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {favoritesProduct.map((watch) => (
-                <WatchCard
-                  watch={watch}
-                  isFavorites={true}
-                  handleDeleteWatch={handleDeleteWatch}
-                />
-              ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {favoritesProduct.map((watch) => (
+                  <WatchCard
+                    watch={watch}
+                    isFavorites={true}
+                    handleDeleteWatch={handleDeleteWatch}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

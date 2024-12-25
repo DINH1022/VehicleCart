@@ -205,19 +205,23 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
 // @access  Private
 const addProductReview = asyncHandler(async (req, res) => {
   try {
-    const { rating, comment } = req.body;
+    const {rating, comment} = req.body
     const product = await Product.findById(req.params.id);
 
     if (product) {
       // Check if user already reviewed
       const alreadyReviewed = product.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
+        (r) =>{
+          return r.user && r.user.toString() === req.user._id.toString();
+        }
       );
 
       // Prevent multiple reviews from same user
       if (alreadyReviewed) {
-        res.status(400);
-        throw new Error("Product already reviewed");
+        return res.json({
+          success: false,
+          mes: "Bạn đã đánh giá sản phẩm này"
+        })
       }
 
       // Create new review object
@@ -246,7 +250,18 @@ const addProductReview = asyncHandler(async (req, res) => {
     res.status(400).json(error.message);
   }
 });
-
+const getReviewProduct = asyncHandler(async (req, res) => {
+ try {
+  const product = await Product.findById(req.params.id);
+  const reviews = product.reviews
+  return res.status(200).json({
+    reviews
+  })
+ } catch (error) {
+  console.error(error);
+  res.status(400).json(error.message);
+ }
+})
 const fetchTopProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({}).sort({ rating: -1 }).limit(4);
@@ -277,4 +292,5 @@ export {
   addProductReview,
   fetchTopProducts,
   fetchNewProducts,
+  getReviewProduct
 };

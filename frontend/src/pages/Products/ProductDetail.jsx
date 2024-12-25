@@ -27,7 +27,20 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id: productId } = useParams();
-
+  const [reviews, setReviews] = useState();
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await productApi.getReviewProduct(productId);
+        console.log("response", response);
+        setReviews(response.reviews);
+      } catch (err) {
+        console.error("Lỗi khi tải nhận xét:", err);
+      }
+    };
+    fetchReviews();
+  }, []);
+  // const [reviews, setReviews] = useState(product.reviews)
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -47,7 +60,7 @@ const ProductDetail = () => {
       await cartApi.addToCart(productId, quantity);
       showToast("Thêm vào giỏ hàng thành công", "success");
     } catch (error) {
-      showToast("Thất bại !!!", "error")
+      showToast("Thất bại !!!", "error");
     }
   };
   const similarProducts = [
@@ -192,8 +205,8 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          <RatingProduct reviews={product.reviews} />
-          <ReviewProduct reviews={product.reviews} />
+          <RatingProduct reviews={reviews} />
+          <ReviewProduct reviews={reviews} setReviews={setReviews} productId={productId} />
           <SimilarProducts similarProducts={similarProducts} />
         </div>
       )}

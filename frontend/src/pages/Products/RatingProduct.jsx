@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Box,
@@ -22,14 +21,14 @@ const RatingProduct = ({ reviews = [] }) => {
       4: 0,
       5: 0,
     };
-
-    reviews.forEach((review) => {
-      ratingCounts[review.rating]++;
-    });
-
-    const averageRating =
-      reviews.reduce((sum, review) => sum + review.rating, 0) /
-      totalReviews;
+    var averageRating = 0;
+    if (totalReviews != 0) {
+      reviews.forEach((review) => {
+        ratingCounts[review.rating]++;
+      });
+      averageRating =
+        reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+    }
 
     return {
       totalReviews,
@@ -52,10 +51,10 @@ const RatingProduct = ({ reviews = [] }) => {
             </Typography>
             <Rating
               name="rounded-stars-rating"
-              defaultValue={ratingStats.averageRating} 
-              precision={0.1} 
+              value = {ratingStats.averageRating.toFixed(1)}
+              precision={0.1}
               readOnly
-              icon={<StarRounded fontSize="inherit" />} 
+              icon={<StarRounded fontSize="inherit" />}
               emptyIcon={<StarOutlineRounded fontSize="inherit" />}
             />
             <Typography variant="body2" color="text.secondary">

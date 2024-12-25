@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { IconButton } from "@mui/material";
-import { ShoppingCart as CartIcon } from "@mui/icons-material";
 import Loader from "../../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import favoritesApi from "../../service/api/favoritesApi";
@@ -11,11 +9,9 @@ import {
 } from "../../redux/feature/favoritesSlice";
 import WatchCard from "./WatchCard";
 import Navigation from "../Auth/Navigation";
+
 const FavoritesProduct = () => {
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
-
   const dispatch = useDispatch();
   const favoritesProduct = useSelector((state) => state.favorites);
 
@@ -49,25 +45,18 @@ const FavoritesProduct = () => {
       ) : (
         <div className="flex">
           <Navigation />
-          <div className="min-h-screen bg-gray-50 p-4">
-            <div className="container mx-auto">
+          <div className="min-h-screen bg-gray-50 p-4 flex-1">
+            <div className="container mx-auto px-4">
               <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">
+                <h1 className="text-3xl font-semibold text-gray-800">
                   Danh Sách Đồng Hồ Yêu Thích
                 </h1>
-                <div className="relative">
-                  <IconButton color="primary" size="small">
-                    <CartIcon />
-                  </IconButton>
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-1.5 text-xs">
-                    {cart.length}
-                  </span>
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-6">
                 {favoritesProduct.map((watch) => (
                   <WatchCard
+                    key={watch.id}
                     watch={watch}
                     isFavorites={true}
                     handleDeleteWatch={handleDeleteWatch}

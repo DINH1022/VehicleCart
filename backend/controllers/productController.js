@@ -275,10 +275,37 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
       products = [...products, ...additionalProducts];
     }
 
-    // Limit to exactly 12 products
+    // Limit  12 products
     products = products.slice(0, 12);  
 
     res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+const fetchRelatedProducts = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const relatedProducts = await Product.find({
+      _id: { $ne: product._id },  // ne = not equal
+      category: { $in: product.category }
+    })
+    .populate({
+      path: "category",
+      populate: {
+        path: "mainCategory",
+        model: "MainCategory"
+      }
+    })
+    .limit(8);
+
+    res.json(relatedProducts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server Error" });
@@ -296,4 +323,5 @@ export {
   fetchTopRatingProducts,
   fetchTopSellingProducts,
   fetchNewProducts,
+  fetchRelatedProducts,
 };

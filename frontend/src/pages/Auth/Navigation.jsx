@@ -21,6 +21,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import Account from '../User/Account';
+import PeopleIcon from '@mui/icons-material/People';
 
 const drawerWidth = 240;
 
@@ -110,6 +111,7 @@ export default function Navigation() {
     { text: 'Products', icon: <StoreIcon />, path: '/products' },
     { text: 'Cart', icon: <ShoppingCartIcon />, path: '/cart' },
     { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites' },
+    ...(user?.isAdmin ? [{ text: 'User List', icon: <PeopleIcon />, path: '/users' }] : []),
     ...(!user ? [{ text: 'Login', icon: <LoginIcon />, path: '/login' }] : []),
   ];
 

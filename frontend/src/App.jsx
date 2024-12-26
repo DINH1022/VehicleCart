@@ -4,7 +4,7 @@ import ProductDetail from "./pages/Products/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
 import FavoritesProduct from "./pages/Products/FavoritesProduct.jsx";
 import Navigation from "./pages/Auth/Navigation.jsx";
-import HomePage from "./pages/Home.jsx";
+import HomePage from "./pages/Home/Home.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import Login from "./pages/Auth/Login.jsx";
 import UserList from "./pages/Admin/UserList.jsx";

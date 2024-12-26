@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
-import ImageSlider from "../components/ImageSlider";
-import Navigation from "./Auth/Navigation";
-import productApi from "../service/api/productsApi";
-import ProductSlider from "../components/ProductSlider";
+import ImageSlider from "./ImageSlider";
+import Navigation from "../Auth/Navigation";
+import productApi from "../../service/api/productsApi";
+import ProductSlider from "./ProductSlider";
 import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 

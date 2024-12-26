@@ -17,7 +17,7 @@ import {
   ArrowForwardIos as NextIcon,
 } from "@mui/icons-material";
 import { Loader } from "lucide-react";
-import productApi from "../service/api/productsApi";
+import productApi from "../../service/api/productsApi";
 
 const sliderImages = [
   "/assets/uploads/img1.png",

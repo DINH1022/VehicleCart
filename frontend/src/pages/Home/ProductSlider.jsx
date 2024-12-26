@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
-import WatchCard from "../pages/Products/WatchCard";
+import WatchCard from "../Products/WatchCard";
 
 const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart }) => {
   const [startIndex, setStartIndex] = useState(0);

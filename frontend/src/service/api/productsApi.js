@@ -97,6 +97,12 @@ const productApi = {
       method: "GET",
     });
   },
+
+  getRelatedProducts: async (productId) => {
+    return await apiRequest(`${PRODUCT_URL}/${productId}/related`, false, {
+      method: "GET",
+    });
+  },
 };
 
 export default productApi;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
-import WatchCard from "./WatchCard";
+import WatchCard from "../pages/Products/WatchCard";
 
 const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart }) => {
   const [startIndex, setStartIndex] = useState(0);
@@ -42,15 +42,15 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
       <Box 
         sx={{ 
           position: "relative",
-          mx: 6, // Tăng margin để tránh nút bị che
-          overflow: "visible", // Đổi thành visible để hiện nút
+          mx: 6, 
+          overflow: "visible", 
         }}
       >
         <Button
           onClick={handlePrev}
           sx={{
             position: "absolute",
-            left: -30, // Di chuyển ra xa hơn
+            left: -30, 
             top: "50%",
             transform: "translateY(-50%)",
             minWidth: 40,
@@ -65,7 +65,7 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
               transform: "translateY(-50%) scale(1.1)",
             },
             transition: "all 0.3s ease",
-            zIndex: 100, // Tăng z-index
+            zIndex: 100, 
           }}
         >
           <ChevronLeft />
@@ -74,7 +74,7 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
         <Box 
           sx={{ 
             position: "relative",
-            overflow: "hidden", // Thêm overflow hidden cho container chứa cards
+            overflow: "hidden", 
           }}
         >
           <Box
@@ -84,14 +84,14 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
               transform: `translateX(calc(-${startIndex * 25}% - ${startIndex * 2}px))`, // Điều chỉnh công thức transform
               transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
               willChange: "transform",
-              padding: "0 3px", // Thêm padding để các card không bị cắt
+              padding: "0 3px", 
             }}
           >
             {products.map((watch) => (
               <Box
                 key={watch._id}
                 sx={{
-                  flex: "0 0 25%", // Sửa lại flex basis
+                  flex: "0 0 25%", 
                   padding: "0 3px",
                   transform: "scale(0.98)",
                   transition: "all 0.4s ease",
@@ -115,7 +115,7 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
           onClick={handleNext}
           sx={{
             position: "absolute",
-            right: -30, // Di chuyển ra xa hơn
+            right: -30,
             top: "50%",
             transform: "translateY(-50%)",
             minWidth: 40,
@@ -130,7 +130,7 @@ const ListProduct = ({ products, title, handleAddToFavorites, handleAddToCart })
               transform: "translateY(-50%) scale(1.1)",
             },
             transition: "all 0.3s ease",
-            zIndex: 100, // Tăng z-index
+            zIndex: 100, 
           }}
         >
           <ChevronRight />

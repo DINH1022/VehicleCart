@@ -158,18 +158,15 @@ const addProductReview = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
-      // Check if user already reviewed
       const alreadyReviewed = product.reviews.find(
         (r) => r.user.toString() === req.user._id.toString()
       );
 
-      // Prevent multiple reviews from same user
       if (alreadyReviewed) {
         res.status(400);
         throw new Error("Product already reviewed");
       }
 
-      // Create new review object
       const review = {
         name: req.user.username,
         rating: Number(rating),
@@ -177,7 +174,6 @@ const addProductReview = asyncHandler(async (req, res) => {
         user: req.user._id,
       };
 
-      // Update product review statistics
       product.reviews.push(review);
       product.numReviews = product.reviews.length;
       product.rating =
@@ -207,7 +203,7 @@ const fetchTopRatingProducts = asyncHandler(async (req, res) => {
         }
       })
       .sort({ rating: -1 }) 
-      .limit(10);
+      .limit(12);  
 
     res.json(products);
   } catch (error) {
@@ -227,7 +223,7 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
         }
       })
       .sort({ createdAt: -1 }) 
-      .limit(10);
+      .limit(12);  
 
     res.json(products);
   } catch (error) {
@@ -238,7 +234,6 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
 
 const fetchTopSellingProducts = asyncHandler(async (req, res) => {
   try {
-    // First get all product IDs sorted by total quantity sold
     const topProducts = await Cart.aggregate([
       { $unwind: "$items" },
       {
@@ -250,10 +245,9 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
       { $sort: { totalSold: -1 } },
     ]);
 
-    // If there are less than 10 products with sales, add products without sales
+    
     const productIds = topProducts.map(item => item._id);
     
-    // Get products with sales
     let products = await Product.find({ _id: { $in: productIds } })
       .populate({
         path: "category",
@@ -263,8 +257,8 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
         }
       });
 
-    // If we have less than 10 products, add more products sorted by creation date
-    if (products.length < 10) {
+    // If we have less than 12 products, add more products sorted by creation date
+    if (products.length < 12) {
       const additionalProducts = await Product.find({ 
         _id: { $nin: productIds } 
       })
@@ -276,13 +270,13 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
         }
       })
       .sort({ createdAt: -1 })
-      .limit(10 - products.length);
+      .limit(12 - products.length);  
 
       products = [...products, ...additionalProducts];
     }
 
-    // Limit to exactly 10 products
-    products = products.slice(0, 10);
+    // Limit to exactly 12 products
+    products = products.slice(0, 12);  
 
     res.json(products);
   } catch (error) {

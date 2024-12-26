@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Button, Stack } from "@mui/material";
 import { ArrowForward as ArrowIcon } from "@mui/icons-material";
-import ImageSlider from "./Products/ImageSlider";
+import ImageSlider from "../components/ImageSlider";
 import Navigation from "./Auth/Navigation";
 import productApi from "../service/api/productsApi";
-import ProductSlider from "./Products/ProductSlider";
+import ProductSlider from "../components/ProductSlider";
 import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 
@@ -36,14 +36,6 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
-  const handleAddToFavorites = (watch) => {
-    // Implement favorites logic
-  };
-
-  const handleAddToCart = (watch) => {
-    // Implement cart logic
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -66,30 +58,22 @@ const HomePage = () => {
       >
         <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 4 }, mt: { xs: 2, sm: 4 } }}>
           <ImageSlider
-            onAddToCart={handleAddToCart}
-            onAddToFavorites={handleAddToFavorites}
             sx={{ mb: 6 }}
           />
 
           <ProductSlider
             products={topSellingProducts}
             title="Sản phẩm bán chạy nhất"
-            handleAddToFavorites={handleAddToFavorites}
-            handleAddToCart={handleAddToCart}
           />
 
           <ProductSlider
             products={topRatedProducts}
             title="Sản phẩm đánh giá cao"
-            handleAddToFavorites={handleAddToFavorites}
-            handleAddToCart={handleAddToCart}
           />
 
           <ProductSlider
             products={newProducts}
             title="Sản phẩm mới"
-            handleAddToFavorites={handleAddToFavorites}
-            handleAddToCart={handleAddToCart}
           />
 
           <Box sx={{ textAlign: "center", my: 6 }}>

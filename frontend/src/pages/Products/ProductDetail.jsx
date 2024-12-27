@@ -209,7 +209,7 @@ const ProductDetail = () => {
 
             <RatingProduct reviews={reviews} />
             <ReviewProduct reviews={reviews} setReviews={setReviews} productId={productId} />
-            <SimilarProducts similarProducts={similarProducts} />
+            <SimilarProducts similarProducts={similarProducts} /> 
           </div>
         )}
       </Box>

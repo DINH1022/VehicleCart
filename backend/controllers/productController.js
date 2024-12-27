@@ -6,7 +6,6 @@ import Cart from "../models/cartModel.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    // Lấy dữ liệu trực tiếp từ req.body thay vì req.fields
     const product = new Product({
       ...req.body,
       rating: 0,
@@ -51,7 +50,7 @@ const updateProductDetails = asyncHandler(async (req, res) => {
 const removeProduct = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
-    res.json(product);
+    res.json({ message: "Product removed" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server Error" });

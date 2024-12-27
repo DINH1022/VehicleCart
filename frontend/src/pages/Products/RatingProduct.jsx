@@ -51,7 +51,7 @@ const RatingProduct = ({ reviews = [] }) => {
             </Typography>
             <Rating
               name="rounded-stars-rating"
-              value = {ratingStats.averageRating.toFixed(1)}
+              value={parseFloat(ratingStats.averageRating.toFixed(1))}
               precision={0.1}
               readOnly
               icon={<StarRounded fontSize="inherit" />}

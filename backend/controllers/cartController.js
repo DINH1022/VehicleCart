@@ -77,62 +77,82 @@ const addToCart = asyncHandler(async (req, res) => {
   res.status(200).json(cart);
 });
 
-// const addItemsToCart = asyncHandler(async (req, res) => {
-//   const { cartItems } = req.body;
-//   cartItems.forEach(async (item) => {
-//     const product = await Product.findById(item._id);
-//     if (!product) {
-//       res.status(404);
-//       throw new Error("Product not found");
-//     }
-//   });
+const addItemsToCart = asyncHandler(async (req, res) => {
+  try {
+    const { cartItems } = req.body;
+    console.log(cartItems);
+    let cart = await Cart.findOne({ user: req.user._id });
+    if (!cart) {
+      cart = await Cart.create({
+        user: req.user._id,
+        items: [],
+        totalAmount: 0,
+      });
+    }
+    for (const item of cartItems) {
+      const { productId, quantity } = item;
 
-//   if (product.stock < quantity) {
-//     res.status(400);
-//     throw new Error(`Only ${product.countInStock} items available`);
-//   }
+      const product = await Product.findById(productId);
+      if (!product) {
+        continue;
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy sản phẩm với id ${productId}`,
+        });
+      }
 
-//   let cart = await Cart.findOne({ user: req.user._id });
+      if (product.countInStock < quantity) {
+        continue;
+        return res.status(400).json({
+          success: false,
+          message: `Chỉ còn ${product.countInStock} sản phẩm ${product.name} trong kho`,
+        });
+      }
 
-//   if (!cart) {
-//     cart = await Cart.create({
-//       user: req.user._id,
-//       items: [
-//         {
-//           product: productId,
-//           quantity,
-//           price: product.price,
-//         },
-//       ],
-//       totalAmount: product.price * quantity,
-//     });
-//   } else {
-//     const existingItem = cart.items.find(
-//       (item) => item.product.toString() === productId
-//     );
+      const existingItemIndex = cart.items.findIndex(
+        (cartItem) => cartItem.product.toString() === productId
+      );
 
-//     if (existingItem) {
-//       if (existingItem.quantity + quantity > product.stock) {
-//         res.status(400);
-//         throw new Error(`Cannot add more than ${product.countInStock} items`);
-//       }
-//       existingItem.quantity += quantity;
-//     } else {
-//       cart.items.push({
-//         product: productId,
-//         quantity,
-//         price: product.price,
-//       });
-//     }
+      if (existingItemIndex !== -1) {
+        const newQuantity = cart.items[existingItemIndex].quantity + quantity;
+        if (newQuantity > product.countInStock) {
+          continue;
+          return res.status(400).json({
+            success: false,
+            message: `Không thể thêm quá ${product.countInStock} sản phẩm ${product.name}`,
+          });
+        }
+        cart.items[existingItemIndex].quantity = newQuantity;
+      } else {
+        cart.items.push({
+          product: productId,
+          quantity,
+          price: product.price,
+        });
+      }
+    }
 
-//     cart.totalAmount = cart.items.reduce(
-//       (total, item) => total + item.price * item.quantity,
-//       0
-//     );
-//     await cart.save();
-//   }
-//   res.status(200).json(cart);
-// });
+    cart.totalAmount = cart.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+
+    await cart.save();
+    const populatedCart = await Cart.findById(cart._id).populate({
+      path: "items.product",
+      select: "name image price countInStock",
+    });
+
+    return res.status(200).json(populatedCart);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Có lỗi xảy ra khi thêm vào giỏ hàng",
+      error: error.message,
+    });
+  }
+});
+
 // update cart item quantity
 const updateCartItem = asyncHandler(async (req, res) => {
   const { productId, quantity } = req.body;
@@ -216,6 +236,7 @@ export {
   getCart,
   addToCart,
   updateCartItem,
+  addItemsToCart,
   removeFromCart,
   cleanCart,
 };

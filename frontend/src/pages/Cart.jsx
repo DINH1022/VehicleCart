@@ -54,14 +54,14 @@ const Cart = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
   const isLoggedIn = () => {
-    return true;
+    return false;
   };
   useEffect(() => {
     const fetchCart = async () => {
       try {
         if (isLoggedIn()) {
-          const product = await cartApi.getCart();
-          setCartItems(product.items);
+          const products = await cartApi.getCart();
+          setCartItems(products.items);
         } else {
           const savedCart = getCartSessionStorage();
           setCartItems(savedCart);
@@ -122,7 +122,7 @@ const Cart = () => {
   };
   const calculateTotal = () => {
     return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total, item) => total + item.product.price * item.quantity,
       0
     );
   };
@@ -194,9 +194,9 @@ const Cart = () => {
               <h1>Không có sản phẩm nào</h1>
             ) : (
               <>
-                {cartItems.map((item) => (
+                {cartItems.map((item, index) => (
                   <CartItemPaper
-                    key={item._id}
+                    key={index}
                     sx={{
                       display: "flex",
                       alignItems: "center",
@@ -244,7 +244,7 @@ const Cart = () => {
                         fontWeight="bold"
                         mt={1}
                       >
-                        {item.price.toLocaleString()} VND
+                        {item.product.price.toLocaleString()} VND
                       </Typography>
                     </Box>
 

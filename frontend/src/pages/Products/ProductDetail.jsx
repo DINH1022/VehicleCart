@@ -21,8 +21,8 @@ import Loader from "../../components/Loader.jsx";
 import HeartIconProduct from "./HeartIconProduct.jsx";
 import cartApi from "../../service/api/cartRequest.js";
 import showToast from "../../components/ShowToast.jsx";
-import Navigation from "../Auth/Navigation";
-
+import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
+import Navigation from "../Auth/Navigation.jsx";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState(null);
@@ -55,12 +55,23 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, []);
+  const login = false;
   const handleAddToCart = async () => {
     try {
-      await cartApi.addToCart(productId, quantity);
-      showToast("Thêm vào giỏ hàng thành công", "success");
+      if (login) {
+        await cartApi.addToCart(productId, quantity);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      } else {
+        if (quantity > product.countInStock) {
+          showToast("Sản phẩm này không đủ hàng!", "error");
+          return;
+        }
+        addCartToSessionStorage(product, quantity);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      }
     } catch (error) {
       showToast("Thất bại !!!", "error");
+      throw error;
     }
   };
   const similarProducts = [
@@ -105,12 +116,18 @@ const ProductDetail = () => {
   ];
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <Navigation />
-      <Box component="main" sx={{ flexGrow: 1 }}>
-        {loading ? (
-          <Loader />
-        ) : (
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            bgcolor: "background.default",
+            minHeight: "100vh",
+          }}
+        >
+          <Navigation />
           <div className="container mx-auto p-4 bg-gray-50">
             <div className="grid md:grid-cols-2 gap-8">
               <ImageGallery images={[product.image, ...product.listImage]} />
@@ -208,12 +225,16 @@ const ProductDetail = () => {
             </div>
 
             <RatingProduct reviews={reviews} />
-            <ReviewProduct reviews={reviews} setReviews={setReviews} productId={productId} />
-            <SimilarProducts similarProducts={similarProducts} /> 
+            <ReviewProduct
+              reviews={reviews}
+              setReviews={setReviews}
+              productId={productId}
+            />
+            <SimilarProducts similarProducts={similarProducts} />
           </div>
-        )}
-      </Box>
-    </Box>
+        </Box>
+      )}
+    </>
   );
 };
 

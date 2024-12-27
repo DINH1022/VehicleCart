@@ -12,14 +12,13 @@ import Navigation from "../Auth/Navigation";
 
 const FavoritesProduct = () => {
   const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
-  const favoritesProduct = useSelector((state) => state.favorites);
 
+  const [favorites, setFavorites] = useState([]);
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const favorites = await favoritesApi.getFavorites();
-        dispatch(setFavorites(favorites.products));
+        const response = await favoritesApi.getFavorites();
+        setFavorites(response.products);
       } catch (error) {
         console.error("Failed to fetch favorites:", error);
       } finally {
@@ -27,12 +26,13 @@ const FavoritesProduct = () => {
       }
     };
     fetchFavorites();
-  }, [dispatch]);
+  }, []);
 
   const handleDeleteWatch = async (id) => {
     try {
-      dispatch(removeFromFavorites(id));
       await favoritesApi.removeFavorite(id);
+      const response = await favoritesApi.getFavorites();
+      setFavorites(response.products);
     } catch (error) {
       console.error("Failed to delete the item:", error);
     }
@@ -51,14 +51,21 @@ const FavoritesProduct = () => {
               </div>
 
               <div className="grid grid-cols-4 gap-6">
-                {favoritesProduct.map((watch) => (
-                  <WatchCard
-                    key={watch.id}
-                    watch={watch}
-                    isFavorites={true}
-                    handleDeleteWatch={handleDeleteWatch}
-                  />
-                ))}
+                {favorites.map((watch, index) => {
+                  const isFavorited = favorites.some(
+                    (fav) => fav._id === watch._id
+                  );
+                  return (
+                    <WatchCard
+                      key={index}
+                      watch={watch}
+                      pageFavorite={true}
+                      handleDeleteWatch={handleDeleteWatch}
+                      favorited={isFavorited}
+                    />
+                  );
+                })}
+                ;
               </div>
             </div>
           </div>

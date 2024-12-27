@@ -9,12 +9,13 @@ import {
   Stack,
   IconButton,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import {
   ShoppingCart as CartIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import HeartIconProduct from "./HeartIconProduct";
 import cartApi from "../../service/api/cartRequest";
 import "react-toastify/dist/ReactToastify.css";
 import showToast from "../../components/ShowToast";
@@ -23,23 +24,29 @@ import {
   addCartToSessionStorage,
   removeCartFromSessionStorage,
 } from "../../utils/sessionStorage.js";
-var login = false;
+import favoritesApi from "../../service/api/favoritesApi.js";
+var login = true;
 const WatchCard = ({
   watch,
-  onAddToCart,
-  onAddToFavorites,
-  isFavorites = false,
+  pageFavorite = false,
+  favorited,
   handleDeleteWatch,
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
-    onAddToFavorites && onAddToFavorites(watch);
+  const [isFavorite, setIsFavorite] = useState(favorited);
+  const handleFavoriteToggle = async () => {
+    if (isFavorite) {
+      setIsFavorite(!isFavorite);
+      await favoritesApi.removeFavorite(watch._id);
+    } else {
+      setIsFavorite(!isFavorite);
+      await favoritesApi.addFavorite(watch._id);
+    }
   };
+
   const handleCartToggle = async () => {
     try {
       if (login) {
+        console.log("id", watch._id);
         await cartApi.addToCart(watch._id, 1);
         showToast("Thêm vào giỏ hàng thành công!", "success");
       } else {
@@ -123,7 +130,7 @@ const WatchCard = ({
           <Button
             variant="contained"
             startIcon={<CartIcon />}
-            onClick={handleCartToggle} // Ensure function exists before calling.
+            onClick={handleCartToggle}
             sx={{
               flex: 1,
               backgroundColor: "#1a237e",
@@ -132,10 +139,10 @@ const WatchCard = ({
           >
             Thêm vào Giỏ
           </Button>
-          {isFavorites ? (
+          {pageFavorite ? (
             <IconButton
               color="error"
-              onClick={() => handleDeleteWatch && handleDeleteWatch(watch._id)} // Ensure function exists before calling.
+              onClick={() => handleDeleteWatch && handleDeleteWatch(watch._id)}
               sx={{
                 backgroundColor: "rgba(255, 0, 0, 0.1)",
                 "&:hover": {
@@ -146,11 +153,19 @@ const WatchCard = ({
               <DeleteIcon />
             </IconButton>
           ) : (
-            <HeartIconProduct
-              product={watch}
-              onToggleFavorite={handleFavoriteToggle}
-              isFavorite={isFavorite}
-            />
+            <IconButton
+              onClick={handleFavoriteToggle}
+              sx={{
+                borderRadius: "50%",
+                transition: "transform 0.2s",
+              }}
+            >
+              {isFavorite ? (
+                <FavoriteIcon style={{ color: "red" }} />
+              ) : (
+                <FavoriteBorderIcon style={{ color: "gray" }} />
+              )}
+            </IconButton>
           )}
         </Stack>
       </CardContent>

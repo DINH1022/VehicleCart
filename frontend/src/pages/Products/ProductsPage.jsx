@@ -26,7 +26,7 @@ import FilterList from "./FilterList";
 import categoryApi from "../../service/api/categoryApi";
 import productApi from "../../service/api/productsApi";
 import Navigation from "../Auth/Navigation";
-import { useSelector } from "react-redux";
+import favoritesApi from "../../service/api/favoritesApi";
 const convertToSlug = (text) => {
   return text
     .toLowerCase()
@@ -45,7 +45,6 @@ const convertToSlugSubs = (text) => {
 
 const objectToQueryParams = (categoriesObj, search, page = 1) => {
   const queryParamsArray = [];
-  console.log("search", search);
   for (const categoryName in categoriesObj) {
     if (categoriesObj.hasOwnProperty(categoryName)) {
       const subCategories = categoriesObj[categoryName];
@@ -81,7 +80,14 @@ const ProductFilterPage = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
-  // const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useState([]);
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const response = await favoritesApi.getFavorites();
+      setFavorites(response.products);
+    };
+    fetchFavorites();
+  }, []);
   const mapApiData = (data) => {
     const icons = [
       <BadgeCheck size={20} />,
@@ -279,9 +285,18 @@ const ProductFilterPage = () => {
                 gap: 3,
               }}
             >
-              {products.map((product, index) => (
-                <WatchCard key={index} watch={product} />
-              ))}
+              {products.map((product, index) => {
+                const isFavorited = favorites.some(
+                  (fav) => fav._id === product._id
+                );
+                return (
+                  <WatchCard
+                    key={index}
+                    watch={product}
+                    favorited={isFavorited}
+                  />
+                );
+              })}
             </Box>
 
             {pages > 1 && (

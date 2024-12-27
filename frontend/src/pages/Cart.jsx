@@ -60,8 +60,9 @@ const Cart = () => {
     const fetchCart = async () => {
       try {
         if (isLoggedIn()) {
-          const product = await cartApi.getCart();
-          setCartItems(product.items);
+          const products = await cartApi.getCart();
+          console.log("cart", products);
+          setCartItems(products.items);
         } else {
           const savedCart = getCartSessionStorage();
           setCartItems(savedCart);

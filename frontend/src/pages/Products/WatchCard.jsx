@@ -19,13 +19,9 @@ import { Link } from "react-router-dom";
 import cartApi from "../../service/api/cartRequest";
 import "react-toastify/dist/ReactToastify.css";
 import showToast from "../../components/ShowToast";
-import {
-  getCartSessionStorage,
-  addCartToSessionStorage,
-  removeCartFromSessionStorage,
-} from "../../utils/sessionStorage.js";
+import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
 import favoritesApi from "../../service/api/favoritesApi.js";
-var login = true;
+var login = false;
 const WatchCard = ({
   watch,
   pageFavorite = false,
@@ -46,11 +42,10 @@ const WatchCard = ({
   const handleCartToggle = async () => {
     try {
       if (login) {
-        console.log("id", watch._id);
         await cartApi.addToCart(watch._id, 1);
         showToast("Thêm vào giỏ hàng thành công!", "success");
       } else {
-        addCartToSessionStorage(watch);
+        addCartToSessionStorage(watch, 1);
         showToast("Thêm vào giỏ hàng thành công!", "success");
       }
     } catch (error) {
@@ -74,11 +69,14 @@ const WatchCard = ({
       <Link to={`/product/${watch._id}`} style={{ textDecoration: "none" }}>
         <CardMedia
           component="img"
-          height="200"
           image={watch.image}
           alt={watch.name}
           sx={{
-            objectFit: "cover",
+            height: "320px",
+            width: "100%",
+            objectFit: "contain",
+            objectPosition: "center",
+            overflow: "hidden",
           }}
         />
       </Link>

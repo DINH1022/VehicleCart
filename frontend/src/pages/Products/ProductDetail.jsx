@@ -21,6 +21,8 @@ import Loader from "../../components/Loader.jsx";
 import HeartIconProduct from "./HeartIconProduct.jsx";
 import cartApi from "../../service/api/cartRequest.js";
 import showToast from "../../components/ShowToast.jsx";
+import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
+import Navigation from "../Auth/Navigation.jsx";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState(null);
@@ -53,12 +55,23 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, []);
+  const login = false;
   const handleAddToCart = async () => {
     try {
-      await cartApi.addToCart(productId, quantity);
-      showToast("Thêm vào giỏ hàng thành công", "success");
+      if (login) {
+        await cartApi.addToCart(productId, quantity);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      } else {
+        if (quantity > product.countInStock) {
+          showToast("Sản phẩm này không đủ hàng!", "error");
+          return;
+        }
+        addCartToSessionStorage(product, quantity);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      }
     } catch (error) {
       showToast("Thất bại !!!", "error");
+      throw error;
     }
   };
   const similarProducts = [
@@ -107,106 +120,119 @@ const ProductDetail = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="container mx-auto p-4 bg-gray-50">
-          <div className="grid md:grid-cols-2 gap-8">
-            <ImageGallery images={[product.image, ...product.listImage]} />
+        <Box
+          sx={{
+            display: "flex",
+            bgcolor: "background.default",
+            minHeight: "100vh",
+          }}
+        >
+          <Navigation />
+          <div className="container mx-auto p-4 bg-gray-50">
+            <div className="grid md:grid-cols-2 gap-8">
+              <ImageGallery images={[product.image, ...product.listImage]} />
 
-            <div className="space-y-4">
-              <h1 className="text-3xl font-bold text-gray-800">
-                {product.name}
-              </h1>
+              <div className="space-y-4">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  {product.name}
+                </h1>
 
-              <Typography variant="body2" color="text.secondary">
-                Thương hiệu: <strong>{product.brand}</strong>
-              </Typography>
-
-              <Box display="flex" alignItems="center" gap={2}>
-                <Rating
-                  name="rounded-stars-rating"
-                  defaultValue={2.4}
-                  precision={0.1}
-                  readOnly
-                  icon={<StarRounded fontSize="inherit" />}
-                  emptyIcon={<StarOutlineRounded fontSize="inherit" />}
-                />
-                <Typography variant="body1" color="text.secondary">
-                  {product.reviews.length} Nhận xét
+                <Typography variant="body2" color="text.secondary">
+                  Thương hiệu: <strong>{product.brand}</strong>
                 </Typography>
-              </Box>
 
-              <Box display="flex" flexDirection="column">
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    textDecoration: "line-through",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  {product.originalPrice.toLocaleString()} VNĐ
-                </Typography>
-                <Typography variant="h4" color="error.main" fontWeight="bold">
-                  {product.price.toLocaleString()} VNĐ
-                </Typography>
-              </Box>
-
-              <Typography variant="body1" color="text.secondary">
-                {product.description}
-              </Typography>
-
-              <Box display="flex" alignItems="center" gap={4}>
                 <Box display="flex" alignItems="center" gap={2}>
-                  <Button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    variant="contained"
-                    color="inherit"
-                    size="small"
-                  >
-                    -
-                  </Button>
-                  <Typography variant="body1" sx={{ color: "black" }}>
-                    {quantity}
+                  <Rating
+                    name="rounded-stars-rating"
+                    defaultValue={2.4}
+                    precision={0.1}
+                    readOnly
+                    icon={<StarRounded fontSize="inherit" />}
+                    emptyIcon={<StarOutlineRounded fontSize="inherit" />}
+                  />
+                  <Typography variant="body1" color="text.secondary">
+                    {product.reviews.length} Nhận xét
                   </Typography>
-
-                  <Button
-                    onClick={() => setQuantity(quantity + 1)}
-                    variant="contained"
-                    color="inherit"
-                    size="small"
-                  >
-                    +
-                  </Button>
                 </Box>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<ShoppingCart />}
-                  onClick={handleAddToCart}
-                >
-                  Thêm vào giỏ
-                </Button>
 
-                <HeartIconProduct product={product} />
-              </Box>
+                <Box display="flex" flexDirection="column">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      textDecoration: "line-through",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {product.originalPrice.toLocaleString()} VNĐ
+                  </Typography>
+                  <Typography variant="h4" color="error.main" fontWeight="bold">
+                    {product.price.toLocaleString()} VNĐ
+                  </Typography>
+                </Box>
 
-              <Card variant="outlined">
-                <CardHeader title="Đặc điểm nổi bật" />
-                <Divider />
-                <CardContent>
-                  <ul className="list-disc list-inside text-gray-700">
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                <Typography variant="body1" color="text.secondary">
+                  {product.description}
+                </Typography>
+
+                <Box display="flex" alignItems="center" gap={4}>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      variant="contained"
+                      color="inherit"
+                      size="small"
+                    >
+                      -
+                    </Button>
+                    <Typography variant="body1" sx={{ color: "black" }}>
+                      {quantity}
+                    </Typography>
+
+                    <Button
+                      onClick={() => setQuantity(quantity + 1)}
+                      variant="contained"
+                      color="inherit"
+                      size="small"
+                    >
+                      +
+                    </Button>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<ShoppingCart />}
+                    onClick={handleAddToCart}
+                  >
+                    Thêm vào giỏ
+                  </Button>
+
+                  <HeartIconProduct product={product} />
+                </Box>
+
+                <Card variant="outlined">
+                  <CardHeader title="Đặc điểm nổi bật" />
+                  <Divider />
+                  <CardContent>
+                    <ul className="list-disc list-inside text-gray-700">
+                      {product.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
 
-          <RatingProduct reviews={reviews} />
-          <ReviewProduct reviews={reviews} setReviews={setReviews} productId={productId} />
-          <SimilarProducts similarProducts={similarProducts} />
-        </div>
+            <RatingProduct reviews={reviews} />
+            <ReviewProduct
+              reviews={reviews}
+              setReviews={setReviews}
+              productId={productId}
+            />
+            <SimilarProducts similarProducts={similarProducts} />
+          </div>
+        </Box>
       )}
     </>
   );

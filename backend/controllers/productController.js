@@ -149,16 +149,6 @@ const fetchProducts = asyncHandler(async (req, res) => {
     const count = await Product.countDocuments(query);
     const products = await Product.find(query).limit(pageSize).skip(skip);
 
-    // const products = await Product.find(query)
-    //   .limit(pageSize)
-    //   .populate({
-    //     path: "category",
-    //     populate: {
-    //       path: "mainCategory",
-    //       model: "MainCategory",
-    //     },
-    //   });
-
     res.json({
       products,
       page: 1,

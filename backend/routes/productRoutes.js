@@ -20,7 +20,7 @@ import checkId from "../middlewares/checkId.js";
 route
   .route("/")
   .get(fetchProducts)
-  .post(authenticate, authorizeAdmin, formidable(), addProduct);
+  .post(authenticate, authorizeAdmin, addProduct);
 
 route.route("/allproducts").get(fetchAllProducts);
 route

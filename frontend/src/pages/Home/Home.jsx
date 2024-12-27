@@ -36,7 +36,6 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
-  
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>

@@ -36,13 +36,7 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <Loader size={40} />
-      </Box>
-    );
-  }
+  
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>

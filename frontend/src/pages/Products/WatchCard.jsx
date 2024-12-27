@@ -18,6 +18,12 @@ import HeartIconProduct from "./HeartIconProduct";
 import cartApi from "../../service/api/cartRequest";
 import "react-toastify/dist/ReactToastify.css";
 import showToast from "../../components/ShowToast";
+import {
+  getCartSessionStorage,
+  addCartToSessionStorage,
+  removeCartFromSessionStorage,
+} from "../../utils/sessionStorage.js";
+var login = false;
 const WatchCard = ({
   watch,
   onAddToCart,
@@ -33,8 +39,13 @@ const WatchCard = ({
   };
   const handleCartToggle = async () => {
     try {
-      await cartApi.addToCart(watch._id, 1);
-      showToast("Thêm vào giỏ hàng thành công!", "success");
+      if (login) {
+        await cartApi.addToCart(watch._id, 1);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      } else {
+        addCartToSessionStorage(watch);
+        showToast("Thêm vào giỏ hàng thành công!", "success");
+      }
     } catch (error) {
       throw error;
     }

@@ -7,7 +7,12 @@ import {
   useMediaQuery,
   Container,
   Badge,
+  TextField,
+  Pagination,
+  Stack,
+  InputAdornment,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   SlidersHorizontal,
   BadgeCheck,
@@ -21,7 +26,7 @@ import FilterList from "./FilterList";
 import categoryApi from "../../service/api/categoryApi";
 import productApi from "../../service/api/productsApi";
 import Navigation from "../Auth/Navigation";
-
+import { useSelector } from "react-redux";
 const convertToSlug = (text) => {
   return text
     .toLowerCase()
@@ -38,9 +43,9 @@ const convertToSlugSubs = (text) => {
     .replace(/[\u0300-\u036f]/g, "");
 };
 
-const objectToQueryParams = (categoriesObj) => {
+const objectToQueryParams = (categoriesObj, search, page = 1) => {
   const queryParamsArray = [];
-
+  console.log("search", search);
   for (const categoryName in categoriesObj) {
     if (categoriesObj.hasOwnProperty(categoryName)) {
       const subCategories = categoriesObj[categoryName];
@@ -59,7 +64,10 @@ const objectToQueryParams = (categoriesObj) => {
       }
     }
   }
-
+  if (search) {
+    queryParamsArray.push(`search=${search}`);
+  }
+  queryParamsArray.push(`page=${page}`);
   return queryParamsArray.join("&");
 };
 
@@ -70,7 +78,10 @@ const ProductFilterPage = () => {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [filters, setFilters] = useState({});
   const [products, setProducts] = useState([]);
-
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(0);
+  // const [favorites, setFavorites] = useState([])
   const mapApiData = (data) => {
     const icons = [
       <BadgeCheck size={20} />,
@@ -91,7 +102,6 @@ const ProductFilterPage = () => {
     });
     return filter;
   };
-
   useEffect(() => {
     const fetchMainCategoryWithSubs = async () => {
       const response = await categoryApi.getMainCategoryWithSubs();
@@ -102,12 +112,13 @@ const ProductFilterPage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const params = objectToQueryParams(selectedFilters);
+      const params = objectToQueryParams(selectedFilters, search, page);
       const response = await productApi.getProducts(params);
+      setPages(response.pages);
       setProducts(response.products);
     };
     fetchProducts();
-  }, [selectedFilters]);
+  }, [selectedFilters, page, search]);
 
   const handleFilterClick = (category) => {
     setOpenFilters((prev) => ({
@@ -135,7 +146,14 @@ const ProductFilterPage = () => {
       count + Object.values(categoryFilters || {}).filter(Boolean).length,
     0
   );
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
+  const handleOnChangeSearch = (e) => {
+    setSearch(e.target.value);
+  };
   const filterListProps = {
     filters,
     openFilters,
@@ -146,7 +164,13 @@ const ProductFilterPage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        bgcolor: "background.default",
+        minHeight: "100vh",
+      }}
+    >
       <Navigation />
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box sx={{ display: "flex", gap: 3 }}>
@@ -194,12 +218,55 @@ const ProductFilterPage = () => {
               variant="h4"
               sx={{
                 fontWeight: 700,
-                color: "#1a237e",
+                color: "#475569",
                 mb: 4,
               }}
             >
               Đồng hồ cao cấp
             </Typography>
+
+            <Box sx={{ position: "relative", mb: 4 }}>
+              <SearchIcon
+                sx={{
+                  position: "absolute",
+                  left: "16px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#64748b",
+                  zIndex: 1,
+                }}
+              />
+              <TextField
+                fullWidth
+                placeholder="Tìm kiếm đồng hồ..."
+                variant="outlined"
+                onChange={handleOnChangeSearch}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "30px",
+                    backgroundColor: "#f8fafc",
+                    pl: "48px",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      backgroundColor: "#f1f5f9",
+                    },
+                    "&.Mui-focused": {
+                      backgroundColor: "#ffffff",
+                      boxShadow: "0 0 0 2px #e2e8f0",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#e2e8f0",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    "&::placeholder": {
+                      color: "#94a3b8",
+                    },
+                  },
+                }}
+              />
+            </Box>
+
             <Box
               sx={{
                 display: "grid",
@@ -216,6 +283,45 @@ const ProductFilterPage = () => {
                 <WatchCard key={index} watch={product} />
               ))}
             </Box>
+
+            {pages > 1 && (
+              <Stack
+                spacing={2}
+                sx={{
+                  mt: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  "& .MuiPagination-ul": {
+                    "& .MuiPaginationItem-root": {
+                      color: "#64748b",
+                      "&:hover": {
+                        backgroundColor: "#f1f5f9",
+                      },
+                      "&.Mui-selected": {
+                        backgroundColor: "#3b82f6",
+                        color: "white",
+                        fontWeight: "bold",
+                        "&:hover": {
+                          backgroundColor: "#2563eb",
+                        },
+                      },
+                    },
+                  },
+                }}
+              >
+                <Pagination
+                  count={pages}
+                  page={page}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size={isMobile ? "small" : "large"}
+                  showFirstButton
+                  showLastButton
+                  siblingCount={isMobile ? 0 : 1}
+                  boundaryCount={isMobile ? 1 : 2}
+                />
+              </Stack>
+            )}
           </Box>
         </Box>
       </Container>

@@ -76,16 +76,15 @@ const fetchProducts = asyncHandler(async (req, res) => {
   try {
     const pageSize = 8;
     const query = {};
+    const { page, search, ...filterQuery } = req.query;
     const categoryConditions = [];
     const mainCategories = await MainCategory.find({});
-   
-
     for (const mainCategory of mainCategories) {
       let paramName = mainCategory.name.toLowerCase();
       paramName = convertToSlug(paramName);
 
-      if (req.query[paramName]) {
-        const values = req.query[paramName].split(",").map((val) => val.trim());
+      if (filterQuery[paramName]) {
+        const values = filterQuery[paramName].split(",").map((val) => val.trim());
         const subCategories = await Category.find({
           mainCategory: mainCategory._id,
           nameSlug: {
@@ -105,15 +104,20 @@ const fetchProducts = asyncHandler(async (req, res) => {
     if (categoryConditions.length > 0) {
       query.$and = categoryConditions;
     }
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; 
+    }
+    const pageNumber = parseInt(page, 10) || 1;
+    const skip = (pageNumber - 1) * pageSize;
+
     const count = await Product.countDocuments(query);
-    const products = await Product.find(query).limit(pageSize)
-    
+    const products = await Product.find(query).limit(pageSize).skip(skip);
+
 
     res.json({
       products,
       page: 1,
       pages: Math.ceil(count / pageSize),
-      hasMore: false,
     });
   } catch (error) {
     console.error(error);
@@ -158,13 +162,16 @@ const addProductReview = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
-      const alreadyReviewed = product.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
-      );
+      // Check if user already reviewed
+      const alreadyReviewed = product.reviews.find((r) => {
+        return r.user && r.user.toString() === req.user._id.toString();
+      });
 
       if (alreadyReviewed) {
-        res.status(400);
-        throw new Error("Product already reviewed");
+        return res.json({
+          success: false,
+          mes: "Bạn đã đánh giá sản phẩm này",
+        });
       }
 
       const review = {
@@ -186,6 +193,19 @@ const addProductReview = asyncHandler(async (req, res) => {
       res.status(404);
       throw new Error("Product not found");
     }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(error.message);
+  }
+});
+
+const getReviewProduct = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    const reviews = product.reviews;
+    return res.status(200).json({
+      reviews,
+    });
   } catch (error) {
     console.error(error);
     res.status(400).json(error.message);
@@ -324,4 +344,5 @@ export {
   fetchTopSellingProducts,
   fetchNewProducts,
   fetchRelatedProducts,
+  getReviewProduct
 };

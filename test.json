@@ -1,0 +1,35 @@
+
+{
+    "name": "Đồng Hồ Omega Seamaster",
+    "image": "https://cdn2.cellphones.com.vn/insecure/rs:fill:358:358/q:90/plain/htt…",
+    "brand": "Omega",
+    "quantity": 1,
+    "category": [
+        "6762f4e1748595145ef12c51",
+        "6762f502748595145ef12c5b"
+    ],
+    "description": "abcd",
+    "listImage": [
+        "https://cdn2.cellphones.com...",
+        "https://cdn2.cellphones.com...",
+        "https://cdn2.cellphones.com...",
+        "https://cdn2.cellphones.com...",
+        "https://cdn2.cellphones.com..."
+    ],
+    "features": [
+        "kết nối được điện thoại",
+        "Xài liên tục ..."
+    ],
+    "reviews": [
+        {
+            "name": "abd",
+            "rating": 3,
+            "comment": "sản phẩm tốt"
+        }
+    ],
+    "rating": 4.3,
+    "numReviews": 4,
+    "price": 100000,
+    "originalPrice": 200000,
+    "discount": "15%"
+}

@@ -13,6 +13,7 @@ import {
   fetchTopRatingProducts,
   fetchTopSellingProducts,
   fetchNewProducts,
+  getReviewProduct
 } from "../controllers/productController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import checkId from "../middlewares/checkId.js";
@@ -20,17 +21,17 @@ import checkId from "../middlewares/checkId.js";
 route
   .route("/")
   .get(fetchProducts)
-  .post(authenticate, authorizeAdmin, formidable(), addProduct);
+  .post(authenticate, authorizeAdmin, addProduct);
 
 route.route("/allproducts").get(fetchAllProducts);
-//route.get("/top", fetchTopRatingProducts);
 route.get("/topRating", fetchTopRatingProducts);
 route.get("/topSelling", fetchTopSellingProducts);
 route.get("/new", fetchNewProducts);
 
 route
   .route("/:id/reviews")
-  .post(authenticate, authorizeAdmin, checkId, addProductReview);
+  .post(authenticate, checkId, addProductReview)
+  .get(authenticate, getReviewProduct)
 
 
 route

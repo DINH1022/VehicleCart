@@ -20,6 +20,12 @@ import {
 import { styled } from "@mui/material/styles";
 import cartApi from "../service/api/cartRequest";
 import Navigation from "./Auth/Navigation";
+import {
+  getCartSessionStorage,
+  updateQuanityCartSessionStorage,
+  removeCartFromSessionStorage,
+  clearCartSessionStorage,
+} from "../utils/sessionStorage.js";
 const GradientButton = styled(Button)(({ theme }) => ({
   background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
   border: 0,
@@ -47,13 +53,19 @@ const Cart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
-
+  const isLoggedIn = () => {
+    return true;
+  };
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const product = await cartApi.getCart();
-        console.log(product.items);
-        setCartItems(product.items);
+        if (isLoggedIn()) {
+          const product = await cartApi.getCart();
+          setCartItems(product.items);
+        } else {
+          const savedCart = getCartSessionStorage();
+          setCartItems(savedCart);
+        }
       } catch (error) {
         console.error("Error fetching cart items:", error);
       }
@@ -66,7 +78,11 @@ const Cart = () => {
     try {
       if (newQuantity < 1) return;
 
-      await cartApi.updateCart(id, newQuantity);
+      if (isLoggedIn()) {
+        await cartApi.updateCart(id, newQuantity);
+      } else {
+        updateQuanityCartSessionStorage(id, newQuantity);
+      }
 
       setCartItems((prevItems) =>
         prevItems.map((item) =>
@@ -80,8 +96,11 @@ const Cart = () => {
 
   const removeItem = async (id) => {
     try {
-      console.log(id);
-      await cartApi.removeFromCart(id);
+      if (isLoggedIn()) {
+        await cartApi.removeFromCart(id);
+      } else {
+        removeCartFromSessionStorage(id);
+      }
       setCartItems((prevItems) =>
         prevItems.filter((item) => item.product._id !== id)
       );
@@ -91,7 +110,11 @@ const Cart = () => {
   };
   const clearCart = async () => {
     try {
-      await cartApi.clearCart(); 
+      if (isLoggedIn()) {
+        await cartApi.clearCart();
+      } else {
+        clearCartSessionStorage();
+      }
       setCartItems([]);
     } catch (error) {
       console.error("Error clearing cart:", error);

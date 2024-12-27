@@ -6,27 +6,21 @@ import Cart from "../models/cartModel.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, brand, quantity, category, description, price } = req.fields;
+    // Lấy dữ liệu trực tiếp từ req.body thay vì req.fields
+    const product = new Product({
+      ...req.body,
+      rating: 0,
+      numReviews: 0,
+      reviews: []
+    });
 
-    if (!name) throw new Error("Name is required");
-    if (!brand) throw new Error("Brand is required");
-    if (!quantity) throw new Error("Quantity is required");
-    if (!category || !category.length)
-      throw new Error("At least one category is required");
-    if (!description) throw new Error("Description is required");
-    if (!price) throw new Error("Price is required");
-    if (!image) throw new Error("Main image is required");
-
-    const product = new Product({ ...req.fields });
-    await product.save();
-
-    res.json(product);
+    const createdProduct = await product.save();
+    res.status(201).json(createdProduct);
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(400).json({message: error.message});
   }
 });
-
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {

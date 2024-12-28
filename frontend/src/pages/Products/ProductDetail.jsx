@@ -233,7 +233,7 @@ const ProductDetail = () => {
                   <CardContent>
                     <ul className="list-disc list-inside text-gray-700">
                       {product.features.map((feature, index) => (
-                        <li key={index}>{feature}</li>
+                        <li key={index} >{feature}</li>
                       ))}
                     </ul>
                   </CardContent>

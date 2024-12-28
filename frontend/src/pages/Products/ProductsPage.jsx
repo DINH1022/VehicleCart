@@ -69,7 +69,7 @@ const objectToQueryParams = (categoriesObj, search, page = 1) => {
     queryParamsArray.push(`search=${search}`);
   }
   queryParamsArray.push(`page=${page}`);
-  console.log("query: ", queryParamsArray.join("&"));
+
   return queryParamsArray.join("&");
 };
 
@@ -147,6 +147,7 @@ const ProductFilterPage = () => {
         [option]: !prev[category]?.[option],
       },
     }));
+    setPage(1);
   };
 
   const handleClearFilters = () => {

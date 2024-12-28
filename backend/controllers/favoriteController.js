@@ -3,8 +3,7 @@ import Favorite from "../models/favoriteModel.js";
 
 const getFavorites = asyncHandler(async (req, res) => {
   const favorites = await Favorite.findOne({ user: req.user._id }).populate(
-    "products",
-    "name price image description branch rating"
+    "products"
   );
   if (!favorites) {
     return res.status(200).json({ products: [] });

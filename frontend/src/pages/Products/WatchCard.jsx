@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardMedia,
@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import Swal from "sweetalert2";
 import {
   ShoppingCart as CartIcon,
   Delete as DeleteIcon,
@@ -21,24 +22,36 @@ import "react-toastify/dist/ReactToastify.css";
 import showToast from "../../components/ShowToast";
 import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
 import favoritesApi from "../../service/api/favoritesApi.js";
-var login = false;
+
 const WatchCard = ({
   watch,
   pageFavorite = false,
   favorited,
   handleDeleteWatch,
 }) => {
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  console.log("test: ", favorited);
   const [isFavorite, setIsFavorite] = useState(favorited);
   const handleFavoriteToggle = async () => {
-    if (isFavorite) {
-      setIsFavorite(!isFavorite);
-      await favoritesApi.removeFavorite(watch._id);
+    if (login) {
+      if (isFavorite) {
+        setIsFavorite(!isFavorite);
+        await favoritesApi.removeFavorite(watch._id);
+      } else {
+        setIsFavorite(!isFavorite);
+        await favoritesApi.addFavorite(watch._id);
+      }
     } else {
-      setIsFavorite(!isFavorite);
-      await favoritesApi.addFavorite(watch._id);
+      Swal.fire(
+        "Cảnh báo",
+        "Bạn cần đăng nhập để yêu thích sản phẩm !",
+        "error"
+      );
     }
   };
-
+  useEffect(() => {
+    setIsFavorite(favorited);
+  }, [favorited]);
   const handleCartToggle = async () => {
     try {
       if (login) {

@@ -52,16 +52,8 @@ const productApi = {
     });
   },
 
-  createReview: async (productId, data) => {
-    console.log("data", data);
-    return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
-      method: "POST",
-      body: data,
-    });
-  },
-
   getNewProducts: async () => {
-    return await apiRequest(`${PRODUCT_URL}/new`, false, {
+    return await apiRequest(`${PRODUCT_URL}/new`, true, {
       method: "GET",
     });
   },
@@ -90,19 +82,16 @@ const productApi = {
       body: JSON.stringify({ checked, radio }),
     });
   },
-
   getTopRatingProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/topRating`, false, {
       method: "GET",
     });
   },
-
   getTopSellingProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/topSelling`, false, {
       method: "GET",
     });
   },
-
   getRelatedProducts: async (productId) => {
     return await apiRequest(`${PRODUCT_URL}/${productId}/related`, false, {
       method: "GET",

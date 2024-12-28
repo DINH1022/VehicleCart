@@ -6,7 +6,7 @@ import Navigation from "../Auth/Navigation";
 import productApi from "../../service/api/productsApi";
 import ProductSlider from "./ProductSlider";
 import { Link } from "react-router-dom";
-import { Loader } from "lucide-react";
+import Loader from "../../components/Loader";
 
 const HomePage = () => {
   const [newProducts, setNewProducts] = useState([]);
@@ -36,7 +36,6 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
-
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <Navigation />
@@ -49,25 +48,29 @@ const HomePage = () => {
           overflow: "hidden",
         }}
       >
-        <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 4 }, mt: { xs: 2, sm: 4 } }}>
-          <ImageSlider
-            sx={{ mb: 6 }}
-          />
+        <Container
+          maxWidth="xl"
+          sx={{ py: 4, px: { xs: 2, sm: 4 }, mt: { xs: 2, sm: 4 } }}
+        >
+          <ImageSlider sx={{ mb: 6 }} />
 
-          <ProductSlider
-            products={topSellingProducts}
-            title="Sản phẩm bán chạy nhất"
-          />
+          {loading ? (
+            <Loader />
+          ) : (
+            <>
+              <ProductSlider
+                products={topSellingProducts}
+                title="Sản phẩm bán chạy nhất"
+              />
 
-          <ProductSlider
-            products={topRatedProducts}
-            title="Sản phẩm đánh giá cao"
-          />
+              <ProductSlider
+                products={topRatedProducts}
+                title="Sản phẩm đánh giá cao"
+              />
 
-          <ProductSlider
-            products={newProducts}
-            title="Sản phẩm mới"
-          />
+              <ProductSlider products={newProducts} title="Sản phẩm mới" />
+            </>
+          )}
 
           <Box sx={{ textAlign: "center", my: 6 }}>
             <Link to="/products" style={{ textDecoration: "none" }}>
@@ -96,3 +99,6 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+
+

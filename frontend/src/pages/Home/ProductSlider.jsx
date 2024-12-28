@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Container, Box, Typography, Button, Stack } from "@mui/material";
-import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
+import { Box, Typography, Button, Stack } from "@mui/material";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import WatchCard from "../Products/WatchCard";
 import favoritesApi from "../../service/api/favoritesApi";
 const ListProduct = ({ products, title }) => {
   const [startIndex, setStartIndex] = useState(0);
   const productsPerView = 4;
   const [favorites, setFavorites] = useState([]);
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        const response = await favoritesApi.getFavorites();
-        setFavorites(response.products);
-      } catch (error) {
-        console.error("Failed to fetch favorites:", error);
-      }
-    };
-    fetchFavorites();
-  }, []);
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  if (login) {
+    useEffect(() => {
+      const fetchFavorites = async () => {
+        try {
+          const response = await favoritesApi.getFavorites();
+          setFavorites(response.products);
+        } catch (error) {
+          console.error("Failed to fetch favorites:", error);
+        }
+      };
+      fetchFavorites();
+    }, []);
+  }
 
   const handleNext = () => {
     setStartIndex((prevIndex) => {
@@ -35,10 +38,10 @@ const ListProduct = ({ products, title }) => {
     });
   };
 
-  const visibleProducts = products.slice(
-    startIndex,
-    startIndex + productsPerView
-  );
+  // const visibleProducts = products.slice(
+  //   startIndex,
+  //   startIndex + productsPerView
+  // );
 
   return (
     <Box sx={{ position: "relative", my: 4 }}>
@@ -106,9 +109,9 @@ const ListProduct = ({ products, title }) => {
             }}
           >
             {products.map((product, index) => {
-              const isFavorited = favorites.some(
-                (fav) => fav._id === product._id
-              );
+              const isFavorited = login
+                ? favorites.some((fav) => fav._id === product._id)
+                : false;
               return (
                 <Box
                   key={index}

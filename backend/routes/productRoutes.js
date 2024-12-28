@@ -12,6 +12,7 @@ import {
   addProductReview,
   fetchTopRatingProducts,
   fetchTopSellingProducts,
+  fetchRelatedProducts,
   fetchNewProducts,
   getReviewProduct
 } from "../controllers/productController.js";
@@ -27,11 +28,11 @@ route.route("/allproducts").get(fetchAllProducts);
 route.get("/topRating", fetchTopRatingProducts);
 route.get("/topSelling", fetchTopSellingProducts);
 route.get("/new", fetchNewProducts);
-
+route.get("/:id/related", fetchRelatedProducts)
 route
   .route("/:id/reviews")
   .post(authenticate, checkId, addProductReview)
-  .get(authenticate, getReviewProduct)
+  .get(getReviewProduct)
 
 
 route

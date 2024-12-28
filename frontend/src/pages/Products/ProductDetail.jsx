@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, HeartIcon } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
+import Swal from "sweetalert2";
 import {
   Box,
   Button,
@@ -9,20 +10,23 @@ import {
   Divider,
   Rating,
   Typography,
+  IconButton,
 } from "@mui/material";
 import { useParams } from "react-router";
 import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SimilarProducts from "./SimilarProducts";
 import productApi from "../../service/api/productsApi";
 import ImageGallery from "./ImageGallery";
 import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
 import Loader from "../../components/Loader.jsx";
-import HeartIconProduct from "./HeartIconProduct.jsx";
 import cartApi from "../../service/api/cartRequest.js";
 import showToast from "../../components/ShowToast.jsx";
 import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
 import Navigation from "../Auth/Navigation.jsx";
+import favoritesApi from "../../service/api/favoritesApi.js";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [product, setProducts] = useState(null);
@@ -30,6 +34,38 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const { id: productId } = useParams();
   const [reviews, setReviews] = useState();
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  const [isFavorited, setFavorited] = useState(false);
+  if (login) {
+    useEffect(() => {
+      const fetchFavorites = async () => {
+        const response = await favoritesApi.getFavorites();
+        const checked = response.products.some(
+          (product) => product._id === productId
+        );
+        setFavorited(checked);
+      };
+      fetchFavorites();
+    }, []);
+  }
+  const handleFavoriteToggle = async () => {
+    if (login) {
+      if (isFavorited) {
+        setFavorited(!isFavorited);
+        await favoritesApi.removeFavorite(productId);
+      } else {
+        setFavorited(!isFavorited);
+        await favoritesApi.addFavorite(productId);
+      }
+    } else {
+      Swal.fire(
+        "Cảnh báo",
+        "Bạn cần đăng nhập để yêu thích sản phẩm !",
+        "error"
+      );
+    }
+  };
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -40,6 +76,17 @@ const ProductDetail = () => {
       }
     };
     fetchReviews();
+  }, []);
+  useEffect(() => {
+    const fetchSimilarProduct = async () => {
+      try {
+        const response = await productApi.getRelatedProducts(productId);
+        setSimilarProducts(response);
+      } catch (error) {
+        throw error;
+      }
+    };
+    fetchSimilarProduct();
   }, []);
   // const [reviews, setReviews] = useState(product.reviews)
   useEffect(() => {
@@ -55,7 +102,6 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, []);
-  const login = false;
   const handleAddToCart = async () => {
     try {
       if (login) {
@@ -74,46 +120,6 @@ const ProductDetail = () => {
       throw error;
     }
   };
-  const similarProducts = [
-    {
-      id: 1,
-      name: "Đồng Hồ Elegance",
-      price: 2.499,
-      rating: 4.5,
-      image: "/api/placeholder/150/150",
-    },
-    {
-      id: 2,
-      name: "Đồng Hồ Sporty",
-      price: 1.999,
-      rating: 4.2,
-      image: "/api/placeholder/150/150",
-    },
-    {
-      id: 3,
-      name: "Đồng Hồ Cổ Điển",
-      price: 3.299,
-      rating: 4.8,
-      image:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/1/8/18_2_117_1_1_1.jpg",
-    },
-    {
-      id: 4,
-      name: "Đồng Hồ Thời Thượng",
-      price: 1.799,
-      rating: 4.0,
-      image:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/1/8/18_2_117_1_1_1.jpg",
-    },
-    {
-      id: 5,
-      name: "Đồng Hồ Vintage",
-      price: 2.699,
-      rating: 4.6,
-      image:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/1/5/15_3_128_1_2_2.jpg",
-    },
-  ];
 
   return (
     <>
@@ -144,7 +150,7 @@ const ProductDetail = () => {
                 <Box display="flex" alignItems="center" gap={2}>
                   <Rating
                     name="rounded-stars-rating"
-                    defaultValue={2.4}
+                    value={product.rating}
                     precision={0.1}
                     readOnly
                     icon={<StarRounded fontSize="inherit" />}
@@ -207,7 +213,18 @@ const ProductDetail = () => {
                     Thêm vào giỏ
                   </Button>
 
-                  <HeartIconProduct product={product} />
+                  <IconButton
+                    onClick={handleFavoriteToggle}
+                    sx={{
+                      borderRadius: "50%",
+                    }}
+                  >
+                    {isFavorited ? (
+                      <FavoriteIcon style={{ color: "red" }} />
+                    ) : (
+                      <FavoriteBorderIcon style={{ color: "gray" }} />
+                    )}
+                  </IconButton>
                 </Box>
 
                 <Card variant="outlined">

@@ -53,13 +53,11 @@ const Cart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
-  const isLoggedIn = () => {
-    return false;
-  };
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData")); 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        if (isLoggedIn()) {
+        if (login) {
           const products = await cartApi.getCart();
           setCartItems(products.items);
         } else {
@@ -78,7 +76,7 @@ const Cart = () => {
     try {
       if (newQuantity < 1) return;
 
-      if (isLoggedIn()) {
+      if (login) {
         await cartApi.updateCart(id, newQuantity);
       } else {
         updateQuanityCartSessionStorage(id, newQuantity);
@@ -96,7 +94,7 @@ const Cart = () => {
 
   const removeItem = async (id) => {
     try {
-      if (isLoggedIn()) {
+      if (login) {
         await cartApi.removeFromCart(id);
       } else {
         removeCartFromSessionStorage(id);
@@ -110,7 +108,7 @@ const Cart = () => {
   };
   const clearCart = async () => {
     try {
-      if (isLoggedIn()) {
+      if (login) {
         await cartApi.clearCart();
       } else {
         clearCartSessionStorage();

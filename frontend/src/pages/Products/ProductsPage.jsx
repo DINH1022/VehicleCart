@@ -10,7 +10,6 @@ import {
   TextField,
   Pagination,
   Stack,
-  InputAdornment,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import {
@@ -30,6 +29,7 @@ import favoritesApi from "../../service/api/favoritesApi";
 const convertToSlug = (text) => {
   return text
     .toLowerCase()
+    .replace(/đ/g, "d")
     .replace(/ /g, "_")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
@@ -38,12 +38,14 @@ const convertToSlug = (text) => {
 const convertToSlugSubs = (text) => {
   return text
     .toLowerCase()
+    .replace(/đ/g, "d")
     .replace(/ /g, "-")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 };
 
 const objectToQueryParams = (categoriesObj, search, page = 1) => {
+  console.log("cate", categoriesObj);
   const queryParamsArray = [];
   for (const categoryName in categoriesObj) {
     if (categoriesObj.hasOwnProperty(categoryName)) {
@@ -67,6 +69,7 @@ const objectToQueryParams = (categoriesObj, search, page = 1) => {
     queryParamsArray.push(`search=${search}`);
   }
   queryParamsArray.push(`page=${page}`);
+
   return queryParamsArray.join("&");
 };
 
@@ -81,13 +84,16 @@ const ProductFilterPage = () => {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
   const [favorites, setFavorites] = useState([]);
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const response = await favoritesApi.getFavorites();
-      setFavorites(response.products);
-    };
-    fetchFavorites();
-  }, []);
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  if (login) {
+    useEffect(() => {
+      const fetchFavorites = async () => {
+        const response = await favoritesApi.getFavorites();
+        setFavorites(response.products);
+      };
+      fetchFavorites();
+    }, []);
+  }
   const mapApiData = (data) => {
     const icons = [
       <BadgeCheck size={20} />,
@@ -141,6 +147,7 @@ const ProductFilterPage = () => {
         [option]: !prev[category]?.[option],
       },
     }));
+    setPage(1);
   };
 
   const handleClearFilters = () => {
@@ -286,9 +293,9 @@ const ProductFilterPage = () => {
               }}
             >
               {products.map((product, index) => {
-                const isFavorited = favorites.some(
-                  (fav) => fav._id === product._id
-                );
+                const isFavorited = login
+                  ? favorites.some((fav) => fav._id === product._id)
+                  : false;
                 return (
                   <WatchCard
                     key={index}

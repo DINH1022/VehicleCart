@@ -54,8 +54,6 @@ const usersApi = {
         }
     },
 
-    //admin 
-    
     getUsers: async () => {
         try {
             return await apiRequest(`${USERS_URL}`, true, {
@@ -65,7 +63,6 @@ const usersApi = {
             throw new Error(error.response?.data?.message || 'Failed to fetch users');
         }
     },
-
 
     deleteUser: async (userId) => {
         try {

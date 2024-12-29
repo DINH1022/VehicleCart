@@ -18,17 +18,21 @@ import {
 import productApi from "../../service/api/productsApi";
 import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
 import showToast from "../../components/ShowToast";
-
+import Swal from "sweetalert2";
 const ReviewsProduct = ({ reviews, setReviews, productId }) => {
   const [openReviewModal, setOpenReviewModal] = useState(false);
-
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
   const [newReview, setNewReview] = useState({
     rating: 0,
     comment: "",
   });
 
   const handleOpenReviewModal = () => {
-    setOpenReviewModal(true);
+    if (login) {
+      setOpenReviewModal(true);
+    } else {
+      Swal.fire("Cảnh báo", "Bạn cần đăng nhập để đánh giá sản phẩm !", "info");
+    }
   };
 
   const handleCloseReviewModal = () => {
@@ -42,10 +46,9 @@ const ReviewsProduct = ({ reviews, setReviews, productId }) => {
         const res = await productApi.createReview(productId, newReview);
         console.log("res", res);
         if (res.success == false) {
-          showToast(res.mes, "error")
-        }
-        else {
-          showToast("Đánh giá sản phẩm thành công", "success")
+          showToast(res.mes, "error");
+        } else {
+          showToast("Đánh giá sản phẩm thành công", "success");
         }
         const response = await productApi.getReviewProduct(productId);
         setReviews(response.reviews);

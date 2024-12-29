@@ -8,12 +8,14 @@ const favoritesApi = {
     });
     return response
   },
+  
   addFavorite: async (productId) => {
     return await apiRequest(`${FAVORITES_URL}`, true, {
       method: "POST",
       body: JSON.stringify({ productId }),
     });
   },
+
   removeFavorite: async (productId) => {
     return await apiRequest(`${FAVORITES_URL}`, true, {
       method: "DELETE",

@@ -80,7 +80,11 @@ const addToCart = asyncHandler(async (req, res) => {
 const addItemsToCart = asyncHandler(async (req, res) => {
   try {
     const { cartItems } = req.body;
-    console.log(cartItems);
+    if (!cartItems) {
+      return res.json({
+        success: true,
+      });
+    }
     let cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
       cart = await Cart.create({
@@ -90,27 +94,27 @@ const addItemsToCart = asyncHandler(async (req, res) => {
       });
     }
     for (const item of cartItems) {
-      const { productId, quantity } = item;
+      const { product, quantity } = item;
 
-      const product = await Product.findById(productId);
-      if (!product) {
+      const p = await Product.findById(product._id);
+      if (!p) {
         continue;
         return res.status(404).json({
           success: false,
-          message: `Không tìm thấy sản phẩm với id ${productId}`,
+          message: `Không tìm thấy sản phẩm với id ${product._id}`,
         });
       }
 
-      if (product.countInStock < quantity) {
+      if (p.countInStock < quantity) {
         continue;
         return res.status(400).json({
           success: false,
-          message: `Chỉ còn ${product.countInStock} sản phẩm ${product.name} trong kho`,
+          message: `Chỉ còn ${p.countInStock} sản phẩm ${p.name} trong kho`,
         });
       }
 
       const existingItemIndex = cart.items.findIndex(
-        (cartItem) => cartItem.product.toString() === productId
+        (cartItem) => cartItem.product.toString() === product._id
       );
 
       if (existingItemIndex !== -1) {
@@ -119,13 +123,13 @@ const addItemsToCart = asyncHandler(async (req, res) => {
           continue;
           return res.status(400).json({
             success: false,
-            message: `Không thể thêm quá ${product.countInStock} sản phẩm ${product.name}`,
+            message: `Không thể thêm quá ${p.countInStock} sản phẩm ${p.name}`,
           });
         }
         cart.items[existingItemIndex].quantity = newQuantity;
       } else {
         cart.items.push({
-          product: productId,
+          product: product._id,
           quantity,
           price: product.price,
         });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Container,
@@ -10,33 +10,34 @@ import {
   FormControlLabel,
   CircularProgress,
   Alert,
-  Divider
-} from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
-import { Link, useNavigate } from 'react-router-dom';
-import Navigation from './Navigation';
+  Divider,
+} from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
+import { Link, useNavigate } from "react-router-dom";
+import Navigation from "./Navigation";
 import usersApi from "../../service/api/usersApi";
-import { loginSuccess } from '../../redux/feature/authSlice';
-import { useDispatch } from 'react-redux';
+import { loginSuccess } from "../../redux/feature/authSlice";
+import { useDispatch } from "react-redux";
+import cartApi from "../../service/api/cartRequest";
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
+    email: "",
+    password: "",
+    rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const validateForm = () => {
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return false;
     }
     return true;
@@ -45,13 +46,14 @@ const Login = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!validateForm()) return;
 
@@ -59,22 +61,27 @@ const Login = () => {
     try {
       const loginData = {
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       };
-      
+
       const response = await usersApi.login(loginData);
-     
+
       // Save user data to localStorage if rememberMe is checked
       if (formData.rememberMe) {
-        localStorage.setItem('userData', JSON.stringify(response));
+        localStorage.setItem("userData", JSON.stringify(response));
       } else {
-        sessionStorage.setItem('userData', JSON.stringify(response));
+        sessionStorage.setItem("userData", JSON.stringify(response));
       }
-      
-      navigate('/');
+      const data = sessionStorage.getItem("carts");
+      const carts = JSON.parse(data);
+      console.log("carts", carts);
+      await cartApi.addItemsToCart(carts);
+      sessionStorage.removeItem("carts");
+
+      navigate("/");
     } catch (err) {
-      console.log(err)
-      setError(err.response?.data?.message || 'Invalid email or password');
+      console.log(err);
+      setError(err.response?.data?.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -84,34 +91,34 @@ const Login = () => {
     try {
       // Add Google authentication logic here
       // const response = await authApi.googleLogin();
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError(err.message || 'Google login failed');
+      setError(err.message || "Google login failed");
     }
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Navigation />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Container maxWidth="sm">
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              p: 4, 
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
               mt: 8,
-              backgroundColor: 'white',
-              borderRadius: 2
+              backgroundColor: "white",
+              borderRadius: 2,
             }}
           >
-            <Typography 
-              variant="h4" 
-              align="center" 
+            <Typography
+              variant="h4"
+              align="center"
               gutterBottom
-              sx={{ 
-                color: '#1a237e',
+              sx={{
+                color: "#1a237e",
                 fontWeight: 600,
-                mb: 3
+                mb: 3,
               }}
             >
               Login
@@ -123,9 +130,9 @@ const Login = () => {
               </Alert>
             )}
 
-            <Box 
-              component="form" 
-              onSubmit={handleSubmit} 
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
               noValidate
               sx={{ mt: 1 }}
             >
@@ -155,7 +162,7 @@ const Login = () => {
               />
               <FormControlLabel
                 control={
-                  <Checkbox 
+                  <Checkbox
                     name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
@@ -174,13 +181,13 @@ const Login = () => {
                   mt: 2,
                   mb: 3,
                   py: 1.5,
-                  backgroundColor: '#1a237e',
-                  '&:hover': {
-                    backgroundColor: '#000051'
-                  }
+                  backgroundColor: "#1a237e",
+                  "&:hover": {
+                    backgroundColor: "#000051",
+                  },
                 }}
               >
-                {loading ? <CircularProgress size={24} /> : 'Sign In'}
+                {loading ? <CircularProgress size={24} /> : "Sign In"}
               </Button>
               <Box sx={{ mt: 3, mb: 2 }}>
                 <Divider>
@@ -198,23 +205,23 @@ const Login = () => {
                 sx={{
                   mt: 1,
                   py: 1.5,
-                  borderColor: '#dadce0',
-                  color: '#3c4043',
-                  '&:hover': {
-                    borderColor: '#dadce0',
-                    backgroundColor: '#f8f9fa'
-                  }
+                  borderColor: "#dadce0",
+                  color: "#3c4043",
+                  "&:hover": {
+                    borderColor: "#dadce0",
+                    backgroundColor: "#f8f9fa",
+                  },
                 }}
               >
                 Continue with Google
               </Button>
               <Typography align="center" sx={{ mt: 2 }}>
-                Don't have an account?{' '}
-                <Link 
-                  to="/register" 
-                  style={{ 
-                    textDecoration: 'none',
-                    color: '#1a237e'
+                Don't have an account?{" "}
+                <Link
+                  to="/register"
+                  style={{
+                    textDecoration: "none",
+                    color: "#1a237e",
                   }}
                 >
                   Sign up

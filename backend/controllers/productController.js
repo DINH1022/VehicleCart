@@ -10,14 +10,14 @@ const addProduct = asyncHandler(async (req, res) => {
       ...req.body,
       rating: 0,
       numReviews: 0,
-      reviews: []
+      reviews: [],
     });
 
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
     console.error(error);
-    res.status(400).json({message: error.message});
+    res.status(400).json({ message: error.message });
   }
 });
 
@@ -46,7 +46,6 @@ const updateProductDetails = asyncHandler(async (req, res) => {
   }
 });
 
-
 const removeProduct = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
@@ -57,13 +56,14 @@ const removeProduct = asyncHandler(async (req, res) => {
   }
 });
 
-function convertToSlug(text) {
+const convertToSlug = (text) => {
   return text
     .toLowerCase()
+    .replace(/đ/g, "d")
     .replace(/ /g, "_")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-}
+};
 
 const fetchProducts = asyncHandler(async (req, res) => {
   try {
@@ -77,7 +77,9 @@ const fetchProducts = asyncHandler(async (req, res) => {
       paramName = convertToSlug(paramName);
 
       if (filterQuery[paramName]) {
-        const values = filterQuery[paramName].split(",").map((val) => val.trim());
+        const values = filterQuery[paramName]
+          .split(",")
+          .map((val) => val.trim());
         const subCategories = await Category.find({
           mainCategory: mainCategory._id,
           nameSlug: {
@@ -98,14 +100,13 @@ const fetchProducts = asyncHandler(async (req, res) => {
       query.$and = categoryConditions;
     }
     if (search) {
-      query.name = { $regex: search, $options: "i" }; 
+      query.name = { $regex: search, $options: "i" };
     }
     const pageNumber = parseInt(page, 10) || 1;
     const skip = (pageNumber - 1) * pageSize;
 
     const count = await Product.countDocuments(query);
     const products = await Product.find(query).limit(pageSize).skip(skip);
-
 
     res.json({
       products,
@@ -117,7 +118,6 @@ const fetchProducts = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 });
-
 
 const fetchProductById = asyncHandler(async (req, res) => {
   try {
@@ -133,7 +133,6 @@ const fetchProductById = asyncHandler(async (req, res) => {
   }
 });
 
-
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
@@ -147,7 +146,6 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 });
-
 
 const addProductReview = asyncHandler(async (req, res) => {
   try {
@@ -212,11 +210,11 @@ const fetchTopRatingProducts = asyncHandler(async (req, res) => {
         path: "category",
         populate: {
           path: "mainCategory",
-          model: "MainCategory"
-        }
+          model: "MainCategory",
+        },
       })
-      .sort({ rating: -1 }) 
-      .limit(12);  
+      .sort({ rating: -1 })
+      .limit(12);
 
     res.json(products);
   } catch (error) {
@@ -229,14 +227,14 @@ const fetchNewProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
       .populate({
-        path: "category", 
+        path: "category",
         populate: {
           path: "mainCategory",
-          model: "MainCategory"
-        }
+          model: "MainCategory",
+        },
       })
-      .sort({ createdAt: -1 }) 
-      .limit(12);  
+      .sort({ createdAt: -1 })
+      .limit(12);
 
     res.json(products);
   } catch (error) {
@@ -252,44 +250,42 @@ const fetchTopSellingProducts = asyncHandler(async (req, res) => {
       {
         $group: {
           _id: "$items.product",
-          totalSold: { $sum: "$items.quantity" }
-        }
+          totalSold: { $sum: "$items.quantity" },
+        },
       },
       { $sort: { totalSold: -1 } },
     ]);
 
-    
-    const productIds = topProducts.map(item => item._id);
-    
-    let products = await Product.find({ _id: { $in: productIds } })
-      .populate({
-        path: "category",
-        populate: {
-          path: "mainCategory",
-          model: "MainCategory"
-        }
-      });
+    const productIds = topProducts.map((item) => item._id);
+
+    let products = await Product.find({ _id: { $in: productIds } }).populate({
+      path: "category",
+      populate: {
+        path: "mainCategory",
+        model: "MainCategory",
+      },
+    });
 
     // If we have less than 12 products, add more products sorted by creation date
     if (products.length < 12) {
-      const additionalProducts = await Product.find({ 
-        _id: { $nin: productIds } 
+      const additionalProducts = await Product.find({
+        _id: { $nin: productIds },
       })
-      .populate({
-        path: "category",
-        populate: {
-          path: "mainCategory",
-          model: "MainCategory"
-        }
-      })
-      .sort({ createdAt: -1 })
-      .limit(12 - products.length);  
+        .populate({
+          path: "category",
+          populate: {
+            path: "mainCategory",
+            model: "MainCategory",
+          },
+        })
+        .sort({ createdAt: -1 })
+        .limit(12 - products.length);
 
       products = [...products, ...additionalProducts];
     }
 
     // Limit  12 products
-    products = products.slice(0, 12);  
+    products = products.slice(0, 12);
 
     res.json(products);
   } catch (error) {
@@ -306,17 +302,17 @@ const fetchRelatedProducts = asyncHandler(async (req, res) => {
     }
 
     const relatedProducts = await Product.find({
-      _id: { $ne: product._id },  // ne = not equal
-      category: { $in: product.category }
+      _id: { $ne: product._id }, // ne = not equal
+      category: { $in: product.category },
     })
-    .populate({
-      path: "category",
-      populate: {
-        path: "mainCategory",
-        model: "MainCategory"
-      }
-    })
-    .limit(8);
+      .populate({
+        path: "category",
+        populate: {
+          path: "mainCategory",
+          model: "MainCategory",
+        },
+      })
+      .limit(10);
 
     res.json(relatedProducts);
   } catch (error) {
@@ -337,5 +333,5 @@ export {
   fetchTopSellingProducts,
   fetchNewProducts,
   fetchRelatedProducts,
-  getReviewProduct
+  getReviewProduct,
 };

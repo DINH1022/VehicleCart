@@ -10,7 +10,6 @@ const orderApi = {
     });
   },
 
-
   getOrderDetails: async (id) => {
     return await apiRequest(`${ORDERS_URL}/${id}`, true, {
       method: "GET",

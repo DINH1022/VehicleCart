@@ -57,11 +57,13 @@ const productApi = {
       method: "GET",
     });
   },
+  
   getReviewProduct: async (productId) => {
     return await apiRequest(`${PRODUCT_URL}/${productId}/reviews`, true, {
       method: "GET",
     });
   },
+
   uploadProductImage: async (data) => {
     return await apiRequest(`${PRODUCT_URL}/upload`, true, {
       method: "POST",
@@ -82,16 +84,19 @@ const productApi = {
       body: JSON.stringify({ checked, radio }),
     });
   },
+
   getTopRatingProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/topRating`, false, {
       method: "GET",
     });
   },
+
   getTopSellingProducts: async () => {
     return await apiRequest(`${PRODUCT_URL}/topSelling`, false, {
       method: "GET",
     });
   },
+
   getRelatedProducts: async (productId) => {
     return await apiRequest(`${PRODUCT_URL}/${productId}/related`, false, {
       method: "GET",

@@ -20,6 +20,7 @@ import {
 import { styled } from "@mui/material/styles";
 import cartApi from "../service/api/cartRequest";
 import Navigation from "./Auth/Navigation";
+import { Link } from "react-router-dom";
 import {
   getCartSessionStorage,
   updateQuanityCartSessionStorage,
@@ -53,7 +54,7 @@ const Cart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
-  const [login, setLogin] = useState(!!sessionStorage.getItem("userData")); 
+  const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -214,15 +215,20 @@ const Cart = () => {
                         boxShadow: theme.shadows[3],
                       }}
                     >
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
+                      <Link
+                        to={`/product/${item.product._id}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Link>
                     </Box>
 
                     <Box flex={1}>

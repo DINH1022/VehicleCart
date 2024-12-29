@@ -16,8 +16,8 @@ import { useParams } from "react-router";
 import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import SimilarProducts from "./SimilarProducts";
 import productApi from "../../service/api/productsApi";
+import SimilarProducts from "./SimilarProducts.jsx";
 import ImageGallery from "./ImageGallery";
 import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
@@ -27,9 +27,10 @@ import showToast from "../../components/ShowToast.jsx";
 import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
 import Navigation from "../Auth/Navigation.jsx";
 import favoritesApi from "../../service/api/favoritesApi.js";
+import WatchCard from "./WatchCard.jsx";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
-  const [product, setProducts] = useState(null);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id: productId } = useParams();
@@ -37,17 +38,17 @@ const ProductDetail = () => {
   const [similarProducts, setSimilarProducts] = useState([]);
   const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
   const [isFavorited, setFavorited] = useState(false);
+  const [favorites, setFavorites] = useState([]);
   if (login) {
     useEffect(() => {
       const fetchFavorites = async () => {
         const response = await favoritesApi.getFavorites();
-        const checked = response.products.some(
-          (product) => product._id === productId
-        );
+        setFavorites(response.products);
+        const checked = favorites.some((product) => product._id === productId);
         setFavorited(checked);
       };
       fetchFavorites();
-    }, []);
+    }, [productId]);
   }
   const handleFavoriteToggle = async () => {
     if (login) {
@@ -62,10 +63,13 @@ const ProductDetail = () => {
       Swal.fire(
         "Cảnh báo",
         "Bạn cần đăng nhập để yêu thích sản phẩm !",
-        "error"
+        "info"
       );
     }
   };
+  useEffect(() => {
+    setSimilarProducts([]);
+  }, [productId]);
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -76,7 +80,10 @@ const ProductDetail = () => {
       }
     };
     fetchReviews();
-  }, []);
+  }, [productId]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [productId]);
   useEffect(() => {
     const fetchSimilarProduct = async () => {
       try {
@@ -87,13 +94,13 @@ const ProductDetail = () => {
       }
     };
     fetchSimilarProduct();
-  }, []);
+  }, [productId]);
   // const [reviews, setReviews] = useState(product.reviews)
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await productApi.getProductById(productId);
-        setProducts(response);
+        setProduct(response);
         setLoading(false);
       } catch (error) {
         setError(error);
@@ -101,7 +108,7 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-  }, []);
+  }, [productId]);
   const handleAddToCart = async () => {
     try {
       if (login) {
@@ -233,7 +240,7 @@ const ProductDetail = () => {
                   <CardContent>
                     <ul className="list-disc list-inside text-gray-700">
                       {product.features.map((feature, index) => (
-                        <li key={index} >{feature}</li>
+                        <li key={index}>{feature}</li>
                       ))}
                     </ul>
                   </CardContent>
@@ -247,7 +254,58 @@ const ProductDetail = () => {
               setReviews={setReviews}
               productId={productId}
             />
-            <SimilarProducts similarProducts={similarProducts} />
+            <Card
+              variant="outlined"
+              sx={{
+                mt: 2,
+                boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 12px",
+                transition: "all 0.3s ease",
+                cursor: "pointer",
+              }}
+            >
+              <CardHeader
+                title="Sản phẩm tương tự"
+                sx={{
+                  backgroundColor: "#f7f7f7",
+                  borderBottom: "1px solid #e0e0e0",
+                }}
+              />
+              <CardContent>
+                <Box
+                  display="flex"
+                  flexWrap="wrap"
+                  gap={2}
+                  justifyContent="space-between"
+                >
+                  {similarProducts.map((product, index) => {
+                    const isFavorited = login
+                      ? favorites.some((fav) => fav._id === product._id)
+                      : false;
+                    return (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: {
+                            xs: "100%",
+                            sm: "48%",
+                            md: "31%",
+                            lg: "19%",
+                          },
+                          maxWidth: "270px",
+                          flexGrow: 1,
+                        }}
+                      >
+                        <WatchCard
+                          key={index}
+                          watch={product}
+                          favorited={isFavorited}
+                        />
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </CardContent>
+            </Card>
           </div>
         </Box>
       )}

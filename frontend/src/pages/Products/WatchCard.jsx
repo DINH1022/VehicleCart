@@ -57,7 +57,7 @@ const WatchCard = ({
       Swal.fire(
         "Cảnh báo",
         "Bạn cần đăng nhập để yêu thích sản phẩm !",
-        "error"
+        "info"
       );
     }
   };

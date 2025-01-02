@@ -10,7 +10,7 @@ const createMainCategory = asyncHandler(async (req, res) => {
 
     const existingMainCategory = await MainCategory.findOne({ name });
     if (existingMainCategory) {
-      return res.status(400).json({ error: "Main category already exists" });
+      return res.json({ error: "Tên danh mục này đã tồn tại" });
     }
 
     const mainCategory = await new MainCategory({ name }).save();
@@ -24,20 +24,29 @@ const createMainCategory = asyncHandler(async (req, res) => {
 const updateMainCategory = asyncHandler(async (req, res) => {
   try {
     const { name } = req.body;
+
+    const existingCategory = await MainCategory.findOne({ name });
+    if (existingCategory && existingCategory._id.toString() !== req.params.id) {
+      return res.json({ error: "Tên danh mục này đã tồn tại" });
+    }
+
     const mainCategory = await MainCategory.findByIdAndUpdate(
       req.params.id,
       { name },
       { new: true }
     );
+
     if (!mainCategory) {
       return res.status(404).json({ error: "Main category not found" });
     }
+
     res.json(mainCategory);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
   }
 });
+
 
 const removeMainCategory = asyncHandler(async (req, res) => {
   try {

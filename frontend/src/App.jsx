@@ -10,6 +10,7 @@ import UserList from "./pages/Admin/UserList.jsx";
 import Profile from "./pages/User/Profile.jsx";
 import ProductsPage from "./pages/Products/ProductsPage.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
+import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Thêm import này
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/register" element={<Register />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/users" element={<UserList />}></Route>
+          <Route path="/categories" element={<CategoriesPage />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/admin" element={<Dashboard />}></Route>
         </Routes>

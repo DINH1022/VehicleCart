@@ -1,6 +1,7 @@
 import apiRequest from './apiRequest.js';
 
 const ORDERS_URL = "/api/orders";
+const PAYMENT_SERVER_URL = "https://payment-server:4000/api/payment";
 
 const orderApi = {
   createOrder: async (order) => {
@@ -61,6 +62,19 @@ const orderApi = {
 
   getTotalSalesByDate: async () => {
     return await apiRequest(`${ORDERS_URL}/total-sales-by-date`, true, {
+      method: "GET",
+    });
+  },
+
+  processPayment: async (amount) => {
+    return await apiRequest(`${PAYMENT_SERVER_URL}/pay`, true, {
+      method: "POST",
+      body: JSON.stringify({ amount }),
+    });
+  },
+
+  getPaymentBalance: async () => {
+    return await apiRequest(`${PAYMENT_SERVER_URL}/balance`, true, {
       method: "GET",
     });
   },

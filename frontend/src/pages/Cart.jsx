@@ -126,6 +126,19 @@ const Cart = () => {
     );
   };
 
+  const handlePayment = async () => {
+    try {
+      const total = calculateTotal();
+      await orderApi.processPayment(total);
+      // Handle successful payment
+      clearCart();
+      // Navigate to success page or show success message
+    } catch (error) {
+      console.error('Payment failed:', error);
+      // Show error message to user
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", width: "100%" }}>
       <Navigation />
@@ -348,6 +361,7 @@ const Cart = () => {
               fullWidth
               startIcon={<LocalShipping />}
               size="large"
+              onClick={handlePayment}
             >
               Tiến Hành Thanh Toán
             </GradientButton>

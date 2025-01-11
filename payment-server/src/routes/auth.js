@@ -3,24 +3,28 @@ const router = express.Router();
 const Account = require('../models/account');
 const { generateToken } = require('../config/jwt');
 
-// Create payment account
 router.post('/create-account', async (req, res) => {
     try {
         const { userId } = req.body;
         
-        // Check if account already exists
+        // Kiểm tra tài khoản tồn tại
         const existingAccount = await Account.findOne({ id: userId });
         if (existingAccount) {
-            return res.status(400).json({ message: 'Account already exists' });
+            // Nếu tài khoản đã tồn tại, trả về token luôn
+            const token = generateToken({ id: userId });
+            return res.json({ 
+                message: 'Account exists',
+                token,
+                accountId: existingAccount.id
+            });
         }
 
-        // Create new account
+        // Tạo tài khoản mới nếu chưa tồn tại
         const account = await Account.create({
             id: userId,
             balance: 1000000000 // 1 billion VND
         });
 
-        // Generate token
         const token = generateToken({ id: userId });
 
         res.status(201).json({ 
@@ -29,6 +33,7 @@ router.post('/create-account', async (req, res) => {
             accountId: account.id
         });
     } catch (error) {
+        console.error('Auth Error:', error);
         res.status(400).json({ message: error.message });
     }
 });

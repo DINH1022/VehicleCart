@@ -33,18 +33,17 @@ const processPayment = asyncHandler(async (req, res) => {
     console.log('=== Payment Process Started ===');
     console.log('User ID:', userId);
     console.log('Total Amount:', totalAmount);
-    console.log('Items:', JSON.stringify(items, null, 2));
 
     try {
-        // Get payment token
-        console.log('Requesting payment token...');
+        // Get or create payment account
+        console.log('Getting payment token...');
         const tokenResponse = await fetch('https://localhost:4000/api/auth/create-account', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ userId: userId.toString() }),
-            agent // Add this for development
+            agent
         });
 
         const tokenData = await tokenResponse.json();
@@ -52,7 +51,7 @@ const processPayment = asyncHandler(async (req, res) => {
 
         if (!tokenResponse.ok) {
             console.error('Token request failed:', tokenData);
-            throw new Error(`Failed to get payment token: ${tokenData.message}`);
+            throw new Error(`Payment account error: ${tokenData.message}`);
         }
 
         const { token } = tokenData;

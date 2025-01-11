@@ -114,4 +114,82 @@ const getOrderById = asyncHandler(async (req, res) => {
     res.json(order);
 });
 
-export { createOrder, processPayment, getOrders, getOrderById, updateOrderPaymentStatus };
+const getAllOrders = asyncHandler(async (req, res) => {
+    const orders = await Order.find({})
+        .sort({ createdAt: -1 })
+        .populate('user', 'email')
+        .populate('items.product', 'name image price');
+    res.json(orders);
+});
+
+const updateOrderStatus = asyncHandler(async (req, res) => {
+    const { status } = req.body;
+    const orderId = req.params.id;
+
+    const order = await Order.findByIdAndUpdate(
+        orderId,
+        { shippingStatus: status },
+        { new: true }
+    );
+
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    res.json(order);
+});
+
+const getRevenueStats = asyncHandler(async (req, res) => {
+    const { period } = req.query; // 'month', 'quarter', or 'year'
+    const currentYear = new Date().getFullYear();
+    
+    let groupBy;
+    if (period === 'month') {
+        groupBy = {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+        };
+    } else if (period === 'quarter') {
+        groupBy = {
+            year: { $year: '$createdAt' },
+            quarter: {
+                $ceil: { $divide: [{ $month: '$createdAt' }, 3] }
+            }
+        };
+    } else {
+        groupBy = {
+            year: { $year: '$createdAt' }
+        };
+    }
+
+    const stats = await Order.aggregate([
+        {
+            $match: {
+                paymentStatus: 'completed',
+                createdAt: { $gte: new Date(currentYear - 1, 0, 1) }
+            }
+        },
+        {
+            $group: {
+                _id: groupBy,
+                revenue: { $sum: '$totalAmount' },
+                orderCount: { $sum: 1 }
+            }
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1 } }
+    ]);
+
+    res.json(stats);
+});
+
+export { 
+    createOrder, 
+    processPayment, 
+    getOrders, 
+    getOrderById, 
+    updateOrderPaymentStatus,
+    getAllOrders,      
+    updateOrderStatus,
+    getRevenueStats
+};

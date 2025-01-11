@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "../Auth/Navigation";
 import usersApi from "../../service/api/usersApi";
 import productsApi from "../../service/api/productsApi";
+import RevenueChart from '../../components/RevenueChart';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -125,6 +126,9 @@ const Dashboard = () => {
           />
         </Box>
 
+        {/* Add Revenue Chart */}
+        <RevenueChart />
+
         <Box sx={{ display: "flex", gap: 3 }}>
           {/* Khối Quick Actions */}
           <Paper sx={{ p: 3, flex: "0 0 49%" }}>
@@ -138,6 +142,13 @@ const Dashboard = () => {
                 startIcon={<PeopleIcon />}
               >
                 Manage Users
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/admin/orders")}
+                startIcon={<ShoppingCartIcon />}
+              >
+                Manage Orders
               </Button>
             </Box>
           </Paper>

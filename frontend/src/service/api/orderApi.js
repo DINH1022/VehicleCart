@@ -57,6 +57,33 @@ const orderApi = {
         } catch (error) {
             throw error.response?.data || error;
         }
+    },
+
+    getAllOrders: async () => {
+        try {
+            const response = await api.get('/api/orders/admin/all');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    updateOrderStatus: async (orderId, status) => {
+        try {
+            const response = await api.put(`/api/orders/admin/status/${orderId}`, { status });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    getRevenueStats: async (period) => {
+        try {
+            const response = await api.get(`/api/orders/admin/revenue-stats?period=${period}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
     }
 };
 

@@ -11,6 +11,7 @@ import ProductsPage from "./pages/Products/ProductsPage.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
 import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
 import OrderHistory from "./pages/Orders/OrderHistory";
+import OrderManagement from "./pages/Admin/OrderManagement.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/admin" element={<Dashboard />}></Route>
           <Route path="/orders" element={<OrderHistory />}></Route>
+          <Route path="/admin/orders" element={<OrderManagement />}></Route>
         </Routes>
         <ToastContainer 
           position="top-right"

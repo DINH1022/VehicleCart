@@ -31,7 +31,6 @@ const processPayment = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     try {
-        // Tạo order trước khi redirect to payment
         const order = await Order.create({
             user: userId,
             items: items,
@@ -39,11 +38,22 @@ const processPayment = asyncHandler(async (req, res) => {
             paymentStatus: 'pending'
         });
 
-        // Get payment token
+        // Thêm orderDetails vào request
         const tokenResponse = await fetch('https://localhost:4000/api/auth/create-account', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId.toString() }),
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-API-Key': process.env.PAYMENT_SERVER_API_KEY // Thêm API key
+            },
+            body: JSON.stringify({ 
+                userId: userId.toString(),
+                orderDetails: {
+                    orderId: order._id,
+                    amount: totalAmount,
+                    items: items.length,
+                    createdAt: order.createdAt
+                }
+            }),
             agent
         });
 

@@ -45,6 +45,18 @@ const orderApi = {
         } catch (error) {
             throw error.response?.data || error;
         }
+    },
+
+    updatePaymentStatus: async (orderId, status) => {
+        try {
+            const response = await api.put('/api/orders/payment-status', {
+                orderId,
+                status
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
     }
 };
 

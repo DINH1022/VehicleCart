@@ -147,11 +147,12 @@ const Cart = () => {
             price: item.product.price
         }));
 
-        await orderApi.processPayment(total, items);
-        await clearCart();
-        
-        toast.success('Payment successful!');
-        navigate('/order-success');
+        const response = await orderApi.processPayment(total, items);
+        if (response.redirectUrl) {
+            // Lưu orderId vào sessionStorage trước khi redirect
+            sessionStorage.setItem('pendingOrderId', response.orderId);
+            window.location.href = response.redirectUrl;
+        }
     } catch (error) {
         toast.error(error.message || 'Payment failed');
     }

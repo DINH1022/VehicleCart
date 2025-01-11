@@ -30,77 +30,37 @@ const processPayment = asyncHandler(async (req, res) => {
     const { totalAmount, items } = req.body;
     const userId = req.user._id;
 
-    console.log('=== Payment Process Started ===');
-    console.log('User ID:', userId);
-    console.log('Total Amount:', totalAmount);
-
     try {
-        // Get or create payment account
-        console.log('Getting payment token...');
+        // Tạo order trước khi redirect to payment
+        const order = await Order.create({
+            user: userId,
+            items: items,
+            totalAmount: totalAmount,
+            paymentStatus: 'pending'
+        });
+
+        // Get payment token
         const tokenResponse = await fetch('https://localhost:4000/api/auth/create-account', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: userId.toString() }),
             agent
         });
 
         const tokenData = await tokenResponse.json();
-        console.log('Token Response:', tokenData);
-
+        
         if (!tokenResponse.ok) {
-            console.error('Token request failed:', tokenData);
             throw new Error(`Payment account error: ${tokenData.message}`);
         }
 
-        const { token } = tokenData;
-
-        // Process payment
-        console.log('Processing payment with token...');
-        const paymentResponse = await fetch('https://localhost:4000/api/payment/pay', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ amount: totalAmount }),
-            agent // Add this for development
-        });
-
-        const paymentResult = await paymentResponse.json();
-        console.log('Payment Response:', paymentResult);
-
-        if (!paymentResponse.ok) {
-            console.error('Payment failed:', paymentResult);
-            throw new Error(`Payment failed: ${paymentResult.message}`);
-        }
-
-        // Create order record
-        console.log('Creating order record...');
-        const order = await Order.create({
-            user: userId,
-            items,
-            totalAmount,
-            paymentStatus: 'completed',
-            paymentId: paymentResult.transactionId
-        });
-
-        console.log('Order created successfully:', order._id);
-        console.log('=== Payment Process Completed ===');
-
-        res.status(201).json({
-            success: true,
-            order,
-            message: 'Payment processed successfully'
+        // Redirect to payment page
+        res.json({
+            redirectUrl: `https://localhost:4000/payment-page?token=${tokenData.token}&amount=${totalAmount}&orderId=${order._id}`,
+            token: tokenData.token,
+            orderId: order._id
         });
 
     } catch (error) {
-        console.error('=== Payment Process Failed ===');
-        console.error('Error details:', {
-            message: error.message,
-            stack: error.stack
-        });
         res.status(400).json({
             success: false,
             message: error.message
@@ -108,4 +68,41 @@ const processPayment = asyncHandler(async (req, res) => {
     }
 });
 
-export { createOrder, processPayment };
+const updateOrderPaymentStatus = asyncHandler(async (req, res) => {
+    const { orderId, status } = req.body;
+    
+    const order = await Order.findByIdAndUpdate(
+        orderId,
+        { paymentStatus: status },
+        { new: true }
+    );
+
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    res.json(order);
+});
+
+const getOrders = asyncHandler(async (req, res) => {
+    const orders = await Order.find({ user: req.user._id })
+        .sort({ createdAt: -1 });
+    res.json(orders);
+});
+
+const getOrderById = asyncHandler(async (req, res) => {
+    const order = await Order.findOne({
+        _id: req.params.id,
+        user: req.user._id
+    });
+    
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+    
+    res.json(order);
+});
+
+export { createOrder, processPayment, getOrders, getOrderById, updateOrderPaymentStatus };

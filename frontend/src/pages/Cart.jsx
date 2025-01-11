@@ -16,6 +16,7 @@ import {
   Remove,
   ShoppingCart,
   LocalShipping,
+  History,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import cartApi from "../service/api/cartRequest";
@@ -156,6 +157,15 @@ const Cart = () => {
     } catch (error) {
         toast.error(error.message || 'Payment failed');
     }
+};
+
+const handleViewHistory = () => {
+    if (!login) {
+        toast.error('Vui lòng đăng nhập để xem lịch sử đơn hàng');
+        navigate('/login');
+        return;
+    }
+    navigate('/orders');
 };
 
   return (
@@ -340,50 +350,94 @@ const Cart = () => {
 
           <Box
             flex={1}
-            component={Paper}
             sx={{
-              p: 4,
-              borderRadius: 4,
-              boxShadow: theme.shadows[6],
-              background: "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
               position: "sticky",
               top: 20,
               alignSelf: "flex-start",
             }}
           >
-            <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
-              Tóm Tắt Đơn Hàng
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <Box mb={2} display="flex" justifyContent="space-between">
-              <Typography>Tạm Tính</Typography>
-              <Typography fontWeight="bold">
-                {calculateTotal().toLocaleString()} VND
-              </Typography>
-            </Box>
-            <Box mb={3} display="flex" justifyContent="space-between">
-              <Typography>Phí Vận Chuyển</Typography>
-              <Typography color="success.main" fontWeight="bold">
-                Miễn Phí
-              </Typography>
-            </Box>
-            <Divider sx={{ mb: 3 }} />
-            <Box mb={4} display="flex" justifyContent="space-between">
-              <Typography variant="h6" fontWeight="bold">
-                Tổng Cộng
-              </Typography>
-              <Typography variant="h6" color="primary" fontWeight="bold">
-                {calculateTotal().toLocaleString()} VND
-              </Typography>
-            </Box>
-            <GradientButton
-              fullWidth
-              startIcon={<LocalShipping />}
-              size="large"
-              onClick={handlePayment}
+            <Box
+              component={Paper}
+              sx={{
+                p: 4,
+                borderRadius: 4,
+                boxShadow: theme.shadows[6],
+                background: "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+              }}
             >
-              Tiến Hành Thanh Toán
-            </GradientButton>
+              <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
+                Tóm Tắt Đơn Hàng
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Box mb={2} display="flex" justifyContent="space-between">
+                <Typography>Tạm Tính</Typography>
+                <Typography fontWeight="bold">
+                  {calculateTotal().toLocaleString()} VND
+                </Typography>
+              </Box>
+              <Box mb={3} display="flex" justifyContent="space-between">
+                <Typography>Phí Vận Chuyển</Typography>
+                <Typography color="success.main" fontWeight="bold">
+                  Miễn Phí
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 3 }} />
+              <Box mb={4} display="flex" justifyContent="space-between">
+                <Typography variant="h6" fontWeight="bold">
+                  Tổng Cộng
+                </Typography>
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  {calculateTotal().toLocaleString()} VND
+                </Typography>
+              </Box>
+              <GradientButton
+                fullWidth
+                startIcon={<LocalShipping />}
+                size="large"
+                onClick={handlePayment}
+              >
+                Tiến Hành Thanh Toán
+              </GradientButton>
+            </Box>
+
+            <Box
+              component={Paper}
+              sx={{
+                p: 4,
+                borderRadius: 4,
+                boxShadow: theme.shadows[6],
+                background: "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
+                Đơn Hàng Của Bạn
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Button
+                fullWidth
+                startIcon={<History />}
+                sx={{ 
+                    background: "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
+                    color: "white",
+                    height: 48,
+                    borderRadius: 2,
+                    boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
+                    '&:hover': {
+                        background: "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
+                        transform: "scale(1.02)",
+                        boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
+                    }
+                }}
+                onClick={handleViewHistory}
+              >
+                Xem Lịch Sử Đơn Hàng
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>

@@ -38,7 +38,6 @@ const processPayment = asyncHandler(async (req, res) => {
             paymentStatus: 'pending'
         });
 
-        // Thêm orderDetails vào request
         const tokenResponse = await fetch('https://localhost:4000/api/auth/create-account', {
             method: 'POST',
             headers: { 

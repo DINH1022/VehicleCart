@@ -24,9 +24,8 @@ router.post('/create-account', async (req, res) => {
                 type: 'payment_auth'
             };
 
-            // Thêm options cho JWT
             const token = jwt.sign(payload, process.env.JWT_SECRET, {
-                expiresIn: '15m', // Giảm thời gian hết hạn
+                expiresIn: '15m', // thời gian hết hạn
                 audience: 'payment_system',
                 issuer: 'main_server'
             });
@@ -41,7 +40,7 @@ router.post('/create-account', async (req, res) => {
         // Tạo tài khoản mới nếu chưa tồn tại
         const account = await Account.create({
             id: userId,
-            balance: 1000000000 // 1 billion VND
+            balance: 1000000000 // 1 billion 
         });
 
         const payload = {
@@ -52,9 +51,8 @@ router.post('/create-account', async (req, res) => {
             type: 'payment_auth'
         };
 
-        // Thêm options cho JWT
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '15m', // Giảm thời gian hết hạn
+            expiresIn: '15m', 
             audience: 'payment_system',
             issuer: 'main_server'
         });

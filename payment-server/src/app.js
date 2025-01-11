@@ -10,19 +10,16 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
-// Handlebars setup
 app.engine('hbs', engine({
     extname: '.hbs',
     defaultLayout: 'main',
-    layoutsDir: path.join(__dirname, 'views/layouts')
+    //layoutsDir: path.join(__dirname, 'views/layouts')
 }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB
 connectDB();
 
 // Middleware
@@ -33,7 +30,6 @@ app.use(express.json());
 app.use('/api/payment', paymentRoutes);
 app.use('/api/auth', authRoutes);
 
-// Payment page route
 app.get('/payment-page', (req, res) => {
     const { token, amount } = req.query;
     res.render('payment', {

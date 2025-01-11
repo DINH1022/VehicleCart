@@ -9,6 +9,7 @@ import {
   deleteUserById,
   getUserById,
   updateUserById,
+  loginGoogleUser
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
@@ -19,6 +20,7 @@ router
   .post(createUser)
   .get(authenticate, authorizeAdmin, getAllUsers);
 router.post("/auth", loginUser);
+router.get("/auth/google", loginGoogleUser)
 router.post("/logout", logoutUser);
 router
   .route("/profile")

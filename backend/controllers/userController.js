@@ -2,7 +2,8 @@ import User from "../models/userModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
-
+import { oauth2client } from "../utils/googleConfig.js";
+import axios from "axios";
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -42,17 +43,21 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!email || !password) {
     res.status(400);
-    throw new Error('Please provide email and password');
+    throw new Error("Please provide email and password");
   }
 
   const existingUser = await User.findOne({ email });
 
   if (!existingUser) {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error("Invalid email or password");
   }
-
-
+  if (!existingUser.password) {
+    return res.json({
+      success: false,
+      mes: "Tài khoản này đăng nhập qua google"
+    })
+  }
   const isPasswordCorrect = await bcrypt.compare(
     password,
     existingUser.password
@@ -60,7 +65,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!isPasswordCorrect) {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error("Invalid email or password");
   }
 
   createToken(res, existingUser._id);
@@ -70,9 +75,31 @@ const loginUser = asyncHandler(async (req, res) => {
     email: existingUser.email,
     isAdmin: existingUser.isAdmin,
   });
-
 });
+const loginGoogleUser = asyncHandler(async (req, res) => {
+  const { code } = req.query;
+  const googleRes = await oauth2client.getToken(code);
+  oauth2client.setCredentials(googleRes.tokens);
+  const userRes = await axios.get(
+    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+  );
+  const { email, name, picture } = userRes.data;
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    existingUser = await User.create({
+      username: "",
+      email: email,
+    });
+  }
 
+  createToken(res, existingUser._id);
+  res.status(201).json({
+    _id: existingUser._id,
+    username: existingUser.username || "",
+    email: existingUser.email,
+    isAdmin: existingUser.isAdmin,
+  });
+});
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", { httpOnly: true, expires: new Date(0) });
   res.status(200).json({ message: "Logged out successfully" });
@@ -145,7 +172,8 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
-const updateUserById = asyncHandler(async (req, res) => {   //Admin không được đổi mật khẩu người dùng
+const updateUserById = asyncHandler(async (req, res) => {
+  //Admin không được đổi mật khẩu người dùng
   const user = await User.findById(req.params.id);
   if (user) {
     user.username = req.body.username || user.username;
@@ -175,4 +203,5 @@ export {
   deleteUserById,
   getUserById,
   updateUserById,
+  loginGoogleUser,
 };

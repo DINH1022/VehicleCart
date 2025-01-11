@@ -12,6 +12,8 @@ import {
   Alert,
   Divider,
 } from "@mui/material";
+import Swal from "sweetalert2";
+import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -65,7 +67,10 @@ const Login = () => {
       };
 
       const response = await usersApi.login(loginData);
-
+      if (response.success === false) {
+        Swal.fire('Thất bại !', response.mes, 'error');
+        return;
+      }
       // Save user data to localStorage if rememberMe is checked
       if (formData.rememberMe) {
         localStorage.setItem("userData", JSON.stringify(response));
@@ -74,7 +79,6 @@ const Login = () => {
       }
       const data = sessionStorage.getItem("carts");
       const carts = JSON.parse(data);
-      console.log("carts", carts);
       await cartApi.addItemsToCart(carts);
       sessionStorage.removeItem("carts");
 
@@ -86,16 +90,36 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  const handleGoogleLogin = async () => {
+  const reponseGoogle = async (authResult) => {
     try {
-      // Add Google authentication logic here
-      // const response = await authApi.googleLogin();
-      navigate("/");
-    } catch (err) {
-      setError(err.message || "Google login failed");
+      if (authResult["code"]) {
+        const code = authResult["code"];
+        const response = await usersApi.googleLogin(code);
+        sessionStorage.setItem("userData", JSON.stringify(response));
+        const data = sessionStorage.getItem("carts");
+        const carts = JSON.parse(data);
+        await cartApi.addItemsToCart(carts);
+        sessionStorage.removeItem("carts");
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("error", error);
     }
   };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: reponseGoogle,
+    onError: reponseGoogle,
+    flow: "auth-code",
+  });
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     // Add Google authentication logic here
+  //     // const response = await authApi.googleLogin();
+  //     navigate("/");
+  //   } catch (err) {
+  //     setError(err.message || "Google login failed");
+  //   }
+  // };
 
   return (
     <Box sx={{ display: "flex" }}>

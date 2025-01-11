@@ -12,21 +12,20 @@ import {
   People as PeopleIcon,
   ShoppingCart as ShoppingCartIcon,
   Inventory as InventoryIcon,
-  AttachMoney as MoneyIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import Navigation from "../Auth/Navigation";
 import usersApi from "../../service/api/usersApi";
 import productsApi from "../../service/api/productsApi";
 import RevenueChart from '../../components/RevenueChart';
+import orderApi from "../../service/api/orderApi";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalProducts: 0,
-    totalOrders: 0,
-    totalRevenue: 0,
+    totalOrders: 0
   });
   const [error, setError] = useState("");
 
@@ -35,11 +34,12 @@ const Dashboard = () => {
       try {
         const users = await usersApi.getUsers();
         const products = await productsApi.allProducts();
+        const orderStats = await orderApi.getTotalOrders();
+        
         setStats({
           totalUsers: users.length,
           totalProducts: products.length,
-          totalOrders: 150,
-          totalRevenue: 250000000,
+          totalOrders: orderStats.totalOrders
         });
       } catch (err) {
         setError("Failed to fetch dashboard statistics");
@@ -117,12 +117,6 @@ const Dashboard = () => {
             value={stats.totalOrders}
             icon={<ShoppingCartIcon sx={{ fontSize: 40, color: "white" }} />}
             color="#1565c0"
-          />
-          <StatCard
-            title="Total Revenue"
-            value={`${(stats.totalRevenue / 1000000).toFixed(1)}M VND`}
-            icon={<MoneyIcon sx={{ fontSize: 40, color: "white" }} />}
-            color="#1976d2"
           />
         </Box>
 

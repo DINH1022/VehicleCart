@@ -84,6 +84,15 @@ const orderApi = {
         } catch (error) {
             throw error.response?.data || error;
         }
+    },
+
+    getTotalOrders: async () => {
+        try {
+            const response = await api.get('/api/orders/admin/total');
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch total orders');
+        }
     }
 };
 

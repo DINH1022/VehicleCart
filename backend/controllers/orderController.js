@@ -183,6 +183,15 @@ const getRevenueStats = asyncHandler(async (req, res) => {
     res.json(stats);
 });
 
+const getTotalOrders = asyncHandler(async (req, res) => {
+    try {
+        const totalOrders = await Order.countDocuments({});
+        res.json({ totalOrders });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 export { 
     createOrder, 
     processPayment, 
@@ -191,5 +200,6 @@ export {
     updateOrderPaymentStatus,
     getAllOrders,      
     updateOrderStatus,
-    getRevenueStats
+    getRevenueStats,
+    getTotalOrders
 };

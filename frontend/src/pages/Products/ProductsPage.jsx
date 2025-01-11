@@ -19,6 +19,7 @@ import {
   Watch,
   Sparkles,
   Boxes,
+  PlusCircle,
 } from "lucide-react";
 import WatchCard from "./WatchCard";
 import FilterList from "./FilterList";
@@ -102,13 +103,13 @@ const ProductFilterPage = () => {
       <Sparkles size={20} />,
       <Boxes size={20} />,
     ];
-
+    const iconsNew = <PlusCircle size={20} />;
     const filter = {};
     data.forEach((category, index) => {
       const key = category.name;
       const options = category.subCategories.map((sub) => sub.name);
       filter[key] = {
-        icon: icons[index],
+        icon: index < 5 ? icons[index] : iconsNew,
         options: options,
       };
     });

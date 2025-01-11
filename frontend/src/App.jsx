@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductDetail from "./pages/Products/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
@@ -10,6 +9,8 @@ import Login from "./pages/Auth/Login.jsx";
 import UserList from "./pages/Admin/UserList.jsx";
 import Profile from "./pages/User/Profile.jsx";
 import ProductsPage from "./pages/Products/ProductsPage.jsx";
+import Dashboard from "./pages/Admin/Dashboard.jsx";
+import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Thêm import này
 
@@ -26,9 +27,21 @@ function App() {
           <Route path="/register" element={<Register />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/users" element={<UserList />}></Route>
+          <Route path="/categories" element={<CategoriesPage />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/admin" element={<Dashboard />}></Route>
         </Routes>
-        <ToastContainer /> 
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        /> 
       </div>
     </Router>
   );

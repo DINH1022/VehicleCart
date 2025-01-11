@@ -19,6 +19,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import cartApi from "../service/api/cartRequest";
+import orderApi from "../service/api/orderApi";
 import Navigation from "./Auth/Navigation";
 import { Link } from "react-router-dom";
 import {
@@ -27,6 +28,10 @@ import {
   removeCartFromSessionStorage,
   clearCartSessionStorage,
 } from "../utils/sessionStorage.js";
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+
 const GradientButton = styled(Button)(({ theme }) => ({
   background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
   border: 0,
@@ -55,6 +60,7 @@ const Cart = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
   const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -128,16 +134,28 @@ const Cart = () => {
 
   const handlePayment = async () => {
     try {
-      const total = calculateTotal();
-      await orderApi.processPayment(total);
-      // Handle successful payment
-      clearCart();
-      // Navigate to success page or show success message
+        if (!login) {
+            toast.error('Please login to continue');
+            navigate('/login');
+            return;
+        }
+        
+        const total = calculateTotal();
+        const items = cartItems.map(item => ({
+            product: item.product._id,
+            quantity: item.quantity,
+            price: item.product.price
+        }));
+
+        await orderApi.processPayment(total, items);
+        await clearCart();
+        
+        toast.success('Payment successful!');
+        navigate('/order-success');
     } catch (error) {
-      console.error('Payment failed:', error);
-      // Show error message to user
+        toast.error(error.message || 'Payment failed');
     }
-  };
+};
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", width: "100%" }}>

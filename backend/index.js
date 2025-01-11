@@ -10,6 +10,7 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import mainCategoryRoutes from "./routes/mainCategoryRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 //utils
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -21,11 +22,14 @@ connectDB();
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: 'http://localhost:5173', // Frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,
+    maxAge: 600
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -37,6 +41,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/cart",cartRoutes);
 app.use("/api/favorites",favoriteRoutes)
+app.use("/api/orders", orderRoutes);
 
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname + "/uploads")));

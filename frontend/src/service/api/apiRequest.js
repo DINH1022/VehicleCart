@@ -9,11 +9,12 @@ const apiRequest = async (url, sendCookies = true, options = {}) => {
       },
     };
     const mergedOptions = { ...defaultOptions, ...options };
+
     const response = await fetch(`${SERVER_URL}/${url}`, mergedOptions);
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
+
       if (response.status === 401) {
-        sessionStorage.setItem("userData");
         if (errorData?.message?.includes("admin")) {
           throw new Error("Not authorized as admin");
         } else {
@@ -22,6 +23,7 @@ const apiRequest = async (url, sendCookies = true, options = {}) => {
       }
       throw new Error(errorData?.message || "Request failed");
     }
+
     const data = await response.json();
     return data;
   } catch (error) {

@@ -1,83 +1,51 @@
-import apiRequest from './apiRequest.js';
+import axios from 'axios';
 
-const ORDERS_URL = "/api/orders";
-const PAYMENT_SERVER_URL = "https://payment-server:4000/api/payment";
+const api = axios.create({
+    baseURL: 'http://localhost:5000',
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+});
 
 const orderApi = {
-  createOrder: async (order) => {
-    return await apiRequest(`${ORDERS_URL}`, true, {
-      method: "POST",
-      body: JSON.stringify(order),
-    });
-  },
+    processPayment: async (totalAmount, items) => {
+        try {
+            console.log('Sending payment request:', { totalAmount, items });
+            const response = await api.post('/api/orders/payment', {
+                totalAmount,
+                items
+            });
+            console.log('Payment response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Payment API Error:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                throw error.response.data;
+            }
+            throw { message: 'Network error occurred' };
+        }
+    },
 
-  getOrderDetails: async (id) => {
-    return await apiRequest(`${ORDERS_URL}/${id}`, true, {
-      method: "GET",
-    });
-  },
+    getOrders: async () => {
+        try {
+            const response = await api.get('/api/orders');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
 
-  payOrder: async (orderId, details) => {
-    return await apiRequest(`${ORDERS_URL}/${orderId}/pay`, true, {
-      method: "PUT",
-      body: JSON.stringify(details),
-    });
-  },
-
-  getPaypalClientId: async () => {
-    return await apiRequest(`${PAYPAL_URL}`, true, {
-      method: "GET",
-    });
-  },
-
-  getMyOrders: async () => {
-    return await apiRequest(`${ORDERS_URL}/mine`, true, {
-      method: "GET",
-    });
-  },
-
-  getOrders: async () => {
-    return await apiRequest(`${ORDERS_URL}`, true, {
-      method: "GET",
-    });
-  },
-
-  deliverOrder: async (orderId) => {
-    return await apiRequest(`${ORDERS_URL}/${orderId}/deliver`, true, {
-      method: "PUT",
-    });
-  },
-
-  getTotalOrders: async () => {
-    return await apiRequest(`${ORDERS_URL}/total-orders`, true, {
-      method: "GET",
-    });
-  },
-
-  getTotalSales: async () => {
-    return await apiRequest(`${ORDERS_URL}/total-sales`, true, {
-      method: "GET",
-    });
-  },
-
-  getTotalSalesByDate: async () => {
-    return await apiRequest(`${ORDERS_URL}/total-sales-by-date`, true, {
-      method: "GET",
-    });
-  },
-
-  processPayment: async (amount) => {
-    return await apiRequest(`${PAYMENT_SERVER_URL}/pay`, true, {
-      method: "POST",
-      body: JSON.stringify({ amount }),
-    });
-  },
-
-  getPaymentBalance: async () => {
-    return await apiRequest(`${PAYMENT_SERVER_URL}/balance`, true, {
-      method: "GET",
-    });
-  },
+    getOrderById: async (orderId) => {
+        try {
+            const response = await api.get(`/api/orders/${orderId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    }
 };
 
 export default orderApi;

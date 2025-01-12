@@ -136,8 +136,14 @@ const fetchProductById = asyncHandler(async (req, res) => {
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
-      .populate("category")
-      //.limit(12)
+      .populate({
+        path: 'category',
+        select: '_id name mainCategory',
+        populate: {
+          path: 'mainCategory',
+          select: 'name'
+        }
+      })
       .sort({ createdAt: -1 });
 
     res.json(products);

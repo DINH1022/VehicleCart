@@ -93,6 +93,15 @@ const orderApi = {
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Failed to fetch total orders');
         }
+    },
+
+    deleteOrder: async (orderId) => {
+        try {
+            const response = await api.delete(`/api/orders/admin/${orderId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
     }
 };
 

@@ -5,7 +5,7 @@ import {
   FormControl, Select, MenuItem, CircularProgress,
   TablePagination, TextField, InputAdornment
 } from '@mui/material';
-import { Search as SearchIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Visibility as VisibilityIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import Navigation from '../Auth/Navigation';
 import orderApi from '../../service/api/orderApi';
 import { toast } from 'react-toastify';
@@ -41,6 +41,18 @@ const OrderManagement = () => {
       toast.success('Order status updated successfully');
     } catch (error) {
       toast.error('Failed to update order status');
+    }
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      try {
+        await orderApi.deleteOrder(orderId);
+        setOrders(orders.filter(order => order._id !== orderId));
+        toast.success('Order deleted successfully');
+      } catch (error) {
+        toast.error('Failed to delete order');
+      }
     }
   };
 
@@ -97,12 +109,13 @@ const OrderManagement = () => {
                     <TableCell align="right">Total Amount</TableCell>
                     <TableCell>Payment Status</TableCell>
                     <TableCell>Shipping Status</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center">
+                      <TableCell colSpan={7} align="center">
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
@@ -140,6 +153,15 @@ const OrderManagement = () => {
                                 <MenuItem value="cancelled">Cancelled</MenuItem>
                               </Select>
                             </FormControl>
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              color="error"
+                              size="small"
+                              onClick={() => handleDeleteOrder(order._id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       ))

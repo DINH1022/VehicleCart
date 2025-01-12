@@ -14,8 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import usersApi from '../../service/api/usersApi';
 
 const Account = ({ username, email, avatar, open }) => {
-  console.log('Account props:', { username, email, avatar, open }); // Add debug log
-
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 

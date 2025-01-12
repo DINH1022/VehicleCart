@@ -29,7 +29,9 @@ import {
   ListSubheader,
   ImageList,
   ImageListItem,
-  IconButton as ImageIconButton
+  IconButton as ImageIconButton,
+  InputAdornment,
+  Stack
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Upload as UploadIcon, Close as CloseIcon } from '@mui/icons-material';
 import Navigation from '../Auth/Navigation';
@@ -40,7 +42,7 @@ const DIALOG_STYLES = {
   dialogContent: {
     height: '80vh',
     overflowY: 'auto',
-    p: 0, // Remove default padding
+    p: 0, 
     '&::-webkit-scrollbar': {
       width: '8px'
     },
@@ -182,10 +184,8 @@ const ProductList = () => {
     });
   };
 
-  // Sửa lại hàm handleSubmit để đảm bảo giá trị price được gửi đi
   const handleSubmit = async () => {
     try {
-      // Tính toán lại price một lần nữa để đảm bảo
       const finalPrice = calculatePrice(
         Number(productData.originalPrice), 
         Number(productData.discount) / 100
@@ -193,7 +193,7 @@ const ProductList = () => {
 
       const productToSubmit = {
         ...productData,
-        price: finalPrice, // Đảm bảo gửi price
+        price: finalPrice, 
         discount: productData.discount / 100,
         quantity: productData.countInStock
       };
@@ -228,10 +228,8 @@ const ProductList = () => {
     return categoryNamesMap.get(categoryId) || 'Unknown';
   };
 
-  // Modify openEditDialog to convert discount to percentage when displaying
   const openEditDialog = (product) => {
     console.log('Opening edit dialog with product:', product);
-    // Ensure category IDs are properly extracted
     const categoryIds = Array.isArray(product.category) 
       ? product.category.map(cat => cat._id || cat)
       : product.category?._id 
@@ -343,7 +341,7 @@ const ProductList = () => {
                 <TableCell>Name</TableCell>
                 <TableCell>Brand</TableCell>
                 <TableCell align="right">Price (VND)</TableCell>
-                <TableCell align="right">Original Price</TableCell>
+                <TableCell align="right">Original Price (VND)</TableCell>
                 <TableCell align="right">Discount (%)</TableCell>
                 <TableCell align="right">Stock</TableCell>
                 <TableCell align="center">Rating</TableCell>
@@ -445,7 +443,10 @@ const ProductList = () => {
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <Typography variant="h6">
+            <Typography 
+              component="div" // Thay đổi từ mặc định h6 thành div
+              variant="h6"
+            >
               {isNewProduct ? 'Add New Product' : 'Edit Product'}
             </Typography>
             <IconButton onClick={() => setEditDialogOpen(false)} sx={{ color: 'white' }}>
@@ -630,40 +631,36 @@ const ProductList = () => {
                     <Typography variant="subtitle1" fontWeight="medium">Pricing</Typography>
                   </Box>
                   <Box sx={DIALOG_STYLES.sectionContent}>
-                    <TextField
-                      label="Original Price (VND)"
-                      name="originalPrice"
-                      type="number"
-                      value={productData.originalPrice}
-                      onChange={handleEditChange}
-                      required
-                      InputProps={{
-                        startAdornment: <Typography sx={{ mr: 1 }}>₫</Typography>
-                      }}
-                      fullWidth
-                    />
-                    <TextField
-                      label="Discount (%)"
-                      name="discount"
-                      type="number"
-                      value={productData.discount}
-                      onChange={handleEditChange}
-                      InputProps={{
-                        endAdornment: <Typography sx={{ ml: 1 }}>%</Typography>
-                      }}
-                      fullWidth
-                    />
-                    <TextField
-                      label="Final Price (VND)"
-                      value={productData.price?.toLocaleString('vi-VN')}
-                      InputProps={{
-                        startAdornment: <Typography sx={{ mr: 1 }}>₫</Typography>,
-                        readOnly: true,
-                      }}
-                      disabled
-                      fullWidth
-                      helperText="Automatically calculated based on Original Price and Discount"
-                    />
+                    <Stack direction="row" alignItems="center" spacing={1} width="100%">
+                      <TextField
+                        label="Original Price"
+                        name="originalPrice"
+                        type="number"
+                        value={productData.originalPrice}
+                        onChange={handleEditChange}
+                        required
+                        fullWidth
+                      />
+                    </Stack>
+                    <Stack direction="row" alignItems="center" spacing={1} width="100%">
+                      <TextField
+                        label="Discount"
+                        name="discount"
+                        type="number"
+                        value={productData.discount}
+                        onChange={handleEditChange}
+                        fullWidth
+                      />
+                    </Stack>
+                    <Stack direction="row" alignItems="center" spacing={1} width="100%">
+                      <TextField
+                        label="Final Price"
+                        value={productData.price?.toLocaleString('vi-VN')}
+                        disabled
+                        fullWidth
+                        helperText="Automatically calculated based on Original Price and Discount"
+                      />
+                    </Stack>
                   </Box>
                 </Box>
 

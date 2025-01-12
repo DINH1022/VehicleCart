@@ -197,6 +197,17 @@ const getTotalOrders = asyncHandler(async (req, res) => {
     }
 });
 
+const deleteOrder = asyncHandler(async (req, res) => {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    res.json({ message: 'Order deleted successfully' });
+});
+
 export { 
     createOrder, 
     processPayment, 
@@ -206,5 +217,6 @@ export {
     getAllOrders,      
     updateOrderStatus,
     getRevenueStats,
-    getTotalOrders
+    getTotalOrders,
+    deleteOrder
 };

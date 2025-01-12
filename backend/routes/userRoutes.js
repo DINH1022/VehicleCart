@@ -9,10 +9,11 @@ import {
   deleteUserById,
   getUserById,
   updateUserById,
-  loginGoogleUser
+  loginGoogleUser,
+  uploadAvatar,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
-
+import uploader from "../config/cloudinary.config.js";
 const router = express.Router();
 
 router
@@ -20,12 +21,16 @@ router
   .post(createUser)
   .get(authenticate, authorizeAdmin, getAllUsers);
 router.post("/auth", loginUser);
-router.get("/auth/google", loginGoogleUser)
+router.get("/auth/google", loginGoogleUser);
 router.post("/logout", logoutUser);
 router
   .route("/profile")
   .get(authenticate, getUserProfile)
   .put(authenticate, updateUserProfile);
+  
+router
+  .route("/profile/upload-avatar")
+  .post(authenticate, uploader.single("avatar"), uploadAvatar);
 
 //admin routes
 router

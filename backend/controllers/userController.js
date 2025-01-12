@@ -55,8 +55,8 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!existingUser.password) {
     return res.json({
       success: false,
-      mes: "Tài khoản này đăng nhập qua google"
-    })
+      mes: "Tài khoản này đăng nhập qua google",
+    });
   }
   const isPasswordCorrect = await bcrypt.compare(
     password,
@@ -84,11 +84,13 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
     `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
   );
   const { email, name, picture } = userRes.data;
+  console.log("email");
   const existingUser = await User.findOne({ email });
   if (!existingUser) {
     existingUser = await User.create({
       username: "",
       email: email,
+      avatar: picture,
     });
   }
 
@@ -193,6 +195,25 @@ const updateUserById = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 });
+const uploadAvatar = asyncHandler(async (req, res) => {
+  try {
+    console.log(132)
+    const { _id } = req.user;
+    const avatar = req.file.path;
+    const user = await User.findById(_id);
+    console.log("user: ", user)
+    user.avatar = avatar;
+    await user.save();
+    return res.json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(404).json({
+      success: false,
+      message: "Failed",
+    });
+  }
+});
 export {
   createUser,
   loginUser,
@@ -204,4 +225,5 @@ export {
   getUserById,
   updateUserById,
   loginGoogleUser,
+  uploadAvatar,
 };

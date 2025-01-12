@@ -84,7 +84,6 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
     `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
   );
   const { email, name, picture } = userRes.data;
-  console.log("email");
   const existingUser = await User.findOne({ email });
   if (!existingUser) {
     existingUser = await User.create({
@@ -119,6 +118,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      avatar: user.avatar
     });
   } else {
     res.status(404);
@@ -197,14 +197,14 @@ const updateUserById = asyncHandler(async (req, res) => {
 });
 const uploadAvatar = asyncHandler(async (req, res) => {
   try {
-    console.log(132)
+
     const { _id } = req.user;
     const avatar = req.file.path;
     const user = await User.findById(_id);
-    console.log("user: ", user)
     user.avatar = avatar;
     await user.save();
     return res.json({
+      newAvatar: avatar,
       success: true,
     });
   } catch (error) {

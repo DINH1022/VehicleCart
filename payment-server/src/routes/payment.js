@@ -4,7 +4,6 @@ const Account = require('../models/account');
 const Transaction = require('../models/transaction');
 const authMiddleware = require('../middleware/auth');
 
-// System account ID (change this to your desired ID)
 const SYSTEM_ACCOUNT_ID = "SYSTEM_ACCOUNT_001";
 
 // Get account balance

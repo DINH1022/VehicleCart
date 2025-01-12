@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductDetail from "./pages/Products/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
 import FavoritesProduct from "./pages/Products/FavoritesProduct.jsx";
-import Navigation from "./pages/Auth/Navigation.jsx";
 import HomePage from "./pages/Home/Home.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import Login from "./pages/Auth/Login.jsx";
@@ -12,8 +11,9 @@ import ProductsPage from "./pages/Products/ProductsPage.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
 import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
 import OrderHistory from "./pages/Orders/OrderHistory";
+import OrderManagement from "./pages/Admin/OrderManagement.jsx";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Thêm import này
+import "react-toastify/dist/ReactToastify.css"; 
 
 function App() {
   return (
@@ -32,6 +32,7 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/admin" element={<Dashboard />}></Route>
           <Route path="/orders" element={<OrderHistory />}></Route>
+          <Route path="/admin/orders" element={<OrderManagement />}></Route>
         </Routes>
         <ToastContainer 
           position="top-right"

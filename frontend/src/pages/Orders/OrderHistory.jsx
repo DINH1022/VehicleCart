@@ -21,9 +21,9 @@ const OrderHistory = () => {
                     const pendingOrderId = sessionStorage.getItem('pendingOrderId');
                     if (pendingOrderId) {
                         try {
-                            // Cập nhật trạng thái đơn hàng trước
+                            // Cập nhật trạng thái đơn hàng 
                             await orderApi.updatePaymentStatus(pendingOrderId, 'completed');
-                            // Sau đó xóa giỏ hàng
+                            // xóa giỏ hàng
                             await cartApi.clearCart();
                             toast.success('Thanh toán thành công!');
                         } catch (error) {
@@ -35,7 +35,7 @@ const OrderHistory = () => {
                     }
                 }
                 
-                // Cuối cùng mới lấy danh sách orders mới nhất
+                // lấy danh sách orders mới nhất
                 const data = await orderApi.getOrders();
                 setOrders(data);
             } catch (error) {

@@ -1,34 +1,38 @@
-const { verifyToken } = require('../config/jwt');
+const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-    console.log('\n=== Auth Middleware Check ===');
-    console.log('Headers:', req.headers);
-    
     try {
-        const authHeader = req.headers.authorization;
+        const token = req.query.token || req.headers.authorization?.split(' ')[1];
         
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            console.error('Auth Failed: No token or invalid format');
-            return res.status(401).json({ message: 'No token provided' });
+        if (!token) {
+            throw new Error('No token provided');
         }
 
-        const token = authHeader.split(' ')[1];
-        console.log('Token received:', token.substring(0, 20) + '...');
-        
-        const decoded = verifyToken(token);
-        console.log('Token decoded:', decoded);
-        
-        req.userId = decoded.id;
-        console.log('User ID extracted:', req.userId);
-        console.log('=== Auth Check Complete ===\n');
+        // Thêm validation mạnh hơn
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+            audience: 'payment_system',
+            issuer: 'main_server'
+        });
+
+        // Kiểm tra thời gian token
+        const tokenAge = Date.now() - decoded.timestamp;
+        if (tokenAge > 15 * 60 * 1000) { // 15 minutes
+            throw new Error('Token expired');
+        }
+
+        // Validate loại token
+        if (decoded.type !== 'payment_auth') {
+            throw new Error('Invalid token type');
+        }
+
+        // Thêm thông tin vào request
+        req.userId = decoded.userId;
+        req.orderAmount = decoded.orderAmount;
+        req.orderId = decoded.orderId;
         
         next();
     } catch (error) {
-        console.error('Auth Error:', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: error.message });
     }
 };
 

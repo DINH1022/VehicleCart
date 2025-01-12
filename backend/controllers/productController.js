@@ -6,13 +6,15 @@ import Cart from "../models/cartModel.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    const product = new Product({
+    const productData = {
       ...req.body,
       rating: 0,
       numReviews: 0,
       reviews: [],
-    });
+      quantity: req.body.countInStock // Đảm bảo quantity = countInStock
+    };
 
+    const product = new Product(productData);
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {

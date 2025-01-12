@@ -1,4 +1,5 @@
 import apiRequest from "./apiRequest.js";
+import { SERVER_URL } from "../../redux/constant.js";
 
 const PRODUCT_URL = "api/products";
 
@@ -64,11 +65,22 @@ const productApi = {
     });
   },
 
-  uploadProductImage: async (data) => {
-    return await apiRequest(`${PRODUCT_URL}/upload`, true, {
-      method: "POST",
-      body: data,
-    });
+  uploadProductImage: async (formData) => {
+    try {
+      const response = await fetch(`${SERVER_URL}/${PRODUCT_URL}/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+      return data;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw new Error(error.message || 'Failed to upload image');
+    }
   },
 
   createReview: async (productId, data) => {

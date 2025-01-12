@@ -52,7 +52,7 @@ footer {
     background: white;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 500px;
 }
@@ -61,7 +61,8 @@ footer {
     margin: 2rem 0;
 }
 
-.amount-display, .balance-display {
+.amount-display,
+.balance-display {
     margin: 1rem 0;
     padding: 1rem;
     background: #f8f9fa;
@@ -92,5 +93,279 @@ footer {
 
 .btn.secondary {
     background: #e0e0e0;
+    color: #333;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Reset và base styles */
+
+/* Header styles */
+.trans-page-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Main container */
+.trans-main-container {
+    padding: 2rem;
+    margin-bottom: 60px;
+}
+
+/* Table styles */
+.trans-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.trans-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.trans-table th,
+.trans-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.trans-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.trans-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status badge */
+.trans-status-badge {
+    display: block;
+    width: 110px;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.trans-status-badge.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.trans-status-badge.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Detail button */
+.trans-detail-btn {
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.trans-detail-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Modal styles */
+
+
+
+
+
+/* Detail content grid */
+.trans-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.trans-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trans-detail-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.trans-detail-value {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Footer */
+.trans-page-footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+
+
+.trans-modal {
+    display: none;
+    position: fixed;
+    top: -80px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.trans-modal-content {
+    position: relative;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+    margin: 8% auto;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Transaction ID section */
+.trans-id-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #3498db;
+}
+
+.trans-id-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.trans-id-value {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.trans-user-account {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.trans-amount-status {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.trans-time-section {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.trans-detail-item {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.trans-detail-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.trans-detail-value {
+    color: #212529;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.trans-detail-value.success {
+    color: #2ecc71;
+}
+
+.trans-detail-value.failed {
+    color: #e74c3c;
+}
+
+.amount-value {
+    color: #3498db;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.trans-modal-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.trans-modal-header h2 {
+    color: #2c3e50;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.trans-modal-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 30px;
+    font-size: 20px;
+    height: 30px;
+    background-color: #f1f3f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.trans-modal-close:hover {
     color: #333;
 }

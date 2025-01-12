@@ -1,0 +1,129 @@
+<header class="trans-page-header">
+    <h1>Danh Sách Giao Dịch</h1>
+</header>
+
+<main class="trans-main-container">
+    <div class="trans-table-wrapper">
+        <table class="trans-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã giao dịch</th>
+                    <th>Số tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each transactions}}
+                <tr>
+                    <td>{{add @index 1}}</td>
+                    <td>{{_id}}</td>
+                    <td class="trans-amount">{{formatNumber amount}}</td>
+                    <td>
+                        <span class="trans-status-badge {{#if status}}success{{else}}failed{{/if}}">
+                            {{#if status}}Thành công{{else}}Thất bại{{/if}}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="trans-detail-btn" onclick="showDetail('{{_id}}')">
+                            Chi tiết
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+
+<div id="transDetailModal" class="trans-modal">
+    <div class="trans-modal-content">
+        <span class="trans-modal-close">&times;</span>
+        <div class="trans-modal-header">
+            <h2>Chi Tiết Giao Dịch</h2>
+            <div id="transStatusBadge" class="trans-detail-status"></div>
+        </div>
+        <div id="transDetailContent" class="trans-detail-content">
+        </div>
+    </div>
+</div>
+
+<footer class="trans-page-footer">
+    <p>&copy; 2024 Hệ thống Thanh toán</p>
+</footer>
+
+<script>
+    const transactions = {{{ json transactions }}};
+    function formatMoney(amount) {
+        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function showDetail(transactionId) {
+        const modal = document.getElementById('transDetailModal');
+        const detailContent = document.getElementById('transDetailContent');
+        const transaction = transactions.find(t => t._id === transactionId);
+        if (transaction) {
+            const dateTime = transaction.timestamp.replace(/T/, ' ').replace(/\.\d{3}Z$/, '');
+            detailContent.innerHTML = `
+            <div class="trans-id-section">
+                <div class="trans-id-label">Mã giao dịch:</div>
+                <div class="trans-id-value">${transaction._id}</div>
+            </div>
+
+            <div class="trans-user-account">
+                <div class="trans-detail-item">
+                    <div class="trans-detail-label">User ID:</div>
+                    <div class="trans-detail-value">${transaction.userId}</div>
+                </div>
+                <div class="trans-detail-item">
+                    <div class="trans-detail-label">Account ID:</div>
+                    <div class="trans-detail-value">${transaction.accountId}</div>
+                </div>
+            </div>
+            <div class="trans-amount-status">
+                <div class="trans-detail-item">
+                    <div class="trans-detail-label">Số tiền:</div>
+                    <div class="trans-detail-value amount-value">${formatMoney(transaction.amount)} VND</div>
+                </div>
+                <div class="trans-detail-item">
+                    <div class="trans-detail-label">Trạng thái:</div>
+                    <div class="trans-detail-value ${transaction.status ? 'success' : 'failed'}">
+                        ${transaction.status ? 'Thành công' : 'Thất bại'}
+                    </div>
+                </div>
+            </div>
+
+            <div class="trans-time-section">
+                <div class="trans-detail-label">Thời gian:</div>
+                <div class="trans-detail-value">${dateTime}</div>
+            </div>
+        `;
+
+            modal.style.display = 'block';
+        }
+    }
+
+    document.querySelector('.trans-modal-close').onclick = function () {
+        document.getElementById('transDetailModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('transDetailModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+</script>

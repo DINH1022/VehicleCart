@@ -1,7 +1,7 @@
 <div class="payment-container">
     <div class="payment-card">
         <h2>Xác nhận thanh toán</h2>
-        
+
         <div class="payment-info">
             <div class="amount-display">
                 <h3>Số tiền thanh toán:</h3>
@@ -22,52 +22,53 @@
 </div>
 
 <script>
-const token = "{{token}}";
-let isProcessing = false;
-
-async function loadBalance() {
-    try {
-        const response = await fetch('/api/payment/balance', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        document.getElementById('currentBalance').textContent = 
-            `${data.balance.toLocaleString()} VND`;
-    } catch (error) {
-        document.getElementById('currentBalance').textContent = 'Lỗi tải số dư';
-    }
-}
-
-document.getElementById('confirmBtn').onclick = async () => {
-    if (isProcessing) return;
-    isProcessing = true;
-    
-    try {
-        const response = await fetch('/api/payment/pay', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ amount: parseInt("{{amount}}".replace(/,/g, '')) })
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            window.location.href = 'http://localhost:5173/orders?success=true';
-        } else {
-            alert(result.message);
+    const token = "{{token}}";
+    let isProcessing = false;
+    async function loadBalance() {
+        try {
+            const response = await fetch('/api/payment/balance', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            document.getElementById('currentBalance').textContent =
+                `${data.balance.toLocaleString()} VND`;
+        } catch (error) {
+            document.getElementById('currentBalance').textContent = 'Lỗi tải số dư';
         }
-    } catch (error) {
-        alert('Lỗi xử lý thanh toán');
-    } finally {
-        isProcessing = false;
     }
-};
 
-document.getElementById('cancelBtn').addEventListener('click', () => {
-    window.location.href = 'http://localhost:5173/cart';
-});
+    document.getElementById('confirmBtn').onclick = async () => {
+        if (isProcessing) return;
+        isProcessing = true;
 
-loadBalance();
+        try {
+            const response = await fetch('/api/payment/pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    amount: parseInt("{{amount}}".replace(/\./g, '').replace(/,/g, ''))
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                window.location.href = 'http://localhost:5173/orders?success=true';
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('Lỗi xử lý thanh toán');
+        } finally {
+            isProcessing = false;
+        }
+    };
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        window.location.href = 'http://localhost:5173/cart';
+    });
+
+    loadBalance();
 </script>

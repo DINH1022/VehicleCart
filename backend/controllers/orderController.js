@@ -42,7 +42,6 @@ const processPayment = asyncHandler(async (req, res) => {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'X-API-Key': process.env.PAYMENT_SERVER_API_KEY // Thêm API key
             },
             body: JSON.stringify({ 
                 userId: userId.toString(),

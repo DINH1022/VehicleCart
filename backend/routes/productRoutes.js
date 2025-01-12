@@ -51,6 +51,7 @@ route.post("/upload", authenticate, uploader.single("image"), (req, res) => {
 route
   .route("/:id")
   .get(fetchProductById)
-  .put(authenticate, authorizeAdmin, formidable(), updateProductDetails)
-  .delete(authenticate, authorizeAdmin, formidable(), removeProduct);
+  .put(authenticate, authorizeAdmin, updateProductDetails) // Remove formidable middleware
+  .delete(authenticate, authorizeAdmin, removeProduct);
+
 export default route;

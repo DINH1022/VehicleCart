@@ -49,7 +49,10 @@ document.getElementById('confirmBtn').onclick = async () => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ amount: parseInt("{{amount}}".replace(/,/g, '')) })
+            body: JSON.stringify({
+                    amount: parseInt("{{amount}}".replace(/\./g, '').replace(/,/g, ''))
+            })
+            //body: JSON.stringify({ amount: parseInt("{{amount}}".replace(/,/g, '')) })
         });
 
         const result = await response.json();

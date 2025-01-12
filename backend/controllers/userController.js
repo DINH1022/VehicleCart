@@ -55,8 +55,8 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!existingUser.password) {
     return res.json({
       success: false,
-      mes: "Tài khoản này đăng nhập qua google"
-    })
+      mes: "Tài khoản này đăng nhập qua google",
+    });
   }
   const isPasswordCorrect = await bcrypt.compare(
     password,
@@ -74,6 +74,7 @@ const loginUser = asyncHandler(async (req, res) => {
     username: existingUser.username,
     email: existingUser.email,
     isAdmin: existingUser.isAdmin,
+    avatar: existingUser.avatar  // Add this line
   });
 });
 const loginGoogleUser = asyncHandler(async (req, res) => {
@@ -89,6 +90,7 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
     existingUser = await User.create({
       username: "",
       email: email,
+      avatar: picture,
     });
   }
 
@@ -98,6 +100,7 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
     username: existingUser.username || "",
     email: existingUser.email,
     isAdmin: existingUser.isAdmin,
+    avatar: existingUser.avatar  // Add this line
   });
 });
 const logoutUser = asyncHandler(async (req, res) => {
@@ -117,6 +120,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      avatar: user.avatar
     });
   } else {
     res.status(404);
@@ -193,6 +197,35 @@ const updateUserById = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 });
+const uploadAvatar = asyncHandler(async (req, res) => {
+  try {
+
+    const { _id } = req.user;
+    const avatar = req.file.path;
+    const user = await User.findById(_id);
+    user.avatar = avatar;
+    await user.save();
+    
+    // Update user data in response
+    const userData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar
+    };
+
+    return res.json({
+      ...userData,
+      success: true
+    });
+  } catch (error) {
+    return res.status(404).json({
+      success: false,
+      message: "Failed",
+    });
+  }
+});
 export {
   createUser,
   loginUser,
@@ -204,4 +237,5 @@ export {
   getUserById,
   updateUserById,
   loginGoogleUser,
+  uploadAvatar,
 };

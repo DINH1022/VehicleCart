@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -9,22 +9,43 @@ import {
   Alert,
   CircularProgress,
   Divider,
-  Grid
-} from '@mui/material';
-import Navigation from '../Auth/Navigation';
-import usersApi from '../../service/api/usersApi';
+  Avatar,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { PhotoCamera, Person, Email, Lock } from "@mui/icons-material";
+import Navigation from "../Auth/Navigation";
+import usersApi from "../../service/api/usersApi";
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+  console.log("props: ", props)
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`profile-tabpanel-${index}`}
+      aria-labelledby={`profile-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 const Profile = () => {
   const [userData, setUserData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    username: "",
+    email: "",
+    avatar: "",
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
     fetchUserProfile();
@@ -33,14 +54,15 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     try {
       const data = await usersApi.getProfile();
-      setUserData(prevState => ({
+      setUserData((prevState) => ({
         ...prevState,
         username: data.username,
-        email: data.email
+        email: data.email,
+        avatar: data.avatar,
       }));
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch profile');
+      setError("Failed to fetch profile");
       setLoading(false);
     }
   };
@@ -48,10 +70,27 @@ const Profile = () => {
   const handleChange = (e) => {
     setUserData({
       ...userData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const data = new FormData();
+      data.append("avatar", file);
+      const res = await usersApi.uploadAvatar(data);
+      setUserData((prev) => ({
+        ...prev,
+        avatar: res.newAvatar,
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -67,117 +106,204 @@ const Profile = () => {
     if (!validateForm()) return;
 
     setUpdating(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
       const updateData = {
         username: userData.username,
-        email: userData.email
+        email: userData.email,
       };
       if (userData.password) {
         updateData.password = userData.password;
       }
 
       await usersApi.updateProfile(updateData);
-      setSuccess('Profile updated successfully');
-      setUserData(prev => ({ ...prev, password: '', confirmPassword: '' }));
+      setSuccess("Profile updated successfully");
+      setUserData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
     } catch (err) {
-      setError(err.message || 'Failed to update profile');
+      setError(err.message || "Failed to update profile");
     } finally {
       setUpdating(false);
     }
   };
 
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Navigation />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f4f4f4', minHeight: '100vh' }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          backgroundColor: "#f4f4f4",
+          minHeight: "100vh",
+        }}
+      >
         <Container maxWidth="md">
-          <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ color: '#1a237e', fontWeight: 600 }}>
-              Profile Settings
-            </Typography>
-
-            {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                <CircularProgress />
-              </Box>
-            ) : (
-              <Box component="form" onSubmit={handleSubmit} noValidate>
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Username"
-                      name="username"
-                      value={userData.username}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Email"
-                      name="email"
-                      type="email"
-                      value={userData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Divider sx={{ my: 2 }}>
-                      <Typography color="textSecondary">Change Password</Typography>
-                    </Divider>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="New Password"
-                      name="password"
-                      type="password"
-                      value={userData.password}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Confirm New Password"
-                      name="confirmPassword"
-                      type="password"
-                      value={userData.confirmPassword}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  disabled={updating}
-                  sx={{
-                    mt: 3,
-                    mb: 2,
-                    py: 1.5,
-                    backgroundColor: '#1a237e',
-                    '&:hover': {
-                      backgroundColor: '#000051'
-                    }
-                  }}
+          <Paper sx={{ mb: 4, p: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              <Avatar
+                src={userData.avatar}
+                alt={userData.username}
+                sx={{ width: 120, height: 120 }}
+              />
+              <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+                <Typography variant="h4" gutterBottom>
+                  {userData.username}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
                 >
-                  {updating ? <CircularProgress size={24} /> : 'Update Profile'}
-                </Button>
+                  <Email fontSize="small" />
+                  {userData.email}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+
+          <Paper sx={{ mb: 4 }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{ borderBottom: 1, borderColor: "divider" }}
+            >
+              <Tab icon={<Person />} label="Thông tin chung" />
+              <Tab icon={<PhotoCamera />} label="Ảnh đại diện" />
+              <Tab icon={<Lock />} label="Mật khẩu" />
+            </Tabs>
+
+            {(error || success) && (
+              <Box sx={{ p: 2 }}>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
+                {success && (
+                  <Alert severity="success" sx={{ mb: 2 }}>
+                    {success}
+                  </Alert>
+                )}
               </Box>
             )}
+
+            <TabPanel value={tabValue} index={0}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <TextField
+                  fullWidth
+                  label="Username"
+                  name="username"
+                  value={userData.username}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={userData.email}
+                  onChange={handleChange}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSubmit}
+                  disabled={updating}
+                >
+                  {updating ? <CircularProgress size={24} /> : "Lưu thay đổi"}
+                </Button>
+              </Box>
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={1}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
+                <Avatar
+                  src={userData.avatar}
+                  alt={userData.username}
+                  sx={{ width: 150, height: 150 }}
+                />
+                <input
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="avatar-upload"
+                  type="file"
+                  onChange={handleAvatarUpload}
+                />
+                <label htmlFor="avatar-upload">
+                  <Button
+                    variant="contained"
+                    component="span"
+                    startIcon={<PhotoCamera />}
+                  >
+                    Thay đổi avatar
+                  </Button>
+                </label>
+              </Box>
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={2}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <TextField
+                  fullWidth
+                  label="New Password"
+                  name="password"
+                  type="password"
+                  value={userData.password}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  type="password"
+                  value={userData.confirmPassword}
+                  onChange={handleChange}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSubmit}
+                  disabled={updating}
+                >
+                  {updating ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    "Thay đổi mật khẩu"
+                  )}
+                </Button>
+              </Box>
+            </TabPanel>
           </Paper>
         </Container>
       </Box>

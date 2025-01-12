@@ -69,10 +69,20 @@ export default function Navigation() {
   
   React.useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
+    console.log('Navigation userData:', userData); // Add debug log
     if (userData) {
       setUser(userData);
     }
   }, []);
+  
+  // When user logs in, update the avatar in storage
+  const updateUserData = (userData) => {
+    if (userData.avatar) {
+      const storage = localStorage.getItem('userData') ? localStorage : sessionStorage;
+      storage.setItem('userData', JSON.stringify(userData));
+      setUser(userData);
+    }
+  };
 
   React.useEffect(() => {
     const handleStart = () => setLoading(true);
@@ -186,7 +196,14 @@ export default function Navigation() {
             <Divider />
             <Box sx={{ flexGrow: 1 }} />
             <Divider />
-            {user && <Account username={user.username} email={user.email} open={open}/>}
+            {user && (
+              <Account 
+                username={user.username} 
+                email={user.email} 
+                avatar={user.avatar} 
+                open={open}
+              />
+            )}
           </Box>
         </Drawer>
       </Box>

@@ -22,6 +22,7 @@ import {
   TextField,
   FormControlLabel,
   Switch,
+  Avatar,
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import Navigation from '../Auth/Navigation';
@@ -132,6 +133,7 @@ const UserList = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableCell>Avatar</TableCell>
                   <TableCell>ID</TableCell>
                   <TableCell>Username</TableCell>
                   <TableCell>Email</TableCell>
@@ -142,13 +144,22 @@ const UserList = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center">
+                    <TableCell colSpan={6} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : (
                   users.map((user) => (
                     <TableRow key={user._id}>
+                      <TableCell>
+                        <Avatar 
+                          src={user.avatar} 
+                          alt={user.username}
+                          sx={{ width: 40, height: 40 }}
+                        >
+                          {user.username?.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </TableCell>
                       <TableCell>{user._id}</TableCell>
                       <TableCell>{user.username}</TableCell>
                       <TableCell>{user.email}</TableCell>

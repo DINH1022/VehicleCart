@@ -11,7 +11,15 @@ const usersApi = {
             throw new Error(error.response?.data?.message || 'Login failed');
         }
     },
-
+    googleLogin: async (code) => {
+        try {
+            return await apiRequest(`${USERS_URL}/auth/google?code=${code}`, true, {
+                method: "GET"
+            })
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Login google failed');
+        }
+    },
     register: async (data) => {
         try {
             return await apiRequest(`${USERS_URL}`, true, {

@@ -141,7 +141,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 });
 
 const getRevenueStats = asyncHandler(async (req, res) => {
-    const { period } = req.query; // 'month', 'quarter', or 'year'
+    const { period } = req.query;
     const currentYear = new Date().getFullYear();
     
     let groupBy;
@@ -177,7 +177,13 @@ const getRevenueStats = asyncHandler(async (req, res) => {
                 orderCount: { $sum: 1 }
             }
         },
-        { $sort: { '_id.year': 1, '_id.month': 1 } }
+        {
+            $sort: period === 'month' 
+                ? { '_id.year': 1, '_id.month': 1 }
+                : period === 'quarter'
+                ? { '_id.year': 1, '_id.quarter': 1 }
+                : { '_id.year': 1 }
+        }
     ]);
 
     res.json(stats);

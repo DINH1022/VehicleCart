@@ -2,7 +2,6 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -21,7 +20,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import Account from '../User/Account';
-import PeopleIcon from '@mui/icons-material/People';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const drawerWidth = 240;
@@ -114,7 +112,6 @@ export default function Navigation() {
     { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites' },
     ...(user?.isAdmin ? [
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin' },
-      { text: 'User List', icon: <PeopleIcon />, path: '/users' }
     ] : []),
     ...(!user ? [{ text: 'Login', icon: <LoginIcon />, path: '/login' }] : []),
   ];

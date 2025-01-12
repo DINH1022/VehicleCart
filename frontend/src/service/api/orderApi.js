@@ -93,7 +93,21 @@ const orderApi = {
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Failed to fetch total orders');
         }
-    }
+    },
+    getHistoryPayment: async () => {
+        try {
+            const response = await api.get('/api/orders/history-payment');
+            console.log('Payment response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Payment API Error:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                throw error.response.data;
+            }
+            throw { message: 'Network error occurred' };
+        }
+    },
 };
 
 export default orderApi;

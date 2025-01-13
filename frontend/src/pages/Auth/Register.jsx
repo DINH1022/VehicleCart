@@ -12,6 +12,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import usersApi from "../../service/api/usersApi";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -28,13 +29,18 @@ const Register = () => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
-    setError(""); 
+    setError("");
   };
 
   const validateForm = () => {
-    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (
+      !formData.username ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       setError("Please fill in all fields");
       return false;
     }
@@ -67,11 +73,17 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
       };
-      
-      await usersApi.register(registerData);
+      console.log(199);
+      const response = await usersApi.register(registerData);
+      if (response.success === false) {
+        Swal.fire("Lỗi", "Tài khoản email này đã tồn tài", "error");
+        return;
+      }
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -80,25 +92,33 @@ const Register = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <Navigation />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: "#f4f4f4", minHeight: "100vh" }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          backgroundColor: "#f4f4f4",
+          minHeight: "100vh",
+        }}
+      >
         <Container maxWidth="sm">
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              p: 4, 
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
               mt: 8,
               borderRadius: 2,
-              backgroundColor: 'white'
+              backgroundColor: "white",
             }}
           >
-            <Typography 
-              variant="h4" 
-              align="center" 
+            <Typography
+              variant="h4"
+              align="center"
               gutterBottom
-              sx={{ 
-                color: '#1a237e',
+              sx={{
+                color: "#1a237e",
                 fontWeight: 600,
-                mb: 3
+                mb: 3,
               }}
             >
               Register
@@ -110,10 +130,10 @@ const Register = () => {
               </Alert>
             )}
 
-            <Box 
-              component="form" 
-              onSubmit={handleSubmit} 
-              noValidate 
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              noValidate
               sx={{ mt: 1 }}
             >
               <TextField
@@ -162,27 +182,27 @@ const Register = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ 
-                  mt: 3, 
+                sx={{
+                  mt: 3,
                   mb: 2,
                   py: 1.5,
-                  backgroundColor: '#1a237e',
-                  '&:hover': {
-                    backgroundColor: '#000051'
-                  }
+                  backgroundColor: "#1a237e",
+                  "&:hover": {
+                    backgroundColor: "#000051",
+                  },
                 }}
                 disabled={loading}
               >
                 {loading ? <CircularProgress size={24} /> : "Register"}
               </Button>
               <Typography align="center">
-                Already have an account?{' '}
-                <Link 
-                  to="/login" 
+                Already have an account?{" "}
+                <Link
+                  to="/login"
                   style={{
-                    textDecoration: 'none',
-                    color: '#1a237e',
-                    fontWeight: 500
+                    textDecoration: "none",
+                    color: "#1a237e",
+                    fontWeight: 500,
                   }}
                 >
                   Sign in

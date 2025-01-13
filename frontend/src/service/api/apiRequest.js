@@ -11,15 +11,19 @@ const apiRequest = async (url, sendCookies = true, options = {}) => {
     const mergedOptions = { ...defaultOptions, ...options };
 
     const response = await fetch(`${SERVER_URL}/${url}`, mergedOptions);
+    console.log("res: ", response);
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-
+      console.log("errorData: ", errorData);
       if (response.status === 401) {
         if (errorData?.message?.includes("admin")) {
           throw new Error("Not authorized as admin");
         } else {
           window.location.href = "/login";
         }
+      }
+      if (errorData.mes == "User already exists") {
+        return errorData;
       }
       throw new Error(errorData?.message || "Request failed");
     }

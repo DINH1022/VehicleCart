@@ -15,7 +15,7 @@ const createAccount = async (req, res) => {
     }
     const account = await Account.create({
       id: userId,
-      balance: 1000000000, // 1 billion
+      balance: 10000000000, // 1 billion
     });
     return res.status(200).json({
       accountId: account._id,

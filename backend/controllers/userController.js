@@ -18,7 +18,10 @@ const createUser = asyncHandler(async (req, res) => {
   }
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return res.status(400).send("User already exists");
+    return res.status(400).json({
+      success: false,
+      mes: "User already exists",
+    });
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -177,25 +180,29 @@ const loginFacebookUser = async (req, res) => {
   try {
     const { code } = req.query;
     console.log("Received code:", code);
-    
+
     // Use the exact same redirect URI as registered on Facebook
-    const redirectUri = 'http://localhost:5173/';
-    
-    const tokenUrl = `https://graph.facebook.com/v12.0/oauth/access_token` +
+    const redirectUri = "http://localhost:5173/";
+
+    const tokenUrl =
+      `https://graph.facebook.com/v12.0/oauth/access_token` +
       `?client_id=${process.env.FACEBOOK_APP_ID}` +
       `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&code=${code}`;
-    
+
     console.log("Token URL:", tokenUrl);
-    
+
     // Exchange code for access token
     const tokenResponse = await fetch(tokenUrl);
     const tokenData = await tokenResponse.json();
     console.log("Token response:", tokenData);
 
     if (!tokenData.access_token) {
-      throw new Error('Failed to get access token from Facebook: ' + JSON.stringify(tokenData.error));
+      throw new Error(
+        "Failed to get access token from Facebook: " +
+          JSON.stringify(tokenData.error)
+      );
     }
 
     // Get user data from Facebook with the received access token
@@ -206,7 +213,7 @@ const loginFacebookUser = async (req, res) => {
     console.log("User data:", userData);
 
     if (!userData.email) {
-      throw new Error('Email not provided by Facebook');
+      throw new Error("Email not provided by Facebook");
     }
 
     // Find or create user
@@ -237,11 +244,11 @@ const loginFacebookUser = async (req, res) => {
 
         if (!paymentResponse.ok) {
           await User.findByIdAndDelete(user._id);
-          throw new Error('Failed to create payment account');
+          throw new Error("Failed to create payment account");
         }
       } catch (error) {
         await User.findByIdAndDelete(user._id);
-        throw new Error('Failed to create payment account: ' + error.message);
+        throw new Error("Failed to create payment account: " + error.message);
       }
     }
 
@@ -257,7 +264,7 @@ const loginFacebookUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Facebook login error:", error);
-    res.status(401).json({ message: error.message || 'Facebook login failed' });
+    res.status(401).json({ message: error.message || "Facebook login failed" });
   }
 };
 

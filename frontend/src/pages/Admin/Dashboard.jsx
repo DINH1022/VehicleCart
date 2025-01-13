@@ -120,56 +120,7 @@ const Dashboard = () => {
           />
         </Box>
 
-        {/* Add Revenue Chart */}
         <RevenueChart />
-
-        <Box sx={{ display: "flex", gap: 3 }}>
-          {/* Khối Quick Actions */}
-          <Paper sx={{ p: 3, flex: "0 0 49%" }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Quick Actions
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/users")}
-                startIcon={<PeopleIcon />}
-              >
-                Manage Users
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/admin/orders")}
-                startIcon={<ShoppingCartIcon />}
-              >
-                Manage Orders
-              </Button>
-            </Box>
-          </Paper>
-
-          {/* Khối mới */}
-          <Paper sx={{ p: 3, flex: "0 0 49%", ml: 0.5 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-            Quick Actions
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/categories")}
-                startIcon={<InventoryIcon />}
-              >
-                Manage Category
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/admin/products")}
-                startIcon={<InventoryIcon />}
-              >
-                Manage Products
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
       </Box>
     </Box>
   );

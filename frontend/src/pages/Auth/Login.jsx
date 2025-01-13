@@ -193,18 +193,7 @@ const Login = () => {
                 onChange={handleChange}
                 sx={{ mb: 2 }}
               />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    color="primary"
-                  />
-                }
-                label="Remember me"
-                sx={{ mb: 2 }}
-              />
+              
               <Button
                 type="submit"
                 fullWidth
@@ -257,8 +246,11 @@ const Login = () => {
                 onClick={() => {
                   const fbAuthUrl = `https://www.facebook.com/v12.0/dialog/oauth` +
                     `?client_id=${import.meta.env.VITE_FACEBOOK_APP_ID}` +
-                    `&redirect_uri=${encodeURIComponent('http://localhost:5173/')}` + // Hardcode the exact URI
-                    `&scope=email,public_profile`;
+                    `&redirect_uri=${encodeURIComponent('http://localhost:5173/')}` +
+                    `&scope=email,public_profile` + // Explicitly request email permission
+                    `&response_type=code` +
+                    `&auth_type=rerequest`; // Force permission dialog to show
+                  console.log('Redirecting to Facebook auth URL:', fbAuthUrl);
                   window.location.href = fbAuthUrl;
                 }}
                 sx={{

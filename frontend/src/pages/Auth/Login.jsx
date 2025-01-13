@@ -68,7 +68,7 @@ const Login = () => {
 
       const response = await usersApi.login(loginData);
       if (response.success === false) {
-        Swal.fire('Thất bại !', response.mes, 'error');
+        Swal.fire("Thất bại !", response.mes, "error");
         return;
       }
       // Save user data to localStorage if rememberMe is checked
@@ -111,15 +111,6 @@ const Login = () => {
     onError: reponseGoogle,
     flow: "auth-code",
   });
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     // Add Google authentication logic here
-  //     // const response = await authApi.googleLogin();
-  //     navigate("/");
-  //   } catch (err) {
-  //     setError(err.message || "Google login failed");
-  //   }
-  // };
 
   return (
     <Box sx={{ display: "flex" }}>

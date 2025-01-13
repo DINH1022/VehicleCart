@@ -11,19 +11,20 @@ const addProduct = asyncHandler(async (req, res) => {
       rating: 0,
       numReviews: 0,
       reviews: [],
-      quantity: req.body.countInStock // Đảm bảo quantity = countInStock
+      quantity: req.body.countInStock, // Đảm bảo quantity = countInStock
     };
 
     // Validate required fields
     if (!productData.name) throw new Error("Name is required");
     if (!productData.brand) throw new Error("Brand is required");
     if (!productData.quantity) throw new Error("Quantity is required");
-    if (!productData.category || !productData.category.length) 
+    if (!productData.category || !productData.category.length)
       throw new Error("At least one category is required");
     if (!productData.description) throw new Error("Description is required");
-    if (!productData.originalPrice) throw new Error("Original price is required");
+    if (!productData.originalPrice)
+      throw new Error("Original price is required");
     // Đảm bảo price có giá trị
-    if (typeof productData.price === 'undefined' || productData.price === null) 
+    if (typeof productData.price === "undefined" || productData.price === null)
       throw new Error("Price is required");
 
     const product = new Product(productData);
@@ -37,16 +38,26 @@ const addProduct = asyncHandler(async (req, res) => {
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
-    const { name, brand, quantity, category, description, price, originalPrice } = req.body;
+    const {
+      name,
+      brand,
+      quantity,
+      category,
+      description,
+      price,
+      originalPrice,
+    } = req.body;
 
     // Validate required fields
     if (!name) throw new Error("Name is required");
     if (!brand) throw new Error("Brand is required");
     if (!quantity) throw new Error("Quantity is required");
-    if (!category || !category.length) throw new Error("At least one category is required");
+    if (!category || !category.length)
+      throw new Error("At least one category is required");
     if (!description) throw new Error("Description is required");
     if (!originalPrice) throw new Error("Original price is required");
-    if (typeof price === 'undefined' || price === null) throw new Error("Price is required");
+    if (typeof price === "undefined" || price === null)
+      throw new Error("Price is required");
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
@@ -157,12 +168,12 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
       .populate({
-        path: 'category',
-        select: '_id name mainCategory',
+        path: "category",
+        select: "_id name mainCategory",
         populate: {
-          path: 'mainCategory',
-          select: 'name'
-        }
+          path: "mainCategory",
+          select: "name",
+        },
       })
       .sort({ createdAt: -1 });
 
@@ -192,7 +203,8 @@ const addProductReview = asyncHandler(async (req, res) => {
       }
 
       const review = {
-        name: req.user.username,
+        name: req.user.username || req.user.email,
+        avatar: req.user.avatar,
         rating: Number(rating),
         comment,
         user: req.user._id,
@@ -220,8 +232,11 @@ const getReviewProduct = asyncHandler(async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     const reviews = product.reviews;
+    const sortedReviews = reviews.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
     return res.status(200).json({
-      reviews,
+      reviews: sortedReviews,
     });
   } catch (error) {
     console.error(error);

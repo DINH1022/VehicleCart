@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Star, PenIcon } from "lucide-react";
 import {
   Box,
@@ -14,19 +14,21 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Avatar,
 } from "@mui/material";
 import productApi from "../../service/api/productsApi";
 import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
 import showToast from "../../components/ShowToast";
 import Swal from "sweetalert2";
+
 const ReviewsProduct = ({ reviews, setReviews, productId }) => {
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 0,
     comment: "",
   });
-
   const handleOpenReviewModal = () => {
     if (login) {
       setOpenReviewModal(true);
@@ -58,6 +60,9 @@ const ReviewsProduct = ({ reviews, setReviews, productId }) => {
       }
     }
   };
+
+  const displayedReviews = showAllReviews ? reviews : reviews?.slice(0, 3);
+
   return (
     <>
       <Card variant="outlined" sx={{ mt: 4 }}>
@@ -76,50 +81,72 @@ const ReviewsProduct = ({ reviews, setReviews, productId }) => {
         />
         <Divider />
         <CardContent>
-          {reviews ? (
-            reviews.map((review, index) => (
-              <Box
-                key={index}
-                sx={{ borderBottom: "1px solid #e0e0e0", pb: 4, mb: 4 }}
-              >
+          {reviews && reviews.length > 0 ? (
+            <>
+              {displayedReviews.map((review, index) => (
                 <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
+                  key={index}
+                  sx={{ borderBottom: "1px solid #e0e0e0", pb: 4, mb: 4 }}
                 >
-                  <Box display="flex" alignItems="center" gap={2}>
-                    <Typography variant="body1" fontWeight="bold">
-                      {review.name}
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                  >
+                    <Box display="flex" gap={2}>
+                      <Avatar
+                        src={review.avatar}
+                        alt={review.name}
+                        sx={{ marginTop: 1 }}
+                      >
+                        {review.name?.charAt(0)}
+                      </Avatar>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          fontWeight="bold"
+                          sx={{ marginLeft: 1 }}
+                        >
+                          {review.name}
+                        </Typography>
+                        <Rating
+                          name="rounded-stars-rating"
+                          defaultValue={review.rating}
+                          precision={0.1}
+                          readOnly
+                          icon={<StarRounded fontSize="inherit" />}
+                          emptyIcon={<StarOutlineRounded fontSize="inherit" />}
+                        />
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          sx={{ mt: 1 }}
+                        >
+                          {review.comment}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {review?.createdAt?.split("T")[0] || ""}
                     </Typography>
-                    <Rating
-                      name="rounded-stars-rating"
-                      defaultValue={review.rating}
-                      precision={0.1}
-                      readOnly
-                      icon={<StarRounded fontSize="inherit" />}
-                      emptyIcon={<StarOutlineRounded fontSize="inherit" />}
-                    />
                   </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {review.date}
-                  </Typography>
                 </Box>
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ mt: 2 }}
-                >
-                  {review.comment}
-                </Typography>
+              ))}
+              <Box display="flex" gap={2} justifyContent="center">
+                {reviews.length > 3 && (
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    onClick={() => setShowAllReviews(!showAllReviews)}
+                  >
+                    {showAllReviews ? "Thu gọn" : "Xem tất cả nhận xét"}
+                  </Button>
+                )}
               </Box>
-            ))
+            </>
           ) : (
             <Typography variant="body1">Chưa có nhận xét nào</Typography>
           )}
-
-          <Button variant="contained" color="inherit" fullWidth>
-            Xem tất cả nhận xét
-          </Button>
         </CardContent>
       </Card>
 
@@ -172,4 +199,5 @@ const ReviewsProduct = ({ reviews, setReviews, productId }) => {
     </>
   );
 };
+
 export default ReviewsProduct;

@@ -118,7 +118,11 @@ const Profile = () => {
           ...prev,
           avatar: response.avatar,
         }));
-
+        window.dispatchEvent(
+          new CustomEvent("avatarChange", {
+            detail: { avatar: response.avatar },
+          })
+        );
         setSuccess("Avatar updated successfully");
         handleClosePreview();
       } catch (error) {
@@ -183,9 +187,7 @@ const Profile = () => {
   };
 
   if (loading) {
-    return (
-      <Loader />
-    );
+    return <Loader />;
   }
 
   return (

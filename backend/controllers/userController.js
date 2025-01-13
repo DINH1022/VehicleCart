@@ -9,54 +9,7 @@ import fetch from "node-fetch";
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
-// const createUser = asyncHandler(async (req, res) => {
-//   const { username, email, password } = req.body;
-//   if (!username || !email || !password) {
-//     throw new Error("Please fill all fields");
-//   }
-//   const userExists = await User.findOne({ email });
-//   if (userExists) {
-//     return res.status(400).send("User already exists");
-//   }
 
-//   const salt = await bcrypt.genSalt(10);
-//   const hashedPassword = await bcrypt.hash(password, salt);
-
-//   const newUser = new User({
-//     username,
-//     email,
-//     password: hashedPassword,
-//   });
-//   console.log("newUsser: ", newUser);
-//   try {
-//     await newUser.save();
-//     createToken(res, newUser._id);
-//     // const tokenResponse = await fetch(
-//     //   "https://localhost:4000/api/auth/create-account",
-//     //   {
-//     //     method: "POST",
-//     //     headers: {
-//     //       "Content-Type": "application/json",
-//     //       "X-API-Key": process.env.PAYMENT_SERVER_API_KEY, // Thêm API key
-//     //     },
-//     //     body: JSON.stringify({
-//     //       userId: newUser._id.toString(),
-//     //     }),
-//     //     agent,
-//     //   }
-//     // );
-//     console.log("test: ", tokenResponse);
-//     res.status(201).json({
-//       _id: newUser._id,
-//       username: newUser.username,
-//       email: newUser.email,
-//       isAdmin: newUser.isAdmin,
-//     });
-//   } catch (error) {
-//     res.status(400);
-//     throw new Error("Invalid user data");
-//   }
-// });
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -80,7 +33,7 @@ const createUser = asyncHandler(async (req, res) => {
     await newUser.save();
     createToken(res, newUser._id);
     try {
-      const tokenResponse = await fetch(
+      const response = await fetch(
         "https://localhost:4000/api/auth/create-account",
         {
           method: "POST",
@@ -95,8 +48,8 @@ const createUser = asyncHandler(async (req, res) => {
         }
       );
 
-      if (!tokenResponse.ok) {
-        throw new Error(`API call thất bại: ${tokenResponse.statusText}`);
+      if (!response.ok) {
+        throw new Error(`API call thất bại: ${response.statusText}`);
       }
 
       res.status(201).json({
@@ -153,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
     username: existingUser.username,
     email: existingUser.email,
     isAdmin: existingUser.isAdmin,
-    avatar: existingUser.avatar, 
+    avatar: existingUser.avatar,
   });
 });
 const loginGoogleUser = asyncHandler(async (req, res) => {
@@ -275,6 +228,28 @@ const deleteUserById = asyncHandler(async (req, res) => {
       throw new Error("Cannot delete admin user");
     }
     await User.deleteOne({ _id: user._id });
+    // try {
+    //   const response = await fetch(
+    //     "https://localhost:4000/api/auth/delete-account",
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         "X-API-Key": process.env.PAYMENT_SERVER_API_KEY,
+    //       },
+    //       body: JSON.stringify({
+    //         userId: newUser._id.toString(),
+    //       }),
+    //       agent,
+    //     }
+    //   );
+
+    //   if (!response.ok) {
+    //     throw new Error(`API call thất bại: ${response.statusText}`);
+    //   }
+    // } catch (error) {
+    //   throw error
+    // }
     res.json({ message: "User deleted successfully" });
   } else {
     res.status(404);

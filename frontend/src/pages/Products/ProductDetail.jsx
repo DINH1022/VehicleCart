@@ -17,7 +17,7 @@ import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import productApi from "../../service/api/productsApi";
-import SimilarProducts from "./SimilarProducts.jsx";
+// import SimilarProducts from "./SimilarProducts.jsx";
 import ImageGallery from "./ImageGallery";
 import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
@@ -74,6 +74,7 @@ const ProductDetail = () => {
     const fetchReviews = async () => {
       try {
         const response = await productApi.getReviewProduct(productId);
+        console.log("res: ", response);
         setReviews(response.reviews);
       } catch (err) {
         console.error("Lỗi khi tải nhận xét:", err);
@@ -108,7 +109,7 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-  }, [productId]);
+  }, [productId, reviews]);
   const handleAddToCart = async () => {
     try {
       if (login) {
@@ -275,26 +276,25 @@ const ProductDetail = () => {
                   display="flex"
                   flexWrap="wrap"
                   gap={2}
-                  justifyContent="space-between"
+                  sx={{
+                    "& > *": {
+                      width: {
+                        xs: "100%",
+                        sm: "48%",
+                        md: "31%",
+                        lg: "19%",
+                      },
+                      maxWidth: "270px",
+                      flexGrow: 0,
+                    },
+                  }}
                 >
                   {similarProducts.map((product, index) => {
                     const isFavorited = login
                       ? favorites.some((fav) => fav._id === product._id)
                       : false;
                     return (
-                      <Box
-                        key={index}
-                        sx={{
-                          width: {
-                            xs: "100%",
-                            sm: "48%",
-                            md: "31%",
-                            lg: "19%",
-                          },
-                          maxWidth: "270px",
-                          flexGrow: 1,
-                        }}
-                      >
+                      <Box key={index}>
                         <WatchCard
                           key={index}
                           watch={product}

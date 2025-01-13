@@ -37,12 +37,31 @@ const RevenueChart = () => {
     };
 
     const formatChartData = (stats) => {
-        return stats.map(stat => {
-            const label = period === 'month' 
-                ? new Date(stat._id.year, stat._id.month - 1).toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' })
-                : period === 'quarter'
-                    ? `Q${stat._id.quarter} ${stat._id.year}`
-                    : stat._id.year.toString();
+        const sortedStats = [...stats].sort((a, b) => {
+            if (a._id.year !== b._id.year) {
+                return a._id.year - b._id.year;
+            }
+            if (period === 'month' && a._id.month !== b._id.month) {
+                return a._id.month - b._id.month;
+            }
+            if (period === 'quarter' && a._id.quarter !== b._id.quarter) {
+                return a._id.quarter - b._id.quarter;
+            }
+            return 0;
+        });
+
+        return sortedStats.map(stat => {
+            let label;
+            if (period === 'month') {
+                label = new Date(stat._id.year, stat._id.month - 1).toLocaleDateString('vi-VN', { 
+                    month: 'short', 
+                    year: 'numeric' 
+                });
+            } else if (period === 'quarter') {
+                label = `Q${stat._id.quarter}/${stat._id.year}`;
+            } else {
+                label = stat._id.year.toString();
+            }
 
             return {
                 period: label,

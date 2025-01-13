@@ -160,6 +160,13 @@ const Dashboard = () => {
               >
                 Manage Category
               </Button>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/admin/products")}
+                startIcon={<InventoryIcon />}
+              >
+                Manage Products
+              </Button>
             </Box>
           </Paper>
         </Box>

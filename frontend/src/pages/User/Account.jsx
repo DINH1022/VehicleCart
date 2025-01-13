@@ -13,7 +13,7 @@ import { AccountCircle, ExitToApp, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import usersApi from '../../service/api/usersApi';
 
-const Account = ({ username,email, open }) => {
+const Account = ({ username, email, avatar, open }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
@@ -60,6 +60,8 @@ const Account = ({ username,email, open }) => {
         }}
       >
         <Avatar 
+          src={avatar || ''} 
+          alt={username}
           sx={{ 
             width: 32, 
             height: 32, 

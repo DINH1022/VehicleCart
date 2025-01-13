@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticate, authorizeAdmin } from '../middlewares/authMiddleware.js';
-import { processPayment, getOrders, getOrderById, updateOrderPaymentStatus, getAllOrders, updateOrderStatus, getRevenueStats, getTotalOrders, historyPayment } from '../controllers/orderController.js';
+
+import { processPayment, getOrders, getOrderById, updateOrderPaymentStatus, getAllOrders, updateOrderStatus, getRevenueStats, getTotalOrders, deleteOrder, historyPayment } from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.get('/admin/all', authenticate, authorizeAdmin, getAllOrders);
 router.put('/admin/status/:id', authenticate, authorizeAdmin, updateOrderStatus);
 router.get('/admin/revenue-stats', authenticate, authorizeAdmin, getRevenueStats);
 router.get('/admin/total', authenticate, authorizeAdmin, getTotalOrders);
+router.delete('/admin/:id', authenticate, authorizeAdmin, deleteOrder);
 
 export default router;

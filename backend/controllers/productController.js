@@ -6,13 +6,27 @@ import Cart from "../models/cartModel.js";
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
-    const product = new Product({
+    const productData = {
       ...req.body,
       rating: 0,
       numReviews: 0,
       reviews: [],
-    });
+      quantity: req.body.countInStock // Đảm bảo quantity = countInStock
+    };
 
+    // Validate required fields
+    if (!productData.name) throw new Error("Name is required");
+    if (!productData.brand) throw new Error("Brand is required");
+    if (!productData.quantity) throw new Error("Quantity is required");
+    if (!productData.category || !productData.category.length) 
+      throw new Error("At least one category is required");
+    if (!productData.description) throw new Error("Description is required");
+    if (!productData.originalPrice) throw new Error("Original price is required");
+    // Đảm bảo price có giá trị
+    if (typeof productData.price === 'undefined' || productData.price === null) 
+      throw new Error("Price is required");
+
+    const product = new Product(productData);
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
@@ -23,26 +37,32 @@ const addProduct = asyncHandler(async (req, res) => {
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {
-    const { name, brand, quantity, category, description, price } = req.fields;
+    const { name, brand, quantity, category, description, price, originalPrice } = req.body;
 
+    // Validate required fields
     if (!name) throw new Error("Name is required");
     if (!brand) throw new Error("Brand is required");
     if (!quantity) throw new Error("Quantity is required");
-    if (!category || !category.length)
-      throw new Error("At least one category is required");
+    if (!category || !category.length) throw new Error("At least one category is required");
     if (!description) throw new Error("Description is required");
-    if (!price) throw new Error("Price is required");
+    if (!originalPrice) throw new Error("Original price is required");
+    if (typeof price === 'undefined' || price === null) throw new Error("Price is required");
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { ...req.fields },
+      { ...req.body },
       { new: true }
     );
-    await product.save();
-    res.json(product);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
   } catch (error) {
     console.error(error);
-    res.status(400).json(error.message);
+    res.status(400).json({ message: error.message });
   }
 });
 
@@ -136,8 +156,14 @@ const fetchProductById = asyncHandler(async (req, res) => {
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find({})
-      .populate("category")
-      //.limit(12)
+      .populate({
+        path: 'category',
+        select: '_id name mainCategory',
+        populate: {
+          path: 'mainCategory',
+          select: 'name'
+        }
+      })
       .sort({ createdAt: -1 });
 
     res.json(products);

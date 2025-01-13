@@ -153,6 +153,7 @@ const loginUser = asyncHandler(async (req, res) => {
     username: existingUser.username,
     email: existingUser.email,
     isAdmin: existingUser.isAdmin,
+    avatar: existingUser.avatar  // Add this line
   });
 });
 const loginGoogleUser = asyncHandler(async (req, res) => {
@@ -216,6 +217,15 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
   } catch (error) {
     throw error;
   }
+  createToken(res, existingUser._id);
+  res.status(201).json({
+    _id: existingUser._id,
+    username: existingUser.username || "",
+    email: existingUser.email,
+    isAdmin: existingUser.isAdmin,
+    avatar: existingUser.avatar  // Add this line
+  });
+
 });
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", { httpOnly: true, expires: new Date(0) });
@@ -318,9 +328,12 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     const user = await User.findById(_id);
     user.avatar = avatar;
     await user.save();
+    
+    // Return the new avatar URL in the response
     return res.json({
-      newAvatar: avatar,
       success: true,
+      avatar: user.avatar,
+      newAvatar: avatar
     });
   } catch (error) {
     return res.status(404).json({

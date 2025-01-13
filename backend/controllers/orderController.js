@@ -179,46 +179,52 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 });
 
 const getRevenueStats = asyncHandler(async (req, res) => {
-  const { period } = req.query; // 'month', 'quarter', or 'year'
-  const currentYear = new Date().getFullYear();
+    const { period } = req.query;
+    const currentYear = new Date().getFullYear();
+    
+    let groupBy;
+    if (period === 'month') {
+        groupBy = {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+        };
+    } else if (period === 'quarter') {
+        groupBy = {
+            year: { $year: '$createdAt' },
+            quarter: {
+                $ceil: { $divide: [{ $month: '$createdAt' }, 3] }
+            }
+        };
+    } else {
+        groupBy = {
+            year: { $year: '$createdAt' }
+        };
+    }
 
-  let groupBy;
-  if (period === "month") {
-    groupBy = {
-      year: { $year: "$createdAt" },
-      month: { $month: "$createdAt" },
-    };
-  } else if (period === "quarter") {
-    groupBy = {
-      year: { $year: "$createdAt" },
-      quarter: {
-        $ceil: { $divide: [{ $month: "$createdAt" }, 3] },
-      },
-    };
-  } else {
-    groupBy = {
-      year: { $year: "$createdAt" },
-    };
-  }
+    const stats = await Order.aggregate([
+        {
+            $match: {
+                paymentStatus: 'completed',
+                createdAt: { $gte: new Date(currentYear - 1, 0, 1) }
+            }
+        },
+        {
+            $group: {
+                _id: groupBy,
+                revenue: { $sum: '$totalAmount' },
+                orderCount: { $sum: 1 }
+            }
+        },
+        {
+            $sort: period === 'month' 
+                ? { '_id.year': 1, '_id.month': 1 }
+                : period === 'quarter'
+                ? { '_id.year': 1, '_id.quarter': 1 }
+                : { '_id.year': 1 }
+        }
+    ]);
 
-  const stats = await Order.aggregate([
-    {
-      $match: {
-        paymentStatus: "completed",
-        createdAt: { $gte: new Date(currentYear - 1, 0, 1) },
-      },
-    },
-    {
-      $group: {
-        _id: groupBy,
-        revenue: { $sum: "$totalAmount" },
-        orderCount: { $sum: 1 },
-      },
-    },
-    { $sort: { "_id.year": 1, "_id.month": 1 } },
-  ]);
-
-  res.json(stats);
+    res.json(stats);
 });
 
 const getTotalOrders = asyncHandler(async (req, res) => {
@@ -230,15 +236,27 @@ const getTotalOrders = asyncHandler(async (req, res) => {
   }
 });
 
-export {
-  createOrder,
-  processPayment,
-  getOrders,
-  getOrderById,
-  updateOrderPaymentStatus,
-  getAllOrders,
-  updateOrderStatus,
-  getRevenueStats,
-  getTotalOrders,
-  historyPayment,
+const deleteOrder = asyncHandler(async (req, res) => {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    res.json({ message: 'Order deleted successfully' });
+});
+
+export { 
+    createOrder, 
+    processPayment, 
+    getOrders, 
+    getOrderById, 
+    updateOrderPaymentStatus,
+    getAllOrders,      
+    updateOrderStatus,
+    getRevenueStats,
+    getTotalOrders,
+    deleteOrder,
+    historyPayment
 };

@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
 }, 
 {
-    timestamps : true,  //auto create timestamp when user was created
+    timestamps : true,  
 }
 );
 

@@ -1,5 +1,6 @@
 import express from "express";
 import formidable from "express-formidable";
+import uploader from "../config/cloudinary.config.js";
 const route = express.Router();
 
 import {
@@ -34,10 +35,23 @@ route
   .post(authenticate, checkId, addProductReview)
   .get(getReviewProduct)
 
+route.post("/upload", authenticate, uploader.single("image"), (req, res) => {
+  try {
+    if (req.file) {
+      res.json({ url: req.file.path });
+    } else {
+      res.status(400).json({ error: "No file uploaded" });
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: "Failed to upload file" });
+  }
+});
 
 route
   .route("/:id")
   .get(fetchProductById)
-  .put(authenticate, authorizeAdmin, formidable(), updateProductDetails)
-  .delete(authenticate, authorizeAdmin, formidable(), removeProduct);
+  .put(authenticate, authorizeAdmin, updateProductDetails) // Remove formidable middleware
+  .delete(authenticate, authorizeAdmin, removeProduct);
+
 export default route;

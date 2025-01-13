@@ -17,7 +17,6 @@ import { StarRounded, StarOutlineRounded } from "@mui/icons-material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import productApi from "../../service/api/productsApi";
-// import SimilarProducts from "./SimilarProducts.jsx";
 import ImageGallery from "./ImageGallery";
 import RatingProduct from "./RatingProduct.jsx";
 import ReviewProduct from "./ReviewsProduct.jsx";
@@ -26,7 +25,9 @@ import cartApi from "../../service/api/cartRequest.js";
 import showToast from "../../components/ShowToast.jsx";
 import { addCartToSessionStorage } from "../../utils/sessionStorage.js";
 import Navigation from "../Auth/Navigation.jsx";
-import favoritesApi from "../../service/api/favoritesApi.js";
+
+import favoritesApi from "../../service/api/favoritesApi";
+
 import WatchCard from "./WatchCard.jsx";
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -44,7 +45,7 @@ const ProductDetail = () => {
       const fetchFavorites = async () => {
         const response = await favoritesApi.getFavorites();
         setFavorites(response.products);
-        const checked = favorites.some((product) => product._id === productId);
+        const checked = response.products.some((product) => product._id === productId);
         setFavorited(checked);
       };
       fetchFavorites();

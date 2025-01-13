@@ -38,10 +38,7 @@ const ListProduct = ({ products, title }) => {
     });
   };
 
-  // const visibleProducts = products.slice(
-  //   startIndex,
-  //   startIndex + productsPerView
-  // );
+
 
   return (
     <Box sx={{ position: "relative", my: 4 }}>

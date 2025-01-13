@@ -8,14 +8,19 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Divider,
   Avatar,
   Tabs,
   Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { PhotoCamera, Person, Email, Lock } from "@mui/icons-material";
 import Navigation from "../Auth/Navigation";
 import usersApi from "../../service/api/usersApi";
+import Loader from "../../components/Loader";
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
@@ -44,6 +49,10 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [tabValue, setTabValue] = useState(0);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   useEffect(() => {
     fetchUserProfile();
@@ -78,42 +87,62 @@ const Profile = () => {
     setTabValue(newValue);
     setError("");
     setSuccess("");
-
   };
 
-  const handleAvatarUpload = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewUrl(previewUrl);
+      setPreviewOpen(true);
+    }
+  };
+
+  const handleAvatarUpload = async () => {
+    if (selectedFile) {
       const data = new FormData();
-      data.append("avatar", file);
+      data.append("avatar", selectedFile);
       try {
+        setUpdating(true);
         const response = await usersApi.uploadAvatar(data);
-        // Update local storage/session storage with new avatar
-        const storage = localStorage.getItem('userData') ? localStorage : sessionStorage;
-        const userData = JSON.parse(storage.getItem('userData'));
+
+        const storage = localStorage.getItem("userData")
+          ? localStorage
+          : sessionStorage;
+        const userData = JSON.parse(storage.getItem("userData"));
         const updatedUserData = { ...userData, avatar: response.avatar };
-        storage.setItem('userData', JSON.stringify(updatedUserData));
-        
-        // Update state
-        setUserData(prev => ({
+        storage.setItem("userData", JSON.stringify(updatedUserData));
+
+        setUserData((prev) => ({
           ...prev,
-          avatar: response.avatar
+          avatar: response.avatar,
         }));
 
-        // Dispatch custom event
-        window.dispatchEvent(new CustomEvent('avatarChange', { 
-          detail: { avatar: response.avatar }
-        }));
-
-        setSuccess('Avatar updated successfully');
+        setSuccess("Avatar updated successfully");
+        handleClosePreview();
       } catch (error) {
-        setError('Failed to update avatar');
+        setError("Failed to update avatar");
+      } finally {
+        setUpdating(false);
       }
     }
   };
 
+  const handleClosePreview = () => {
+    setPreviewOpen(false);
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl("");
+    }
+  };
+
   const validateForm = () => {
-    if (userData.newPassword && userData.newPassword !== userData.confirmPassword) {
+    if (
+      userData.newPassword &&
+      userData.newPassword !== userData.confirmPassword
+    ) {
       setError("Passwords don't match");
       return false;
     }
@@ -134,14 +163,18 @@ const Profile = () => {
         email: userData.email,
       };
       if (userData.newPassword) {
-        if(userData.newPassword == userData.confirmPassword) {
+        if (userData.newPassword == userData.confirmPassword) {
           updateData.newPassword = userData.newPassword;
         }
       }
 
       await usersApi.updateProfile(updateData);
       setSuccess("Profile updated successfully");
-      setUserData((prev) => ({ ...prev, newPassword: "", confirmPassword: "" }));
+      setUserData((prev) => ({
+        ...prev,
+        newPassword: "",
+        confirmPassword: "",
+      }));
     } catch (err) {
       setError(err.message || "Failed to update profile");
     } finally {
@@ -151,14 +184,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
+      <Loader />
     );
   }
 
@@ -272,14 +298,14 @@ const Profile = () => {
                 <Avatar
                   src={userData.avatar}
                   alt={userData.username}
-                  sx={{ width: 150, height: 150 }}
+                  sx={{ width: 180, height: 180 }}
                 />
                 <input
                   accept="image/*"
                   style={{ display: "none" }}
                   id="avatar-upload"
                   type="file"
-                  onChange={handleAvatarUpload}
+                  onChange={handleFileSelect}
                 />
                 <label htmlFor="avatar-upload">
                   <Button
@@ -287,7 +313,7 @@ const Profile = () => {
                     component="span"
                     startIcon={<PhotoCamera />}
                   >
-                    Thay đổi avatar
+                    Chọn ảnh mới
                   </Button>
                 </label>
               </Box>
@@ -299,7 +325,7 @@ const Profile = () => {
                   fullWidth
                   label="New Password"
                   name="newPassword"
-                  type="newPassword"
+                  type="password"
                   value={userData.newPassword}
                   onChange={handleChange}
                 />
@@ -328,6 +354,49 @@ const Profile = () => {
           </Paper>
         </Container>
       </Box>
+
+      <Dialog
+        open={previewOpen}
+        onClose={handleClosePreview}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Xem trước ảnh đại diện</DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+              py: 2,
+            }}
+          >
+            <Typography variant="body2" color="textSecondary">
+              Ảnh đại diện mới của bạn
+            </Typography>
+            {previewUrl && (
+              <Avatar
+                src={previewUrl}
+                alt="Preview"
+                sx={{ width: 400, height: 400 }}
+              />
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePreview} color="inherit">
+            Hủy
+          </Button>
+          <Button
+            onClick={handleAvatarUpload}
+            variant="contained"
+            disabled={updating}
+          >
+            {updating ? <CircularProgress size={24} /> : "Xác nhận thay đổi"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

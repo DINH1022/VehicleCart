@@ -1,142 +1,181 @@
-import fetch from 'node-fetch';
-import https from 'https';
-import asyncHandler from '../middlewares/asyncHandler.js';
-import Order from '../models/orderModel.js';
+import fetch from "node-fetch";
+import https from "https";
+import asyncHandler from "../middlewares/asyncHandler.js";
+import Order from "../models/orderModel.js";
 
 // Add this to handle self-signed certificates in development
 const agent = new https.Agent({
-    rejectUnauthorized: false
+  rejectUnauthorized: false,
 });
 
 const createOrder = asyncHandler(async (req, res) => {
-    const { items, shippingAddress } = req.body;
+  const { items, shippingAddress } = req.body;
 
-    if (!items || items.length === 0) {
-        res.status(400);
-        throw new Error('No order items');
-    }
+  if (!items || items.length === 0) {
+    res.status(400);
+    throw new Error("No order items");
+  }
 
-    const order = await Order.create({
-        user: req.user._id,
-        items: items,
-        shippingAddress,
-        totalAmount: items.reduce((total, item) => total + item.price * item.quantity, 0)
-    });
+  const order = await Order.create({
+    user: req.user._id,
+    items: items,
+    shippingAddress,
+    totalAmount: items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    ),
+  });
 
-    res.status(201).json(order);
+  res.status(201).json(order);
 });
 
 const processPayment = asyncHandler(async (req, res) => {
-    const { totalAmount, items } = req.body;
-    const userId = req.user._id;
+  const { totalAmount, items, note, phone, shippingAddress } = req.body;
+  const userId = req.user._id;
 
-    try {
-        const order = await Order.create({
-            user: userId,
-            items: items,
-            totalAmount: totalAmount,
-            paymentStatus: 'pending'
-        });
-
-        const tokenResponse = await fetch('https://localhost:4000/api/auth/create-account', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                userId: userId.toString(),
-                orderDetails: {
-                    orderId: order._id,
-                    amount: totalAmount,
-                    items: items.length,
-                    createdAt: order.createdAt
-                }
-            }),
-            agent
-        });
-
-        const tokenData = await tokenResponse.json();
-        
-        if (!tokenResponse.ok) {
-            throw new Error(`Payment account error: ${tokenData.message}`);
-        }
-
-        // Redirect to payment page
-        res.json({
-            redirectUrl: `https://localhost:4000/payment-page?token=${tokenData.token}&amount=${totalAmount}&orderId=${order._id}`,
-            token: tokenData.token,
-            orderId: order._id
-        });
-
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
-    }
-});
-
-const updateOrderPaymentStatus = asyncHandler(async (req, res) => {
-    const { orderId, status } = req.body;
-    
-    const order = await Order.findByIdAndUpdate(
-        orderId,
-        { paymentStatus: status },
-        { new: true }
+  try {
+    const order = await Order.create({
+      user: userId,
+      items: items,
+      totalAmount: totalAmount,
+      note: note,
+      phone: phone,
+      shippingAddress: shippingAddress,
+      paymentStatus: "pending",
+    });
+    console.log("order: ", order);
+    const tokenResponse = await fetch(
+      "https://localhost:4000/api/auth/create-token-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": process.env.PAYMENT_SERVER_API_KEY, // Thêm API key
+        },
+        body: JSON.stringify({
+          userId: userId.toString(),
+          orderDetails: {
+            orderId: order._id,
+            amount: totalAmount,
+            items: items.length,
+            createdAt: order.createdAt,
+          },
+        }),
+        agent,
+      }
     );
 
-    if (!order) {
-        res.status(404);
-        throw new Error('Order not found');
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      throw new Error(`Payment account error: ${tokenData.message}`);
     }
 
-    res.json(order);
+    // Redirect to payment page
+    res.json({
+      redirectUrl: `https://localhost:4000/payment-page?token=${tokenData.token}&amount=${totalAmount}&orderId=${order._id}`,
+      token: tokenData.token,
+      orderId: order._id,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+const historyPayment = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  try {
+    const tokenResponse = await fetch(
+      "https://localhost:4000/api/auth/request-token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": process.env.PAYMENT_SERVER_API_KEY, // Thêm API key
+        },
+        body: JSON.stringify({
+          userId: userId.toString(),
+        }),
+        agent,
+      }
+    );
+
+    const tokenData = await tokenResponse.json();
+    console.log("data: ", tokenData);
+    if (tokenData.token) {
+      res.json({
+        redirectUrl: `https://localhost:4000/api/payment/history-payment-page?token=${tokenData.token}`,
+        token: tokenData.token,
+      });
+    }
+  } catch (error) {
+    throw error;
+  }
+});
+const updateOrderPaymentStatus = asyncHandler(async (req, res) => {
+  const { orderId, status } = req.body;
+
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { paymentStatus: status },
+    { new: true }
+  );
+
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  res.json(order);
 });
 
 const getOrders = asyncHandler(async (req, res) => {
-    const orders = await Order.find({ user: req.user._id })
-        .sort({ createdAt: -1 });
-    res.json(orders);
+  const orders = await Order.find({ user: req.user._id }).sort({
+    createdAt: -1,
+  });
+  res.json(orders);
 });
 
 const getOrderById = asyncHandler(async (req, res) => {
-    const order = await Order.findOne({
-        _id: req.params.id,
-        user: req.user._id
-    });
-    
-    if (!order) {
-        res.status(404);
-        throw new Error('Order not found');
-    }
-    
-    res.json(order);
+  const order = await Order.findOne({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  res.json(order);
 });
 
 const getAllOrders = asyncHandler(async (req, res) => {
-    const orders = await Order.find({})
-        .sort({ createdAt: -1 })
-        .populate('user', 'email')
-        .populate('items.product', 'name image price');
-    res.json(orders);
+  const orders = await Order.find({})
+    .sort({ createdAt: -1 })
+    .populate("user", "email")
+    .populate("items.product", "name image price");
+  res.json(orders);
 });
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
-    const { status } = req.body;
-    const orderId = req.params.id;
+  const { status } = req.body;
+  const orderId = req.params.id;
 
-    const order = await Order.findByIdAndUpdate(
-        orderId,
-        { shippingStatus: status },
-        { new: true }
-    );
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { shippingStatus: status },
+    { new: true }
+  );
 
-    if (!order) {
-        res.status(404);
-        throw new Error('Order not found');
-    }
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 
-    res.json(order);
+  res.json(order);
 });
 
 const getRevenueStats = asyncHandler(async (req, res) => {
@@ -189,12 +228,12 @@ const getRevenueStats = asyncHandler(async (req, res) => {
 });
 
 const getTotalOrders = asyncHandler(async (req, res) => {
-    try {
-        const totalOrders = await Order.countDocuments({});
-        res.json({ totalOrders });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const totalOrders = await Order.countDocuments({});
+    res.json({ totalOrders });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 const deleteOrder = asyncHandler(async (req, res) => {
@@ -218,5 +257,6 @@ export {
     updateOrderStatus,
     getRevenueStats,
     getTotalOrders,
-    deleteOrder
+    deleteOrder,
+    historyPayment
 };

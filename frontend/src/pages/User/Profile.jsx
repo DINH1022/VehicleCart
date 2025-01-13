@@ -16,10 +16,8 @@ import {
 import { PhotoCamera, Person, Email, Lock } from "@mui/icons-material";
 import Navigation from "../Auth/Navigation";
 import usersApi from "../../service/api/usersApi";
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
-  console.log("props: ", props)
   return (
     <div
       role="tabpanel"
@@ -38,7 +36,7 @@ const Profile = () => {
     username: "",
     email: "",
     avatar: "",
-    password: "",
+    newPassword: "",
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(true);
@@ -78,6 +76,9 @@ const Profile = () => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    setError("");
+    setSuccess("");
+
   };
 
   const handleAvatarUpload = async (e) => {
@@ -112,7 +113,7 @@ const Profile = () => {
   };
 
   const validateForm = () => {
-    if (userData.password && userData.password !== userData.confirmPassword) {
+    if (userData.newPassword && userData.newPassword !== userData.confirmPassword) {
       setError("Passwords don't match");
       return false;
     }
@@ -132,13 +133,15 @@ const Profile = () => {
         username: userData.username,
         email: userData.email,
       };
-      if (userData.password) {
-        updateData.password = userData.password;
+      if (userData.newPassword) {
+        if(userData.newPassword == userData.confirmPassword) {
+          updateData.newPassword = userData.newPassword;
+        }
       }
 
       await usersApi.updateProfile(updateData);
       setSuccess("Profile updated successfully");
-      setUserData((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+      setUserData((prev) => ({ ...prev, newPassword: "", confirmPassword: "" }));
     } catch (err) {
       setError(err.message || "Failed to update profile");
     } finally {
@@ -295,9 +298,9 @@ const Profile = () => {
                 <TextField
                   fullWidth
                   label="New Password"
-                  name="password"
-                  type="password"
-                  value={userData.password}
+                  name="newPassword"
+                  type="newPassword"
+                  value={userData.newPassword}
                   onChange={handleChange}
                 />
                 <TextField

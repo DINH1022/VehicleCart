@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const authMiddleware = (req, res, next) => {
     try {
         const token = req.query.token || req.headers.authorization?.split(' ')[1];
-        
         if (!token) {
             throw new Error('No token provided');
         }
@@ -13,7 +12,7 @@ const authMiddleware = (req, res, next) => {
             audience: 'payment_system',
             issuer: 'main_server'
         });
-
+        console.log("decode: ", decoded)
         // Kiểm tra thời gian token
         const tokenAge = Date.now() - decoded.timestamp;
         if (tokenAge > 15 * 60 * 1000) { // 15 minutes
@@ -27,8 +26,8 @@ const authMiddleware = (req, res, next) => {
 
         // Thêm thông tin vào request
         req.userId = decoded.userId;
-        req.orderAmount = decoded.orderAmount;
-        req.orderId = decoded.orderId;
+        req.orderAmount = decoded.orderAmount || 0;
+        req.orderId = decoded.orderId || '';
         
         next();
     } catch (error) {

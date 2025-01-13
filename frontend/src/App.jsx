@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductDetail from "./pages/Products/ProductDetail.jsx";
-import Cart from "./pages/Cart.jsx";
+import Cart from "./pages/Carts/Cart.jsx"
 import FavoritesProduct from "./pages/Products/FavoritesProduct.jsx";
 import HomePage from "./pages/Home/Home.jsx";
 import Register from "./pages/Auth/Register.jsx";
@@ -9,12 +9,12 @@ import UserList from "./pages/Admin/UserList.jsx";
 import Profile from "./pages/User/Profile.jsx";
 import ProductsPage from "./pages/Products/ProductsPage.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
-import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
+import CategoriesPage from "./pages/Admin/CategoriesPage.jsx";
 import OrderHistory from "./pages/Orders/OrderHistory";
 import OrderManagement from "./pages/Admin/OrderManagement.jsx";
 import ProductList from "./pages/Admin/ProductList.jsx";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -36,7 +36,7 @@ function App() {
           <Route path="/admin/orders" element={<OrderManagement />}></Route>
           <Route path="/admin/products" element={<ProductList />} />
         </Routes>
-        <ToastContainer 
+        <ToastContainer
           position="top-right"
           autoClose={3000}
           hideProgressBar={false}
@@ -46,7 +46,7 @@ function App() {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-        /> 
+        />
       </div>
     </Router>
   );

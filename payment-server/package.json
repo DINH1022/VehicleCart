@@ -4,7 +4,7 @@
   "description": "A payment server for handling transactions and account management.",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
+    "start": "nodemon src/app.js",
     "dev": "nodemon src/app.js"
   },
   "dependencies": {

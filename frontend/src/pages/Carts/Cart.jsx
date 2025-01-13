@@ -19,19 +19,20 @@ import {
   History,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import cartApi from "../service/api/cartRequest";
-import orderApi from "../service/api/orderApi";
-import Navigation from "./Auth/Navigation";
+import cartApi from "../../service/api/cartRequest.js";
+import orderApi from "../../service/api/orderApi.js";
+import Navigation from "../Auth/Navigation.jsx";
 import { Link } from "react-router-dom";
 import {
   getCartSessionStorage,
   updateQuanityCartSessionStorage,
   removeCartFromSessionStorage,
   clearCartSessionStorage,
-} from "../utils/sessionStorage.js";
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css';
+} from "../../utils/sessionStorage.js";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import ShippingForm from "./ShippingForm.jsx";
+import "react-toastify/dist/ReactToastify.css";
 
 const GradientButton = styled(Button)(({ theme }) => ({
   background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
@@ -61,6 +62,16 @@ const Cart = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
   const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  const [isShipping, setShipping] = useState(false);
+  const [formData, setFormData] = useState({
+    phone: "",
+    note: "",
+    street: "",
+    city: "",
+    state: "",
+    country: "",
+  });
+
   const navigate = useNavigate();
   useEffect(() => {
     const fetchCart = async () => {
@@ -135,40 +146,74 @@ const Cart = () => {
 
   const handlePayment = async () => {
     try {
-        if (!login) {
-            toast.error('Please login to continue');
-            navigate('/login');
-            return;
-        }
-        
-        const total = calculateTotal();
-        const items = cartItems.map(item => ({
-            product: item.product._id,
-            quantity: item.quantity,
-            price: item.product.price
-        }));
-
-        const response = await orderApi.processPayment(total, items);
-        if (response.redirectUrl) {
-            // Lưu orderId vào sessionStorage trước khi redirect
-            sessionStorage.setItem('pendingOrderId', response.orderId);
-            window.location.href = response.redirectUrl;
-        }
-    } catch (error) {
-        toast.error(error.message || 'Payment failed');
-    }
-};
-
-const handleViewHistory = () => {
-    if (!login) {
-        toast.error('Vui lòng đăng nhập để xem lịch sử đơn hàng');
-        navigate('/login');
+      if (!login) {
+        toast.error("Please login to continue");
+        navigate("/login");
         return;
-    }
-    navigate('/orders');
-};
+      }
+      const { phone, note, ...addressShipping } = formData;
+      const shippingAddress = Object.values(addressShipping).join(", ");
+      const total = calculateTotal();
+      const items = cartItems.map((item) => ({
+        product: item.product._id,
+        quantity: item.quantity,
+        price: item.product.price,
+      }));
 
-  return (
+      const response = await orderApi.processPayment(
+        total,
+        items,
+        note,
+        phone,
+        shippingAddress
+      );
+      if (response.redirectUrl) {
+        // Lưu orderId vào sessionStorage trước khi redirect
+        sessionStorage.setItem("pendingOrderId", response.orderId);
+        window.location.href = response.redirectUrl;
+      }
+    } catch (error) {
+      toast.error(error.message || "Payment failed");
+    }
+  };
+  const handleShipping = async () => {
+    if (!login) {
+      toast.error("Please login to continue");
+      navigate("/login");
+      return;
+    }
+    if(cartItems.length == 0) {
+      toast.error("Giỏ hàng chưa có sản phẩm");
+      return
+    }
+    setShipping(true);
+  };
+  const handleViewHistory = () => {
+    if (!login) {
+      toast.error("Vui lòng đăng nhập để xem lịch sử đơn hàng");
+      navigate("/login");
+      return;
+    }
+    navigate("/orders");
+  };
+  const handleViewHistoryPayment = async () => {
+    try {
+      const res = await orderApi.getHistoryPayment();
+      if (res.redirectUrl) {
+        window.location.href = res.redirectUrl;
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+  return isShipping ? (
+    <ShippingForm
+      formData={formData}
+      setFormData={setFormData}
+      handlePayment={handlePayment}
+      setShipping={setShipping}
+    />
+  ) : (
     <Box sx={{ display: "flex", minHeight: "100vh", width: "100%" }}>
       <Navigation />
       <Box
@@ -351,8 +396,8 @@ const handleViewHistory = () => {
           <Box
             flex={1}
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
+              display: "flex",
+              flexDirection: "column",
               gap: 3,
               position: "sticky",
               top: 20,
@@ -365,14 +410,15 @@ const handleViewHistory = () => {
                 p: 4,
                 borderRadius: 4,
                 boxShadow: theme.shadows[6],
-                background: "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+                background:
+                  "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
               }}
             >
               <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
                 Tóm Tắt Đơn Hàng
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Box mb={2} display="flex" justifyContent="space-between">
                 <Typography>Tạm Tính</Typography>
                 <Typography fontWeight="bold">
@@ -398,9 +444,9 @@ const handleViewHistory = () => {
                 fullWidth
                 startIcon={<LocalShipping />}
                 size="large"
-                onClick={handlePayment}
+                onClick={handleShipping}
               >
-                Tiến Hành Thanh Toán
+                Tiến Hành Đặt Hàng
               </GradientButton>
             </Box>
 
@@ -410,32 +456,73 @@ const handleViewHistory = () => {
                 p: 4,
                 borderRadius: 4,
                 boxShadow: theme.shadows[6],
-                background: "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+                background:
+                  "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
               }}
             >
               <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
                 Đơn Hàng Của Bạn
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Button
                 fullWidth
                 startIcon={<History />}
-                sx={{ 
-                    background: "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
-                    color: "white",
-                    height: 48,
-                    borderRadius: 2,
-                    boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
-                    '&:hover': {
-                        background: "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
-                        transform: "scale(1.02)",
-                        boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
-                    }
+                sx={{
+                  background:
+                    "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
+                  color: "white",
+                  height: 48,
+                  borderRadius: 2,
+                  boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
+                    transform: "scale(1.02)",
+                    boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
+                  },
                 }}
                 onClick={handleViewHistory}
               >
                 Xem Lịch Sử Đơn Hàng
+              </Button>
+            </Box>
+
+            <Box
+              component={Paper}
+              sx={{
+                p: 4,
+                borderRadius: 4,
+                boxShadow: theme.shadows[6],
+                background:
+                  "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
+                Đơn Hàng Của Bạn
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              <Button
+                fullWidth
+                startIcon={<History />}
+                sx={{
+                  background:
+                    "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
+                  color: "white",
+                  height: 48,
+                  borderRadius: 2,
+                  boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
+                    transform: "scale(1.02)",
+                    boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
+                  },
+                }}
+                onClick={handleViewHistoryPayment}
+              >
+                Xem Lịch Sử Thanh Toán
               </Button>
             </Box>
           </Box>

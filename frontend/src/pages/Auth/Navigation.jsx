@@ -69,7 +69,6 @@ export default function Navigation() {
   
   React.useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
-    console.log('Navigation userData:', userData); // Add debug log
     if (userData) {
       setUser(userData);
     }

@@ -31,9 +31,10 @@ import {
   ImageListItem,
   IconButton as ImageIconButton,
   InputAdornment,
-  Stack
+  Stack,
+  Pagination
 } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Upload as UploadIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Upload as UploadIcon, Close as CloseIcon, Search as SearchIcon } from '@mui/icons-material';
 import Navigation from '../Auth/Navigation';
 import productsApi from '../../service/api/productsApi';
 import categoryApi from '../../service/api/categoryApi';
@@ -120,6 +121,9 @@ const ProductList = () => {
   const [isNewProduct, setIsNewProduct] = useState(false);
   const [categories, setCategories] = useState([]);
   const [imageLoading, setImageLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchProducts = async () => {
     try {
@@ -309,21 +313,80 @@ const ProductList = () => {
     }
   };
 
+  const filteredAndPaginatedProducts = useMemo(() => {
+    const filtered = products.filter(product => 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  }, [products, page, itemsPerPage, searchQuery]);
+
+  const totalPages = useMemo(() => {
+    const filtered = products.filter(product => 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return Math.ceil(filtered.length / itemsPerPage);
+  }, [products.length, itemsPerPage, searchQuery]);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+    setPage(1); // Reset to first page when searching
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Navigation />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" sx={{ color: '#1a237e', fontWeight: 600 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Typography variant="h4" sx={{ color: '#1a237e', fontWeight: 600, flex: 1 }}>
             Product Management
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={openNewProductDialog}
-          >
-            Add New Product
-          </Button>
+          
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              bgcolor: 'background.paper',
+              borderRadius: '20px',
+              padding: '4px 12px',
+              border: '1px solid #e2e8f0',
+              '&:hover': {
+                bgcolor: '#f8fafc',
+              },
+            }}>
+              <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+              <TextField
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={handleSearch}
+                variant="standard"
+                size="small"
+                InputProps={{
+                  disableUnderline: true,
+                }}
+                sx={{ 
+                  width: 200,
+                  '& input': {
+                    padding: '4px 0',
+                  }
+                }}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={openNewProductDialog}
+            >
+              Add New Product
+            </Button>
+          </Box>
         </Box>
 
         {error && (
@@ -356,10 +419,18 @@ const ProductList = () => {
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
+              ) : filteredAndPaginatedProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={11} align="center">
+                    <Typography color="text.secondary">
+                      {searchQuery ? 'No products found matching your search' : 'No products available'}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
               ) : (
-                products.map((product, index) => (
+                filteredAndPaginatedProducts.map((product, index) => (
                   <TableRow key={product._id}>
-                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell align="center">{(page - 1) * itemsPerPage + index + 1}</TableCell>
                     <TableCell>
                       <Avatar
                         src={product.image}
@@ -408,6 +479,40 @@ const ProductList = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {totalPages > 1 && (
+          <Box sx={{ 
+            mt: 3, 
+            display: 'flex', 
+            justifyContent: 'center',
+            '& .MuiPagination-ul': {
+              '& .MuiPaginationItem-root': {
+                color: '#64748b',
+                '&:hover': {
+                  backgroundColor: '#f1f5f9',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: '#2563eb',
+                  },
+                },
+              },
+            },
+          }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+              size="large"
+            />
+          </Box>
+        )}
 
         <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
           <DialogTitle>Confirm Delete</DialogTitle>
@@ -514,7 +619,6 @@ const ProductList = () => {
                       rows={2}
                       value={productData.features}
                       onChange={handleEditChange}
-                      helperText="Enter features separated by commas"
                     />
                   </Box>
                 </Box>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -23,8 +23,10 @@ import {
   FormControlLabel,
   Switch,
   Avatar,
+  Stack,
+  Pagination,
 } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
 import Navigation from '../Auth/Navigation';
 import usersApi from '../../service/api/usersApi';
 
@@ -40,6 +42,9 @@ const UserList = () => {
     email: '',
     isAdmin: false
   });
+  const [page, setPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchUsers = async () => {
     try {
@@ -107,20 +112,84 @@ const UserList = () => {
     }
   };
 
+  const filteredAndPaginatedUsers = useMemo(() => {
+    const filtered = users.filter(user => 
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  }, [users, page, itemsPerPage, searchQuery]);
+
+  const totalPages = useMemo(() => {
+    const filtered = users.filter(user => 
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return Math.ceil(filtered.length / itemsPerPage);
+  }, [users.length, itemsPerPage, searchQuery]);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+    setPage(1); // Reset to first page when searching
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Navigation />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            mb: 4, 
-            color: '#1a237e',
-            fontWeight: 600 
-          }}
-        >
-          User Management
-        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              color: '#1a237e',
+              fontWeight: 600,
+              flex: 1
+            }}
+          >
+            User Management
+          </Typography>
+
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            borderRadius: '20px',
+            padding: '4px 12px',
+            border: '1px solid #e2e8f0',
+            '&:hover': {
+              bgcolor: '#f8fafc',
+            },
+          }}>
+            <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+            <TextField
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={handleSearch}
+              sx={{ 
+                width: 200,
+                '& .MuiInput-root': {
+                  border: 'none',
+                  '&:before, &:after': {
+                    display: 'none',
+                  },
+                },
+                '& .MuiInput-input': {
+                  padding: '4px 0',
+                },
+              }}
+              variant="standard"
+              size="small"
+            />
+          </Box>
+        </Box>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -148,8 +217,16 @@ const UserList = () => {
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
+                ) : filteredAndPaginatedUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <Typography color="text.secondary">
+                        {searchQuery ? 'No users found matching your search' : 'No users available'}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
-                  users.map((user) => (
+                  filteredAndPaginatedUsers.map((user, index) => (
                     <TableRow key={user._id}>
                       <TableCell>
                         <Avatar 
@@ -193,6 +270,40 @@ const UserList = () => {
             </Table>
           </TableContainer>
         </Paper>
+
+        {totalPages > 1 && (
+          <Box sx={{ 
+            mt: 3, 
+            display: 'flex', 
+            justifyContent: 'center',
+            '& .MuiPagination-ul': {
+              '& .MuiPaginationItem-root': {
+                color: '#64748b',
+                '&:hover': {
+                  backgroundColor: '#f1f5f9',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    backgroundColor: '#2563eb',
+                  },
+                },
+              },
+            },
+          }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+              size="large"
+            />
+          </Box>
+        )}
 
         <Dialog
           open={deleteDialogOpen}

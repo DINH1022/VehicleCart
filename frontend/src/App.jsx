@@ -13,6 +13,7 @@ import CategoriesPage from "./pages/Admin/CategoriesPage.jsx";
 import OrderHistory from "./pages/Orders/OrderHistory";
 import OrderManagement from "./pages/Admin/OrderManagement.jsx";
 import ProductList from "./pages/Admin/ProductList.jsx";
+import TransactionHistory from "./pages/Transactions/TransactionHistory.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/admin" element={<Dashboard />}></Route>
           <Route path="/orders" element={<OrderHistory />}></Route>
+          <Route path="/transaction-history" element={<TransactionHistory/>}></Route>
           <Route path="/admin/orders" element={<OrderManagement />}></Route>
           <Route path="/admin/products" element={<ProductList />} />
         </Routes>

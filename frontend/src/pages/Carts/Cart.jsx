@@ -16,7 +16,6 @@ import {
   Remove,
   ShoppingCart,
   LocalShipping,
-  History,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import cartApi from "../../service/api/cartRequest.js";
@@ -168,7 +167,6 @@ const Cart = () => {
         shippingAddress
       );
       if (response.redirectUrl) {
-        // Lưu orderId vào sessionStorage trước khi redirect
         sessionStorage.setItem("pendingOrderId", response.orderId);
         window.location.href = response.redirectUrl;
       }
@@ -188,24 +186,7 @@ const Cart = () => {
     }
     setShipping(true);
   };
-  const handleViewHistory = () => {
-    if (!login) {
-      toast.error("Vui lòng đăng nhập để xem lịch sử đơn hàng");
-      navigate("/login");
-      return;
-    }
-    navigate("/orders");
-  };
-  const handleViewHistoryPayment = async () => {
-    try {
-      const res = await orderApi.getHistoryPayment();
-      if (res.redirectUrl) {
-        window.location.href = res.redirectUrl;
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
+
   return isShipping ? (
     <ShippingForm
       formData={formData}
@@ -449,82 +430,7 @@ const Cart = () => {
                 Tiến Hành Đặt Hàng
               </GradientButton>
             </Box>
-
-            <Box
-              component={Paper}
-              sx={{
-                p: 4,
-                borderRadius: 4,
-                boxShadow: theme.shadows[6],
-                background:
-                  "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
-              }}
-            >
-              <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
-                Đơn Hàng Của Bạn
-              </Typography>
-              <Divider sx={{ mb: 3 }} />
-
-              <Button
-                fullWidth
-                startIcon={<History />}
-                sx={{
-                  background:
-                    "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
-                  color: "white",
-                  height: 48,
-                  borderRadius: 2,
-                  boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
-                  "&:hover": {
-                    background:
-                      "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
-                    transform: "scale(1.02)",
-                    boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
-                  },
-                }}
-                onClick={handleViewHistory}
-              >
-                Xem Lịch Sử Đơn Hàng
-              </Button>
-            </Box>
-
-            <Box
-              component={Paper}
-              sx={{
-                p: 4,
-                borderRadius: 4,
-                boxShadow: theme.shadows[6],
-                background:
-                  "linear-gradient(to right, #ffffff 0%, #e0e0e0 100%)",
-              }}
-            >
-              <Typography variant="h5" fontWeight="bold" mb={3} color="primary">
-                Đơn Hàng Của Bạn
-              </Typography>
-              <Divider sx={{ mb: 3 }} />
-
-              <Button
-                fullWidth
-                startIcon={<History />}
-                sx={{
-                  background:
-                    "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
-                  color: "white",
-                  height: 48,
-                  borderRadius: 2,
-                  boxShadow: "0 3px 5px 2px rgba(76, 175, 80, .3)",
-                  "&:hover": {
-                    background:
-                      "linear-gradient(45deg, #388E3C 30%, #66BB6A 90%)",
-                    transform: "scale(1.02)",
-                    boxShadow: "0 5px 15px rgba(76, 175, 80, .4)",
-                  },
-                }}
-                onClick={handleViewHistoryPayment}
-              >
-                Xem Lịch Sử Thanh Toán
-              </Button>
-            </Box>
+            
           </Box>
         </Box>
       </Box>

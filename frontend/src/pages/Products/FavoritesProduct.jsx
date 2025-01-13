@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Loader from "../../components/Loader";
-import { useSelector, useDispatch } from "react-redux";
 import favoritesApi from "../../service/api/favoritesApi";
-import { useNavigate } from "react-router-dom";
-import {
-  removeFromFavorites,
-  setFavorites,
-} from "../../redux/feature/favoritesSlice";
 import WatchCard from "./WatchCard";
 import Navigation from "../Auth/Navigation";
 

@@ -1,7 +1,10 @@
 <header class="trans-page-header">
+    <button class="back-button" onclick="handleClick()">
+        <span class="back-arrow">&#8592;</span>
+        <span class="back-text">Quay lại</span>
+    </button>
     <h1>Danh Sách Giao Dịch</h1>
 </header>
-
 <main class="trans-main-container">
     <div class="trans-table-wrapper">
         <table class="trans-table">
@@ -55,6 +58,9 @@
 </footer>
 
 <script>
+    function handleClick() {
+        window.location.href = 'http://localhost:5173/';
+    }
     const transactions = {{{ json transactions }}};
     function formatMoney(amount) {
         return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

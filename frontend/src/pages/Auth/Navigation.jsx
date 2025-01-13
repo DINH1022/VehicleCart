@@ -14,6 +14,9 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import StoreIcon from '@mui/icons-material/Store';
 import LoginIcon from '@mui/icons-material/Login';
 import HomeIcon from '@mui/icons-material/Home';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -128,19 +131,22 @@ export default function Navigation() {
   }, []);
 
   const handleNavigation = (path) => {
-    // if(path == '/favorites' && !isLoggedIn) {
-    //   navigate('/login')
-    // }
+    if((path == '/favorites' || path == '/orders' || path == '/transaction-history') && !isLoggedIn) {
+      navigate('/login')
+      return
+    }
     if (path !== location.pathname) {
       navigate(path);
     }
   };
 
   const navigationItems = [
-    { text: 'Home', icon: <HomeIcon />, path: '/' },
-    { text: 'Products', icon: <StoreIcon />, path: '/products' },
-    { text: 'Cart', icon: <ShoppingCartIcon />, path: '/cart' },
-    { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites' },
+    { text: 'Trang chủ', icon: <HomeIcon />, path: '/' },
+    { text: 'Sản phẩm', icon: <StoreIcon />, path: '/products' },
+    { text: 'Giỏ hàng', icon: <ShoppingCartIcon />, path: '/cart' },
+    { text: 'Yêu thích', icon: <FavoriteIcon />, path: '/favorites' },
+    { text: 'Lịch sử đơn hàng', icon: <ReceiptIcon />, path: '/orders' },
+    { text: 'Lịch sử thanh toán', icon: <AccountBalanceWalletIcon />, path: '/transaction-history' },
     ...(user?.isAdmin ? [
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin' },
     ] : []),

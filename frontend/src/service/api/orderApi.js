@@ -93,7 +93,6 @@ const orderApi = {
     }
   },
 
-
   getTotalOrders: async () => {
     try {
       const response = await api.get("/api/orders/admin/total");
@@ -116,14 +115,14 @@ const orderApi = {
         throw error.response.data;
       }
       throw { message: "Network error occurred" };
-
-    deleteOrder: async (orderId) => {
-        try {
-            const response = await api.delete(`/api/orders/admin/${orderId}`);
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || error;
-        }
+    }
+  },
+  deleteOrder: async (orderId) => {
+    try {
+      const response = await api.delete(`/api/orders/admin/${orderId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
     }
   },
 };

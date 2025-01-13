@@ -4,6 +4,59 @@ import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
 import { oauth2client } from "../utils/googleConfig.js";
 import axios from "axios";
+import https from "https";
+import fetch from "node-fetch";
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
+// const createUser = asyncHandler(async (req, res) => {
+//   const { username, email, password } = req.body;
+//   if (!username || !email || !password) {
+//     throw new Error("Please fill all fields");
+//   }
+//   const userExists = await User.findOne({ email });
+//   if (userExists) {
+//     return res.status(400).send("User already exists");
+//   }
+
+//   const salt = await bcrypt.genSalt(10);
+//   const hashedPassword = await bcrypt.hash(password, salt);
+
+//   const newUser = new User({
+//     username,
+//     email,
+//     password: hashedPassword,
+//   });
+//   console.log("newUsser: ", newUser);
+//   try {
+//     await newUser.save();
+//     createToken(res, newUser._id);
+//     // const tokenResponse = await fetch(
+//     //   "https://localhost:4000/api/auth/create-account",
+//     //   {
+//     //     method: "POST",
+//     //     headers: {
+//     //       "Content-Type": "application/json",
+//     //       "X-API-Key": process.env.PAYMENT_SERVER_API_KEY, // Thêm API key
+//     //     },
+//     //     body: JSON.stringify({
+//     //       userId: newUser._id.toString(),
+//     //     }),
+//     //     agent,
+//     //   }
+//     // );
+//     console.log("test: ", tokenResponse);
+//     res.status(201).json({
+//       _id: newUser._id,
+//       username: newUser.username,
+//       email: newUser.email,
+//       isAdmin: newUser.isAdmin,
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     throw new Error("Invalid user data");
+//   }
+// });
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -11,7 +64,7 @@ const createUser = asyncHandler(async (req, res) => {
   }
   const userExists = await User.findOne({ email });
   if (userExists) {
-    res.status(400).send("User already exists");
+    return res.status(400).send("User already exists");
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -26,12 +79,38 @@ const createUser = asyncHandler(async (req, res) => {
   try {
     await newUser.save();
     createToken(res, newUser._id);
-    res.status(201).json({
-      _id: newUser._id,
-      username: newUser.username,
-      email: newUser.email,
-      isAdmin: newUser.isAdmin,
-    });
+    try {
+      const tokenResponse = await fetch(
+        "https://localhost:4000/api/auth/create-account",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": process.env.PAYMENT_SERVER_API_KEY,
+          },
+          body: JSON.stringify({
+            userId: newUser._id.toString(),
+          }),
+          agent,
+        }
+      );
+
+      if (!tokenResponse.ok) {
+        throw new Error(`API call thất bại: ${tokenResponse.statusText}`);
+      }
+
+      res.status(201).json({
+        _id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        isAdmin: newUser.isAdmin,
+      });
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      await User.findByIdAndDelete(newUser._id);
+      res.status(500);
+      throw new Error("Lỗi khi tạo tài khoản payment");
+    }
   } catch (error) {
     res.status(400);
     throw new Error("Invalid user data");
@@ -77,29 +156,66 @@ const loginUser = asyncHandler(async (req, res) => {
   });
 });
 const loginGoogleUser = asyncHandler(async (req, res) => {
-  const { code } = req.query;
-  const googleRes = await oauth2client.getToken(code);
-  oauth2client.setCredentials(googleRes.tokens);
-  const userRes = await axios.get(
-    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
-  );
-  const { email, name, picture } = userRes.data;
-  const existingUser = await User.findOne({ email });
-  if (!existingUser) {
-    existingUser = await User.create({
-      username: "",
-      email: email,
-      avatar: picture,
-    });
-  }
+  try {
+    const { code } = req.query;
+    const googleRes = await oauth2client.getToken(code);
+    oauth2client.setCredentials(googleRes.tokens);
+    const userRes = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+    );
+    const { email, name, picture } = userRes.data;
+    var existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      existingUser = await User.create({
+        username: "",
+        email: email,
+        avatar: picture,
+      });
+      try {
+        const tokenResponse = await fetch(
+          "https://localhost:4000/api/auth/create-account",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": process.env.PAYMENT_SERVER_API_KEY,
+            },
+            body: JSON.stringify({
+              userId: existingUser._id.toString(),
+            }),
+            agent,
+          }
+        );
 
-  createToken(res, existingUser._id);
-  res.status(201).json({
-    _id: existingUser._id,
-    username: existingUser.username || "",
-    email: existingUser.email,
-    isAdmin: existingUser.isAdmin,
-  });
+        if (!tokenResponse.ok) {
+          throw new Error(`API call thất bại: ${tokenResponse.statusText}`);
+        }
+        createToken(res, existingUser._id);
+        return res.status(201).json({
+          _id: existingUser._id,
+          username: existingUser.username,
+          email: existingUser.email,
+          isAdmin: existingUser.isAdmin,
+        });
+        
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+        await User.findByIdAndDelete(existingUser._id);
+        res.status(500);
+        throw new Error("Lỗi khi tạo tài khoản payment");
+      }
+    }
+
+    createToken(res, existingUser._id);
+    res.status(201).json({
+      _id: existingUser._id,
+      username: existingUser.username || "",
+      email: existingUser.email,
+      isAdmin: existingUser.isAdmin,
+    });
+  } catch (error) {
+    throw error;
+  }
 });
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", { httpOnly: true, expires: new Date(0) });
@@ -118,7 +234,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      avatar: user.avatar
+      avatar: user.avatar,
     });
   } else {
     res.status(404);
@@ -197,7 +313,6 @@ const updateUserById = asyncHandler(async (req, res) => {
 });
 const uploadAvatar = asyncHandler(async (req, res) => {
   try {
-
     const { _id } = req.user;
     const avatar = req.file.path;
     const user = await User.findById(_id);

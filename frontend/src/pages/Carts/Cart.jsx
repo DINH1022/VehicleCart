@@ -19,16 +19,16 @@ import {
   History,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import cartApi from "../service/api/cartRequest";
-import orderApi from "../service/api/orderApi";
-import Navigation from "./Auth/Navigation";
+import cartApi from "../../service/api/cartRequest.js";
+import orderApi from "../../service/api/orderApi.js";
+import Navigation from "../Auth/Navigation.jsx";
 import { Link } from "react-router-dom";
 import {
   getCartSessionStorage,
   updateQuanityCartSessionStorage,
   removeCartFromSessionStorage,
   clearCartSessionStorage,
-} from "../utils/sessionStorage.js";
+} from "../../utils/sessionStorage.js";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ShippingForm from "./ShippingForm.jsx";
@@ -181,6 +181,10 @@ const Cart = () => {
       toast.error("Please login to continue");
       navigate("/login");
       return;
+    }
+    if(cartItems.length == 0) {
+      toast.error("Giỏ hàng chưa có sản phẩm");
+      return
     }
     setShipping(true);
   };

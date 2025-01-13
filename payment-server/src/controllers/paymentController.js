@@ -23,7 +23,7 @@ const getPageHistoryPayment = async (req, res) => {
   const transactions = temp.map((transaction) => {
     return {
       ...transaction.toObject(),
-      userId: req.userId,
+      receiverId: SYSTEM_ACCOUNT_ID,
     };
   });
   res.render("transaction", { transactions });

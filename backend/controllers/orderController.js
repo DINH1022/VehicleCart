@@ -45,7 +45,7 @@ const processPayment = asyncHandler(async (req, res) => {
     });
     console.log("order: ", order);
     const tokenResponse = await fetch(
-      "https://localhost:4000/api/auth/create-account",
+      "https://localhost:4000/api/auth/create-token-order",
       {
         method: "POST",
         headers: {

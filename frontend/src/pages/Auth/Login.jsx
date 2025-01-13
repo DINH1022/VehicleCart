@@ -100,7 +100,7 @@ const Login = () => {
         const carts = JSON.parse(data);
         await cartApi.addItemsToCart(carts);
         sessionStorage.removeItem("carts");
-        navigate("/");
+        response.isAdmin ? navigate("/admin") : navigate('/');
       }
     } catch (error) {
       console.log("error", error);

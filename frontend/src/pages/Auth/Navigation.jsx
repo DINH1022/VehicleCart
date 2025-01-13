@@ -105,6 +105,28 @@ export default function Navigation() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
+      if (userData) {
+        setUser(userData);
+      }
+    };
+
+    const handleAvatarChange = (event) => {
+      const newAvatar = event.detail.avatar;
+      setUser(prev => prev ? { ...prev, avatar: newAvatar } : prev);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('avatarChange', handleAvatarChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('avatarChange', handleAvatarChange);
+    };
+  }, []);
+
   const handleNavigation = (path) => {
     // if(path == '/favorites' && !isLoggedIn) {
     //   navigate('/login')

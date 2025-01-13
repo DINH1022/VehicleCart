@@ -199,25 +199,17 @@ const updateUserById = asyncHandler(async (req, res) => {
 });
 const uploadAvatar = asyncHandler(async (req, res) => {
   try {
-
     const { _id } = req.user;
     const avatar = req.file.path;
     const user = await User.findById(_id);
     user.avatar = avatar;
     await user.save();
     
-    // Update user data in response
-    const userData = {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      avatar: user.avatar
-    };
-
+    // Return the new avatar URL in the response
     return res.json({
-      ...userData,
-      success: true
+      success: true,
+      avatar: user.avatar,
+      newAvatar: avatar
     });
   } catch (error) {
     return res.status(404).json({

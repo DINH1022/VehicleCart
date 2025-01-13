@@ -85,11 +85,29 @@ const Profile = () => {
     if (file) {
       const data = new FormData();
       data.append("avatar", file);
-      const res = await usersApi.uploadAvatar(data);
-      setUserData((prev) => ({
-        ...prev,
-        avatar: res.newAvatar,
-      }));
+      try {
+        const response = await usersApi.uploadAvatar(data);
+        // Update local storage/session storage with new avatar
+        const storage = localStorage.getItem('userData') ? localStorage : sessionStorage;
+        const userData = JSON.parse(storage.getItem('userData'));
+        const updatedUserData = { ...userData, avatar: response.avatar };
+        storage.setItem('userData', JSON.stringify(updatedUserData));
+        
+        // Update state
+        setUserData(prev => ({
+          ...prev,
+          avatar: response.avatar
+        }));
+
+        // Dispatch custom event
+        window.dispatchEvent(new CustomEvent('avatarChange', { 
+          detail: { avatar: response.avatar }
+        }));
+
+        setSuccess('Avatar updated successfully');
+      } catch (error) {
+        setError('Failed to update avatar');
+      }
     }
   };
 

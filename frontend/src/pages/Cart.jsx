@@ -31,6 +31,7 @@ import {
 } from "../utils/sessionStorage.js";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import ShippingForm from "./ShippingForm.jsx";
 import "react-toastify/dist/ReactToastify.css";
 
 const GradientButton = styled(Button)(({ theme }) => ({
@@ -61,6 +62,16 @@ const Cart = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [cartItems, setCartItems] = useState([]);
   const [login, setLogin] = useState(!!sessionStorage.getItem("userData"));
+  const [isShipping, setShipping] = useState(false);
+  const [formData, setFormData] = useState({
+    phone: "",
+    note: "",
+    street: "",
+    city: "",
+    state: "",
+    country: "",
+  });
+
   const navigate = useNavigate();
   useEffect(() => {
     const fetchCart = async () => {
@@ -140,7 +151,8 @@ const Cart = () => {
         navigate("/login");
         return;
       }
-
+      const { phone, note, ...addressShipping } = formData;
+      const shippingAddress = Object.values(addressShipping).join(", ");
       const total = calculateTotal();
       const items = cartItems.map((item) => ({
         product: item.product._id,
@@ -148,7 +160,13 @@ const Cart = () => {
         price: item.product.price,
       }));
 
-      const response = await orderApi.processPayment(total, items);
+      const response = await orderApi.processPayment(
+        total,
+        items,
+        note,
+        phone,
+        shippingAddress
+      );
       if (response.redirectUrl) {
         // Lưu orderId vào sessionStorage trước khi redirect
         sessionStorage.setItem("pendingOrderId", response.orderId);
@@ -158,7 +176,14 @@ const Cart = () => {
       toast.error(error.message || "Payment failed");
     }
   };
-
+  const handleShipping = async () => {
+    if (!login) {
+      toast.error("Please login to continue");
+      navigate("/login");
+      return;
+    }
+    setShipping(true);
+  };
   const handleViewHistory = () => {
     if (!login) {
       toast.error("Vui lòng đăng nhập để xem lịch sử đơn hàng");
@@ -173,9 +198,18 @@ const Cart = () => {
       if (res.redirectUrl) {
         window.location.href = res.redirectUrl;
       }
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   };
-  return (
+  return isShipping ? (
+    <ShippingForm
+      formData={formData}
+      setFormData={setFormData}
+      handlePayment={handlePayment}
+      setShipping={setShipping}
+    />
+  ) : (
     <Box sx={{ display: "flex", minHeight: "100vh", width: "100%" }}>
       <Navigation />
       <Box
@@ -406,9 +440,9 @@ const Cart = () => {
                 fullWidth
                 startIcon={<LocalShipping />}
                 size="large"
-                onClick={handlePayment}
+                onClick={handleShipping}
               >
-                Tiến Hành Thanh Toán
+                Tiến Hành Đặt Hàng
               </GradientButton>
             </Box>
 

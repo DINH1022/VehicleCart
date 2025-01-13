@@ -30,7 +30,7 @@ const createOrder = asyncHandler(async (req, res) => {
 });
 
 const processPayment = asyncHandler(async (req, res) => {
-  const { totalAmount, items } = req.body;
+  const { totalAmount, items, note, phone, shippingAddress } = req.body;
   const userId = req.user._id;
 
   try {
@@ -38,9 +38,12 @@ const processPayment = asyncHandler(async (req, res) => {
       user: userId,
       items: items,
       totalAmount: totalAmount,
+      note: note,
+      phone: phone,
+      shippingAddress: shippingAddress,
       paymentStatus: "pending",
     });
-
+    console.log("order: ", order);
     const tokenResponse = await fetch(
       "https://localhost:4000/api/auth/create-account",
       {

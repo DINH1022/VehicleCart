@@ -9,11 +9,12 @@ import UserList from "./pages/Admin/UserList.jsx";
 import Profile from "./pages/User/Profile.jsx";
 import ProductsPage from "./pages/Products/ProductsPage.jsx";
 import Dashboard from "./pages/Admin/Dashboard.jsx";
-import CategoriesPage from "./pages/Admin/CategoriesPage.jsx"
+import CategoriesPage from "./pages/Admin/CategoriesPage.jsx";
 import OrderHistory from "./pages/Orders/OrderHistory";
 import OrderManagement from "./pages/Admin/OrderManagement.jsx";
+import ShippingForm from "./pages/ShippingForm.jsx";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -32,9 +33,10 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/admin" element={<Dashboard />}></Route>
           <Route path="/orders" element={<OrderHistory />}></Route>
+          <Route path="/shipping" element={<ShippingForm />}></Route>
           <Route path="/admin/orders" element={<OrderManagement />}></Route>
         </Routes>
-        <ToastContainer 
+        <ToastContainer
           position="top-right"
           autoClose={3000}
           hideProgressBar={false}
@@ -44,7 +46,7 @@ function App() {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-        /> 
+        />
       </div>
     </Router>
   );

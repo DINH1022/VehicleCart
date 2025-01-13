@@ -15,6 +15,7 @@ import {
 import Swal from "sweetalert2";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
+import FacebookIcon from '@mui/icons-material/Facebook';
 import { Link, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import usersApi from "../../service/api/usersApi";
@@ -111,6 +112,23 @@ const Login = () => {
     onError: reponseGoogle,
     flow: "auth-code",
   });
+
+  const handleFacebookLogin = async (response) => {
+    try {
+      if (response.accessToken) {
+        const result = await usersApi.facebookLogin(response.accessToken);
+        sessionStorage.setItem("userData", JSON.stringify(result));
+        const data = sessionStorage.getItem("carts");
+        const carts = JSON.parse(data);
+        await cartApi.addItemsToCart(carts);
+        sessionStorage.removeItem("carts");
+        result.isAdmin ? navigate("/admin") : navigate('/');
+      }
+    } catch (error) {
+      console.error("Facebook login error:", error);
+      setError("Facebook login failed");
+    }
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -219,6 +237,7 @@ const Login = () => {
                 onClick={handleGoogleLogin}
                 sx={{
                   mt: 1,
+                  mb: 2,
                   py: 1.5,
                   borderColor: "#dadce0",
                   color: "#3c4043",
@@ -230,6 +249,31 @@ const Login = () => {
               >
                 Continue with Google
               </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<FacebookIcon />}
+                onClick={() => {
+                  const fbAuthUrl = `https://www.facebook.com/v12.0/dialog/oauth` +
+                    `?client_id=${import.meta.env.VITE_FACEBOOK_APP_ID}` +
+                    `&redirect_uri=${encodeURIComponent('http://localhost:5173/')}` + // Hardcode the exact URI
+                    `&scope=email,public_profile`;
+                  window.location.href = fbAuthUrl;
+                }}
+                sx={{
+                  py: 1.5,
+                  borderColor: "#1877f2",
+                  color: "#1877f2",
+                  "&:hover": {
+                    borderColor: "#1877f2",
+                    backgroundColor: "#e7f3ff",
+                  },
+                }}
+              >
+                Continue with Facebook
+              </Button>
+
               <Typography align="center" sx={{ mt: 2 }}>
                 Don't have an account?{" "}
                 <Link

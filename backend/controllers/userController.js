@@ -6,57 +6,11 @@ import { oauth2client } from "../utils/googleConfig.js";
 import axios from "axios";
 import https from "https";
 import fetch from "node-fetch";
+
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
-// const createUser = asyncHandler(async (req, res) => {
-//   const { username, email, password } = req.body;
-//   if (!username || !email || !password) {
-//     throw new Error("Please fill all fields");
-//   }
-//   const userExists = await User.findOne({ email });
-//   if (userExists) {
-//     return res.status(400).send("User already exists");
-//   }
 
-//   const salt = await bcrypt.genSalt(10);
-//   const hashedPassword = await bcrypt.hash(password, salt);
-
-//   const newUser = new User({
-//     username,
-//     email,
-//     password: hashedPassword,
-//   });
-//   console.log("newUsser: ", newUser);
-//   try {
-//     await newUser.save();
-//     createToken(res, newUser._id);
-//     // const tokenResponse = await fetch(
-//     //   "https://localhost:4000/api/auth/create-account",
-//     //   {
-//     //     method: "POST",
-//     //     headers: {
-//     //       "Content-Type": "application/json",
-//     //       "X-API-Key": process.env.PAYMENT_SERVER_API_KEY, // Thêm API key
-//     //     },
-//     //     body: JSON.stringify({
-//     //       userId: newUser._id.toString(),
-//     //     }),
-//     //     agent,
-//     //   }
-//     // );
-//     console.log("test: ", tokenResponse);
-//     res.status(201).json({
-//       _id: newUser._id,
-//       username: newUser.username,
-//       email: newUser.email,
-//       isAdmin: newUser.isAdmin,
-//     });
-//   } catch (error) {
-//     res.status(400);
-//     throw new Error("Invalid user data");
-//   }
-// });
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -218,6 +172,95 @@ const loginGoogleUser = asyncHandler(async (req, res) => {
     avatar: existingUser.avatar,
   });
 });
+
+const loginFacebookUser = async (req, res) => {
+  try {
+    const { code } = req.query;
+    console.log("Received code:", code);
+    
+    // Use the exact same redirect URI as registered on Facebook
+    const redirectUri = 'http://localhost:5173/';
+    
+    const tokenUrl = `https://graph.facebook.com/v12.0/oauth/access_token` +
+      `?client_id=${process.env.FACEBOOK_APP_ID}` +
+      `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&code=${code}`;
+    
+    console.log("Token URL:", tokenUrl);
+    
+    // Exchange code for access token
+    const tokenResponse = await fetch(tokenUrl);
+    const tokenData = await tokenResponse.json();
+    console.log("Token response:", tokenData);
+
+    if (!tokenData.access_token) {
+      throw new Error('Failed to get access token from Facebook: ' + JSON.stringify(tokenData.error));
+    }
+
+    // Get user data from Facebook with the received access token
+    const userResponse = await fetch(
+      `https://graph.facebook.com/v12.0/me?fields=id,name,email,picture&access_token=${tokenData.access_token}`
+    );
+    const userData = await userResponse.json();
+    console.log("User data:", userData);
+
+    if (!userData.email) {
+      throw new Error('Email not provided by Facebook');
+    }
+
+    // Find or create user
+    let user = await User.findOne({ email: userData.email });
+    if (!user) {
+      user = await User.create({
+        email: userData.email,
+        username: userData.name,
+        avatar: userData.picture?.data?.url || undefined,
+      });
+
+      // Create payment account after user is created
+      try {
+        const paymentResponse = await fetch(
+          "https://localhost:4000/api/auth/create-account",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": process.env.PAYMENT_SERVER_API_KEY,
+            },
+            body: JSON.stringify({
+              userId: user._id.toString(),
+            }),
+            agent,
+          }
+        );
+
+        if (!paymentResponse.ok) {
+          await User.findByIdAndDelete(user._id);
+          throw new Error('Failed to create payment account');
+        }
+      } catch (error) {
+        await User.findByIdAndDelete(user._id);
+        throw new Error('Failed to create payment account: ' + error.message);
+      }
+    }
+
+    // Create JWT token
+    createToken(res, user._id);
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    console.error("Facebook login error:", error);
+    res.status(401).json({ message: error.message || 'Facebook login failed' });
+  }
+};
+
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", { httpOnly: true, expires: new Date(0) });
   res.status(200).json({ message: "Logged out successfully" });
@@ -345,4 +388,5 @@ export {
   updateUserById,
   loginGoogleUser,
   uploadAvatar,
+  loginFacebookUser,
 };

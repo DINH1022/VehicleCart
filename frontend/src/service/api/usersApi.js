@@ -21,6 +21,18 @@ const usersApi = {
       throw new Error(error.response?.data?.message || "Login google failed");
     }
   },
+  facebookLogin: async (code) => {
+    try {
+      const response = await apiRequest(`${USERS_URL}/auth/facebook?code=${code}`, true, {
+        method: "GET",
+        credentials: 'include'
+      });
+      return response;
+    } catch (error) {
+      console.error("Facebook login error details:", error);
+      throw new Error(error.response?.data?.message || "Login facebook failed");
+    }
+  },
   register: async (data) => {
     try {
       return await apiRequest(`${USERS_URL}`, true, {

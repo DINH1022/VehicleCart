@@ -11,7 +11,6 @@ import {
   updateUserById,
   loginGoogleUser,
   uploadAvatar,
-  loginFacebookUser,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import uploader from "../config/cloudinary.config.js";
@@ -23,7 +22,6 @@ router
   .get(authenticate, authorizeAdmin, getAllUsers);
 router.post("/auth", loginUser);
 router.get("/auth/google", loginGoogleUser);
-router.get("/auth/facebook", loginFacebookUser);
 router.post("/logout", logoutUser);
 router
   .route("/profile")

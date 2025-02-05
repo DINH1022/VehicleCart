@@ -21,11 +21,7 @@ const userSchema = new mongoose.Schema({
         required :true,
         default : false,
     },
-    facebookId: {
-        type: String,
-        sparse: true,
-        unique: true
-    },
+    
 }, 
 {
     timestamps : true,  

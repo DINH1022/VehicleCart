@@ -4,8 +4,7 @@ import { ArrowForward as ArrowIcon } from "@mui/icons-material";
 import ImageSlider from "./ImageSlider";
 import Navigation from "../Auth/Navigation";
 import productApi from "../../service/api/productsApi";
-import usersApi from "../../service/api/usersApi"; // Add this import
-import cartApi from "../../service/api/cartRequest"; // Add this import
+import cartApi from "../../service/api/cartRequest"; 
 import ProductSlider from "./ProductSlider";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
@@ -40,40 +39,6 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
-  useEffect(() => {
-    const handleFacebookLogin = async () => {
-      const params = new URLSearchParams(location.search);
-      const code = params.get('code');
-      
-      if (code) {
-        try {
-          console.log("Attempting Facebook login with code:", code);
-          const response = await usersApi.facebookLogin(code);
-          console.log("Facebook login response:", response);
-          
-          if (response) {
-            sessionStorage.setItem("userData", JSON.stringify(response));
-            const cartData = sessionStorage.getItem("carts");
-            if (cartData) {
-              const carts = JSON.parse(cartData);
-              await cartApi.addItemsToCart(carts);
-              sessionStorage.removeItem("carts");
-            }
-            // Clear the URL parameters
-            window.history.replaceState({}, document.title, "/");
-            // Optionally show success message
-            console.log("Login successful");
-          }
-        } catch (error) {
-          console.error("Facebook login error:", error);
-          // Optionally show error message to user
-          alert("Facebook login failed. Please try again.");
-        }
-      }
-    };
-
-    handleFacebookLogin();
-  }, [location]);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>

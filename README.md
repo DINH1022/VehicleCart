@@ -3,6 +3,8 @@
 ## Overview
 Watch Store is a fully functional e-commerce website designed for selling luxury and casual watches. The platform allows users to browse, search, and purchase watches seamlessly. It includes user authentication, a shopping cart, an order management system, and an admin dashboard for managing products and orders.
 
+## Video Demo
+
 <div align="center">
   <a href="https://www.youtube.com/watch?v=FD64AyCBRSg">
     <img src="https://img.youtube.com/vi/FD64AyCBRSg/0.jpg" alt="Watch Store Demo">
